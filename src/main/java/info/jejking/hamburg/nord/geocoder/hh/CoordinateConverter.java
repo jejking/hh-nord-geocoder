@@ -19,6 +19,7 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
+import java.util.Iterator;
 import java.util.Map;
 
 import org.geotools.geometry.jts.JTS;
@@ -29,7 +30,9 @@ import org.opengis.referencing.crs.CRSAuthorityFactory;
 import org.opengis.referencing.crs.CoordinateReferenceSystem;
 import org.opengis.referencing.operation.MathTransform;
 
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 import com.vividsolutions.jts.io.WKTReader;
 
@@ -56,6 +59,44 @@ public class CoordinateConverter {
     }
     
     /**
+     * Fixes our root node by creating a polygon geometry from union
+     * of the children.
+     * 
+     * @param root
+     * @return
+     */
+    public NamedNode<Polygon> fixRoot(NamedNode<Polygon> root) {
+        
+        Geometry unionOfBoroughs = computeUnionOfBoroughs(root);
+        Polygon boundaryAsPolygon = convertToPolygon(unionOfBoroughs);
+       
+        NamedNode<Polygon> fixedRoot = new NamedNode<Polygon>("Hamburg", GazetteerEntryTypes.CITY, boundaryAsPolygon);
+        fixedRoot.getChildren().putAll(root.getChildren());
+        return fixedRoot;
+    }
+
+    private Polygon convertToPolygon(Geometry unionOfBoroughs) {
+        LinearRing boundaryAsRing = (LinearRing) unionOfBoroughs;
+        
+        GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+        Polygon boundaryAsPolygon = geometryFactory.createPolygon(boundaryAsRing);
+        return boundaryAsPolygon;
+    }
+
+    private Geometry computeUnionOfBoroughs(NamedNode<Polygon> root) {
+        Iterator<NamedNode<Polygon>> iterator = root.getChildren().values().iterator();
+        Geometry unionOfBoroughs = iterator.next().getContent();
+        
+        
+        while (iterator.hasNext()) {
+            unionOfBoroughs = unionOfBoroughs.union(iterator.next().getContent());
+        }
+        
+        unionOfBoroughs = unionOfBoroughs.getBoundary();
+        return unionOfBoroughs;
+    }
+    
+    /**
      * Recursively converts a NamedNode<F> to a NamedNode<T>. Names are retained throughout.
      * @param from from
      * @param conversion the function to apply to the payload
@@ -63,7 +104,7 @@ public class CoordinateConverter {
      */
     public <T, F> NamedNode<T> convert(NamedNode<F> from, Conversion<F, T> conversion) {
         // convert node content itself, keeping the name
-        NamedNode<T> to = new NamedNode<T>(from.getName(), conversion.convert(from.getContent()));
+        NamedNode<T> to = new NamedNode<T>(from.getName(), from.getType(), conversion.convert(from.getContent()));
         
         // apply same conversion to children, they retain the same name
         Map<String, NamedNode<T>> toChildren = to.getChildren();

@@ -21,13 +21,20 @@ package info.jejking.hamburg.nord.geocoder.hh;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
+import info.jejking.hamburg.nord.geocoder.GeographicFunctions;
+
 import java.util.Iterator;
 
+import org.jaitools.jts.CoordinateSequence2D;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
+import org.neo4j.gis.spatial.Layer;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
+import org.neo4j.gis.spatial.SpatialRecord;
+import org.neo4j.gis.spatial.pipes.GeoPipeline;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -38,7 +45,11 @@ import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.io.WKTReader;
 
 /**
  * Tests that the adminstrative polygons are imported 
@@ -52,6 +63,8 @@ public class HamburgPolygonTreeToNeoImporterTest {
     private static GraphDatabaseService graph;
     private static NamedNode<Polygon> polygonHamburg;
     private static ExecutionEngine executionEngine;
+    
+    private static SpatialDatabaseService spatialDatabaseService;
     
     
     private HamburgPolygonTreeToNeoImporter importer = new HamburgPolygonTreeToNeoImporter();
@@ -67,7 +80,9 @@ public class HamburgPolygonTreeToNeoImporterTest {
         
         buildIndexes();
         
+        
         executionEngine = new ExecutionEngine(graph);
+        spatialDatabaseService = new SpatialDatabaseService(graph);
         
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
         NamedNode<String> hh = builder.buildRawTree();
@@ -183,6 +198,39 @@ public class HamburgPolygonTreeToNeoImporterTest {
             assertTrue(found414);
             assertTrue(found415);
         }
+    }
+    
+    @Test
+    public void spatialQueryOneHundredMetresOfLiteraturHausHamburg() {
+        // Literaturhaus is at 53.568118, 10.016442 according to Google Maps
+        Layer administrative = spatialDatabaseService.getLayer(HamburgPolygonTreeToNeoImporter.ADMINISTRATIVE);
+        
+        Point point = new Point(new CoordinateSequence2D(10.016442, 53.568118), administrative.getGeometryFactory());
+        
+        Envelope env = GeographicFunctions.computeEnvelopeAroundPoint(point, 100);
+        try (Transaction tx = graph.beginTx()) {
+            GeoPipeline pipeline = GeoPipeline.startIntersectWindowSearch(administrative, env);
+            for (SpatialRecord record : pipeline) {
+                System.out.println(record);
+            }
+            tx.success();
+        }
+//        Envelope env = new Envelope(p1, p2)
+        
+//        JTS.
+//        
+//        GeoPipeline pipeline;
+//        try (Transaction tx = graph.beginTx()) {
+//            pipeline = GeoPipeline.startNearestNeighborSearch(administrative, point.getCoordinate(), 100)
+//                    .sort("Distance")
+//                    .getMin("Distance");
+//            for (SpatialRecord result : pipeline) {
+//                System.out.println("\tGot search result: " + result);
+//                assertEquals("Did not find the closest", closestGeom.toString(), result.getGeometry().toString());
+//            }
+//            tx.success();
+//        }
+        
     }
 
     

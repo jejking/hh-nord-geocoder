@@ -1,4 +1,22 @@
-package info.jejking.hamburg.nord.geocoder;
+/* 
+ *  Hamburg-Nord Geocoder, by John King.
+ *  Copyright (C) 2014,  John King
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+package info.jejking.hamburg.nord.geocoder.hh;
 
 import static org.junit.Assert.*;
 
@@ -10,7 +28,6 @@ import info.jejking.hamburg.nord.geocoder.hh.CoordinateConverter.PolygonConversi
 import info.jejking.hamburg.nord.geocoder.hh.CoordinateConverter.WktToGeometry;
 import info.jejking.hamburg.nord.geocoder.hh.NamedNode;
 
-import org.junit.Assert;
 import org.junit.Test;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -54,7 +71,9 @@ public class CoordinateConverterTest {
     public void convertRawHamburgData() {
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
         NamedNode<String> rawHamburg = builder.buildRawTree();
+        @SuppressWarnings("unused")
         NamedNode<Polygon> polygonHamburg = new CoordinateConverter().rawToPolygon(rawHamburg);
+        // just runs through to prove it doesn't crash out :)
     }
     
     public static class StringToIntConverter implements CoordinateConverter.Conversion<String, Integer> {
@@ -68,10 +87,10 @@ public class CoordinateConverterTest {
     
     @Test
     public void testRecursiveConversion() {
-        NamedNode<String> root = new NamedNode<String>("root", "0");
-        NamedNode<String> one = new NamedNode<String>("one", "1");
-        NamedNode<String> ten = new NamedNode<String>("ten", "10");
-        NamedNode<String> two = new NamedNode<String>("two", "2");
+        NamedNode<String> root = new NamedNode<String>("root", "foo", "0");
+        NamedNode<String> one = new NamedNode<String>("one", "foo", "1");
+        NamedNode<String> ten = new NamedNode<String>("ten", "foo", "10");
+        NamedNode<String> two = new NamedNode<String>("two","foo", "2");
         
         root.getChildren().put("one", one);
         root.getChildren().put("two", two);
@@ -95,6 +114,15 @@ public class CoordinateConverterTest {
         
         NamedNode<Integer> tenInt = oneInt.getChildren().get("ten");
         assertEquals(10, tenInt.getContent().intValue());
+    }
+    
+    @Test
+    public void fixRootCreatesHamburgPolygon() {
+        HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
+        NamedNode<String> rawHamburg = builder.buildRawTree();
+        NamedNode<Polygon> roughRootPolygonHamburg = new CoordinateConverter().rawToPolygon(rawHamburg);
+        @SuppressWarnings("unused")
+        NamedNode<Polygon> fixedRootPolygonHamburg = new CoordinateConverter().fixRoot(roughRootPolygonHamburg);
     }
 
 }

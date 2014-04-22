@@ -73,7 +73,9 @@ public class HamburgRawTreeBuilder {
      */
     public NamedNode<String> buildRawTree() {
         // root node. We haven't defined a boundary here, as it's not needed for our purposes.
-        NamedNode<String> hamburg = new NamedNode<String>("Hamburg", "");
+        NamedNode<String> hamburg = new NamedNode<String>("Hamburg", 
+                                                           GazetteerEntryTypes.CITY, 
+                                                           "");
         
         addBoroughs(hamburg);
         addNamedAreas(hamburg);
@@ -101,7 +103,7 @@ public class HamburgRawTreeBuilder {
             String id = data.item(i).getTextContent();
             String name = boroughLookUp.getProperty(id);
             String polygon = data.item(i + 1).getTextContent().trim();
-            NamedNode<String> boroughNode = new NamedNode<String>(name, polygon);
+            NamedNode<String> boroughNode = new NamedNode<String>(name, GazetteerEntryTypes.BOROUGH, polygon);
             hamburg.getChildren().put(name, boroughNode);
             
             // nasty workaround needed as wandsbek turns out to have two polygons
@@ -134,7 +136,7 @@ public class HamburgRawTreeBuilder {
             String areaName = normalisePauliAndGeorg(data.item(i + 1).getTextContent());
             String boroughName = data.item(i + 2).getTextContent();
             
-            NamedNode<String> namedAreaNode = new NamedNode<String>(areaName, polygon);
+            NamedNode<String> namedAreaNode = new NamedNode<String>(areaName, GazetteerEntryTypes.NAMED_AREA, polygon);
             NamedNode<String> boroughNode = hamburg.getChildren().get(boroughName);
             boroughNode.getChildren().put(areaName, namedAreaNode);
         }
@@ -188,7 +190,7 @@ public class HamburgRawTreeBuilder {
             String districtNumber = data.item(i + 2).getTextContent();
 
             
-            NamedNode<String> numberedDistrictNode = new NamedNode<String>(districtNumber, polygon);
+            NamedNode<String> numberedDistrictNode = new NamedNode<String>(districtNumber, GazetteerEntryTypes.NUMBERED_DISTRICT, polygon);
             
             // the first digit of the Ortsteil number encodes the borough, you have to know this ;)
             String boroughName = this.boroughLookUp.getProperty(districtNumber.substring(0, 1));

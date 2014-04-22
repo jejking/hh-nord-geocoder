@@ -30,12 +30,14 @@ import java.util.Map;
 public class NamedNode<T> {
 
     private final String name;
+    private final String type;
     private final HashMap<String, NamedNode<T>> children = new HashMap<String, NamedNode<T>>();
     private final T content;
     
-    public NamedNode(String name, T content) {
+    public NamedNode(String name, String type, T content) {
         super();
         this.name = name;
+        this.type = type;
         this.content = content;
     }
 
@@ -52,6 +54,14 @@ public class NamedNode<T> {
      */
     public String getName() {
         return name;
+    }
+    
+    /**
+     * 
+     * @return the type
+     */
+    public String getType() {
+        return type;
     }
     
     /**
@@ -72,6 +82,7 @@ public class NamedNode<T> {
         result = prime * result + ((children == null) ? 0 : children.hashCode());
         result = prime * result + ((content == null) ? 0 : content.hashCode());
         result = prime * result + ((name == null) ? 0 : name.hashCode());
+        result = prime * result + ((type == null) ? 0 : type.hashCode());
         return result;
     }
 
@@ -112,6 +123,13 @@ public class NamedNode<T> {
         } else if (!name.equals(other.name)) {
             return false;
         }
+        if (type == null) {
+            if (other.type != null) {
+                return false;
+            }
+        } else if (!type.equals(other.type)) {
+            return false;
+        }
         return true;
     }
 
@@ -121,8 +139,11 @@ public class NamedNode<T> {
      */
     @Override
     public String toString() {
-        return "NamedNode [name=" + name + ", children=" + children + ", content=" + content + "]";
+        return "NamedNode [name=" + name + ", type=" + type + ", children=" + children + ", content=" + content + "]";
     }
+
+    
+    
         
     
     

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder;
+package info.jejking.hamburg.nord.geocoder.hh;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;

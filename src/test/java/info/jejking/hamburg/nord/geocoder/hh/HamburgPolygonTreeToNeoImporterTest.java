@@ -20,10 +20,10 @@ package info.jejking.hamburg.nord.geocoder.hh;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-
 import info.jejking.hamburg.nord.geocoder.GeographicFunctions;
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.jaitools.jts.CoordinateSequence2D;
 import org.junit.AfterClass;
@@ -66,9 +66,6 @@ public class HamburgPolygonTreeToNeoImporterTest {
     
     private static SpatialDatabaseService spatialDatabaseService;
     
-    
-    private HamburgPolygonTreeToNeoImporter importer = new HamburgPolygonTreeToNeoImporter();
-    
     @BeforeClass
     public static void init() {
         
@@ -87,6 +84,9 @@ public class HamburgPolygonTreeToNeoImporterTest {
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
         NamedNode<String> hh = builder.buildRawTree();
         polygonHamburg = converter.fixRoot(converter.rawToPolygon(hh));
+        
+        HamburgPolygonTreeToNeoImporter importer = new HamburgPolygonTreeToNeoImporter();
+        importer.writeToNeo(polygonHamburg, graph);
     }
     
     private static void buildIndexes() {
@@ -107,11 +107,6 @@ public class HamburgPolygonTreeToNeoImporterTest {
         graph.shutdown();
     }
 
-    @Test
-    public void doesItRunThrough() {
-        this.importer.writeToNeo(polygonHamburg, graph);
-    }
-    
     @Test
     public void isHamburgThere() {
         try (Transaction tx = graph.beginTx()) {
@@ -207,30 +202,33 @@ public class HamburgPolygonTreeToNeoImporterTest {
         
         Point point = new Point(new CoordinateSequence2D(10.016442, 53.568118), administrative.getGeometryFactory());
         
+        
+        // we should find 415, Uhlenhorst, Hamburg-Nord and Hamburg ...
+        boolean found415 = false;
+        boolean foundUhlenhorst = false;
+        boolean foundHamburgNord = false;
+        boolean foundHamburg = false;
+        
         Envelope env = GeographicFunctions.computeEnvelopeAroundPoint(point, 100);
         try (Transaction tx = graph.beginTx()) {
-            GeoPipeline pipeline = GeoPipeline.startIntersectWindowSearch(administrative, env);
-            for (SpatialRecord record : pipeline) {
-                System.out.println(record);
+            List<Node> nodes = GeoPipeline
+            						.startIntersectWindowSearch(administrative, env)
+            						.toNodeList();
+            for (Node node : nodes) {
+                switch ((String) node.getProperty("NAME")) {
+                	case "415" : found415 = true; break;
+                	case "Uhlenhorst" : foundUhlenhorst = true; break;
+                	case "Hamburg-Nord" : foundHamburgNord = true; break;
+                	case "Hamburg" : foundHamburg = true; break;
+                }
             }
             tx.success();
         }
-//        Envelope env = new Envelope(p1, p2)
         
-//        JTS.
-//        
-//        GeoPipeline pipeline;
-//        try (Transaction tx = graph.beginTx()) {
-//            pipeline = GeoPipeline.startNearestNeighborSearch(administrative, point.getCoordinate(), 100)
-//                    .sort("Distance")
-//                    .getMin("Distance");
-//            for (SpatialRecord result : pipeline) {
-//                System.out.println("\tGot search result: " + result);
-//                assertEquals("Did not find the closest", closestGeom.toString(), result.getGeometry().toString());
-//            }
-//            tx.success();
-//        }
-        
+        assertTrue(found415);
+        assertTrue(foundUhlenhorst);
+        assertTrue(foundHamburgNord);
+        assertTrue(foundHamburg);
     }
 
     

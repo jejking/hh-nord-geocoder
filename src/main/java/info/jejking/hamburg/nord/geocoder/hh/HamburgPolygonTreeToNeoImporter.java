@@ -26,8 +26,13 @@ import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.Index;
 
 import com.vividsolutions.jts.geom.Polygon;
+
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.*;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerRelationshipTypes.*;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.*;
 
 /**
  * Class to insert hierarchy of {@link GazetteerEntry} instances
@@ -37,8 +42,6 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class HamburgPolygonTreeToNeoImporter {
 
-    public static final String ADMINISTRATIVE = "ADMINISTRATIVE";
-    
     /**
      * Writes the root node to the graph database, along with all children,
      * constructing the correct node types and relationships.
@@ -51,17 +54,18 @@ public class HamburgPolygonTreeToNeoImporter {
         
         try (Transaction tx = graph.beginTx()) {
             EditableLayer administrative = getEditableLayer(spatialDatabaseService, ADMINISTRATIVE);
-            addAdministrativeNode(administrative, null, root);
+            Index<Node> adminFullText = graph.index().forNodes(ADMINISTRATIVE_FULLTEXT);
+            addAdministrativeNode(administrative, adminFullText, null, root);
             tx.success();
         }
         
         
     }
     
-    private Node addAdministrativeNode(EditableLayer layer, Node neoParent, NamedNode<Polygon> child) {
+    private Node addAdministrativeNode(EditableLayer layer, Index<Node> adminFullText, Node neoParent, NamedNode<Polygon> child) {
         
         // create the child node
-        Node neoChildNode = addNamedNodeToLayer(layer, child);
+        Node neoChildNode = addNamedNodeToLayer(layer, adminFullText, child);
         
         // if parent not null, add hierarchy relationships to the node
         if (neoParent != null) {
@@ -70,23 +74,27 @@ public class HamburgPolygonTreeToNeoImporter {
         
         // recurse down the child's children....
         for (NamedNode<Polygon> childNode : child.getChildren().values()) {
-            addAdministrativeNode(layer, neoChildNode, childNode);
+            addAdministrativeNode(layer, adminFullText, neoChildNode, childNode);
         }
         
         return neoChildNode;
     }
     
     private void createRelationships(Node neoParent, Node neoChildNode) {
-        neoParent.createRelationshipTo(neoChildNode, GazetteerRelationshipTypes.CONTAINS);
-        neoChildNode.createRelationshipTo(neoParent, GazetteerRelationshipTypes.CONTAINED_IN);
+        neoParent.createRelationshipTo(neoChildNode, CONTAINS);
+        neoChildNode.createRelationshipTo(neoParent, CONTAINED_IN);
         
     }
 
-    private Node addNamedNodeToLayer(EditableLayer layer, NamedNode<Polygon> node) {
-        SpatialDatabaseRecord record = layer.add(node.getContent(), new String[]{"NAME"}, new Object[]{node.getName()});
+    private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> adminFullText, NamedNode<Polygon> node) {
+        SpatialDatabaseRecord record = layer.add(node.getContent(), new String[]{NAME}, new Object[]{node.getName()});
         Node neoNode = record.getGeomNode();
         neoNode.addLabel(DynamicLabel.label(node.getType()));
-        neoNode.addLabel(DynamicLabel.label(GazetteerEntryTypes.ADMIN_AREA));
+        neoNode.addLabel(DynamicLabel.label(ADMIN_AREA));
+        
+        adminFullText.add(neoNode, NAME, node.getName());
+        adminFullText.add(neoNode, TYPE, node.getType());
+        
         return neoNode;
     }
     

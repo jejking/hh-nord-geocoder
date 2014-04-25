@@ -19,6 +19,7 @@
 package info.jejking.hamburg.nord.geocoder.hh;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
 import info.jejking.hamburg.nord.geocoder.GeographicFunctions;
 
@@ -33,7 +34,6 @@ import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.gis.spatial.Layer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
-import org.neo4j.gis.spatial.SpatialRecord;
 import org.neo4j.gis.spatial.pipes.GeoPipeline;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicLabel;
@@ -42,17 +42,23 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexHits;
+import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.schema.Schema;
+import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 import com.vividsolutions.jts.geom.Polygon;
-import com.vividsolutions.jts.io.WKTReader;
+
+
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.*;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.*;
 
 /**
- * Tests that the adminstrative polygons are imported 
+ * Tests that the administrative polygons are imported 
  * correctly into the Neo4j database.
  * 
  * @author jejking
@@ -65,6 +71,7 @@ public class HamburgPolygonTreeToNeoImporterTest {
     private static ExecutionEngine executionEngine;
     
     private static SpatialDatabaseService spatialDatabaseService;
+    
     
     @BeforeClass
     public static void init() {
@@ -95,11 +102,21 @@ public class HamburgPolygonTreeToNeoImporterTest {
         try (Transaction tx = graph.beginTx()) {
             Schema schema = graph.schema();
             schema
-                .indexFor(DynamicLabel.label(GazetteerEntryTypes.ADMIN_AREA))
+                .indexFor(DynamicLabel.label(ADMIN_AREA))
                 .on("NAME")
                 .create();
+            
+            
+            IndexManager indexManager = graph.index();
+            @SuppressWarnings("unused")
+            Index<Node> adminFullText = indexManager.forNodes(ADMINISTRATIVE_FULLTEXT,
+                                MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
+                                                  "type", "fulltext"));
+            
             tx.success();
         }
+        
+        
     }
 
     @AfterClass
@@ -114,11 +131,11 @@ public class HamburgPolygonTreeToNeoImporterTest {
             try (ResourceIterator<Node> iterator = graph
                                                     .findNodesByLabelAndProperty(
                                                             DynamicLabel.label(GazetteerEntryTypes.ADMIN_AREA),
-                                                            "NAME", "Hamburg")
+                                                            NAME, "Hamburg")
                                                     .iterator()) {
                 Node hh = iterator.next();
                 
-                assertTrue(hh.hasLabel(DynamicLabel.label(GazetteerEntryTypes.CITY)));
+                assertTrue(hh.hasLabel(DynamicLabel.label(CITY)));
                 
                 int countRels = 0;
                 Iterator<Relationship> hhRels = hh.getRelationships(Direction.OUTGOING, GazetteerRelationshipTypes.CONTAINS).iterator();
@@ -167,11 +184,11 @@ public class HamburgPolygonTreeToNeoImporterTest {
             Node uhlenhorst = boroughNodes.next();
             // is uhlenhorst contained in Nord?
             Node nord1 = uhlenhorst.getSingleRelationship(GazetteerRelationshipTypes.CONTAINED_IN, Direction.OUTGOING).getEndNode();
-            assertEquals("Hamburg-Nord", nord1.getProperty("NAME"));
+            assertEquals("Hamburg-Nord", nord1.getProperty(NAME));
             
             // does Hamburg-Nord contain uhlenhorst?
             Node nord2 = uhlenhorst.getSingleRelationship(GazetteerRelationshipTypes.CONTAINS, Direction.INCOMING).getStartNode();
-            assertEquals("Hamburg-Nord", nord2.getProperty("NAME"));
+            assertEquals("Hamburg-Nord", nord2.getProperty(NAME));
             
             // recall that uhlenhorst has 2 numbered districts, 414 and 415
             Iterator<Relationship> uhlenhorstRels = uhlenhorst.getRelationships(GazetteerRelationshipTypes.CONTAINS, Direction.OUTGOING).iterator();
@@ -182,10 +199,10 @@ public class HamburgPolygonTreeToNeoImporterTest {
             while (uhlenhorstRels.hasNext()) {
                 Node ortsTeil = uhlenhorstRels.next().getEndNode();
                 uhlenhorstRelCount++;
-                if (ortsTeil.getProperty("NAME").equals("414")) {
+                if (ortsTeil.getProperty(NAME).equals("414")) {
                     found414 = true;
                 }
-                if (ortsTeil.getProperty("NAME").equals("415")) {
+                if (ortsTeil.getProperty(NAME).equals("415")) {
                     found415 = true;
                 }
             }
@@ -198,7 +215,7 @@ public class HamburgPolygonTreeToNeoImporterTest {
     @Test
     public void spatialQueryOneHundredMetresOfLiteraturHausHamburg() {
         // Literaturhaus is at 53.568118, 10.016442 according to Google Maps
-        Layer administrative = spatialDatabaseService.getLayer(HamburgPolygonTreeToNeoImporter.ADMINISTRATIVE);
+        Layer administrative = spatialDatabaseService.getLayer(ADMINISTRATIVE);
         
         Point point = new Point(new CoordinateSequence2D(10.016442, 53.568118), administrative.getGeometryFactory());
         
@@ -215,7 +232,7 @@ public class HamburgPolygonTreeToNeoImporterTest {
             						.startIntersectWindowSearch(administrative, env)
             						.toNodeList();
             for (Node node : nodes) {
-                switch ((String) node.getProperty("NAME")) {
+                switch ((String) node.getProperty(NAME)) {
                 	case "415" : found415 = true; break;
                 	case "Uhlenhorst" : foundUhlenhorst = true; break;
                 	case "Hamburg-Nord" : foundHamburgNord = true; break;
@@ -229,6 +246,39 @@ public class HamburgPolygonTreeToNeoImporterTest {
         assertTrue(foundUhlenhorst);
         assertTrue(foundHamburgNord);
         assertTrue(foundHamburg);
+    }
+    
+    @Test
+    public void luceneIndexingWorks() {
+        
+        try (Transaction tx = graph.beginTx()) {
+            // test with get...
+            Index<Node> adminFullText = graph.index().forNodes(ADMINISTRATIVE_FULLTEXT);
+            IndexHits<Node> uhlenhorst = adminFullText.get(NAME, "Uhlenhorst");
+            assertEquals("Uhlenhorst", uhlenhorst.getSingle().getProperty("NAME"));
+            
+            // and something we shouldn't find
+            IndexHits<Node> zehlendorf = adminFullText.get(NAME, "Zehlendorf"); // in Berlin, not HH
+            assertNull(zehlendorf.getSingle());
+            
+            int barmbekCount = 0;
+            boolean foundNord = false;
+            boolean foundSued = false;
+            // test with query, let's try for Barmbek where we have Barmbek-Nord and Barmbek-Süd
+            for (Node barmbek : adminFullText.query(NAME + ":Barmb* AND " + TYPE + ":" + NAMED_AREA)) {
+                barmbekCount++;
+                if (barmbek.getProperty(NAME).equals("Barmbek-Nord")) {
+                    foundNord = true;
+                }
+                if (barmbek.getProperty(NAME).equals("Barmbek-Süd")) {
+                    foundSued = true;
+                }
+            }
+            assertEquals(2, barmbekCount);
+            assertTrue(foundNord);
+            assertTrue(foundSued);
+            tx.success();
+        }
     }
 
     

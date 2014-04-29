@@ -5,3 +5,5 @@ and used under the Datenlizenz Deutschland Namensnennung.
 * bezirke.xml
 * ortsteile.xml
 * stadtteile.xml
+
+All *.osm files are (c) Open Street Map contributors.

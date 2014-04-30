@@ -22,17 +22,33 @@ import static org.junit.Assert.*;
 
 import java.util.Map;
 
+import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
-
+/**
+ * Tests for {@link OsmStreetCollectionBuilder}.
+ * 
+ * @author jejking
+ *
+ */
 public class OsmStreetCollectionBuilderTest {
 
+	private static OsmStreetCollectionBuilder builder;
+	private static Map<String, Geometry> osmWays;
+
+	@BeforeClass
+	public static void init() {
+		builder = new OsmStreetCollectionBuilder();
+        osmWays = builder.buildRawStreetCollection();
+        
+	}
+	
     @Test
     public void assemblesOsmNodes() {
-        OsmStreetCollectionBuilder builder = new OsmStreetCollectionBuilder();
-        builder.buildRawStreetCollection();
         Map<Long, Point> osmNodes = builder.getOsmNodes();
         
         // <node id="122332" lat="53.5390647" lon="10.0322542"/> first node
@@ -46,6 +62,23 @@ public class OsmStreetCollectionBuilderTest {
         Point secondPoint = osmNodes.get(Long.valueOf(2761334954L));
         assertEquals(secondPoint.getX(), 10.0026311, 0.0000001);
         assertEquals(secondPoint.getY(), 53.5454436, 0.0000001);
+    }
+    
+    @Test
+    public void assemblesWays() {
+    	// Itzehoer Weg
+    	Geometry itzehoerWeg = osmWays.get("Itzehoer Weg");
+    	assertNotNull(itzehoerWeg);
+    	System.out.println("Itzehoer Weg: " + itzehoerWeg.toText());
+    	
+    	// Mundsburger Damm
+    	Geometry mundsburgerDamm = osmWays.get("Mundsburger Damm");
+    	assertNotNull(mundsburgerDamm);
+    	System.out.println("Mundsburger Damm " + mundsburgerDamm.toText());
+    	
+    	// Foostraße
+    	Geometry fooStrasse = osmWays.get("Foostraße");
+    	assertNull(fooStrasse);
     }
 
 }

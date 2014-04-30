@@ -18,34 +18,24 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.stream.FactoryConfigurationError;
+import javax.xml.namespace.QName;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
+import javax.xml.stream.events.StartElement;
+import javax.xml.stream.events.XMLEvent;
 
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.w3c.dom.Attr;
-import org.w3c.dom.Document;
-import org.w3c.dom.NamedNodeMap;
-import org.w3c.dom.Node;
-import org.w3c.dom.NodeList;
-import org.xml.sax.Attributes;
-import org.xml.sax.SAXException;
-import org.xml.sax.helpers.DefaultHandler;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
 
 /**
@@ -61,56 +51,16 @@ public class OsmStreetCollectionBuilder {
     
     public Map<String, Geometry> buildRawStreetCollection() {
     
-        Document streetsDocument = loadDocument();
-        buildOsmNodes(streetsDocument);
-        
+        parseFile();
         return this.osmNamedStreets;
     }
 
-    
-    
-    
-
-    private void buildOsmNodes(Document streetsDocument) {
-        NodeList osmNodeList = streetsDocument.getElementsByTagName("node");
-        for (int i = 0; i < osmNodeList.getLength(); i++) {
-            Node osmNode = osmNodeList.item(i);
-            NamedNodeMap attrs = osmNode.getAttributes();
-            Long osmId = Long.parseLong(((Attr)attrs.getNamedItem("id")).getValue());
-            double lat = Double.parseDouble(((Attr)attrs.getNamedItem("lat")).getValue());
-            double lon = Double.parseDouble(((Attr)attrs.getNamedItem("lon")).getValue());
-            
-            Point prev = this.osmNodes.put(osmId, buildPoint(lat, lon));
-            if (prev != null) {
-                System.err.println("unexpected duplicate osm node: " + osmId);
-            }
-            
-        }
-    }
     
     private Point buildPoint(double lat, double lon) {
         
         return geometryFactory.createPoint(new Coordinate(lon, lat));
     }
 
-
-    private Document loadDocument() {
-        
-        DocumentBuilderFactory documentBuilderFactory = DocumentBuilderFactory.newInstance();
-        documentBuilderFactory.setValidating(false);
-        
-        DocumentBuilder documentBuilder;
-        try {
-            documentBuilder = documentBuilderFactory.newDocumentBuilder();
-            Document doc = documentBuilder.parse(OsmStreetCollectionBuilder.class.getResourceAsStream("/highwaysNoVersionsNoRelationsWithNamesOnly.osm"));
-            return doc;    
-        } catch (ParserConfigurationException | SAXException | IOException e) {
-            throw new RuntimeException(e);
-        }
-        
-    }
-    
-    
     Map<Long, Point> getOsmNodes() {
         return this.osmNodes;
     }
@@ -118,15 +68,136 @@ public class OsmStreetCollectionBuilder {
     
     private void parseFile() {
         XMLInputFactory f = XMLInputFactory.newInstance();
+        
         try {
             XMLEventReader eventReader = f.createXMLEventReader(OsmStreetCollectionBuilder.class.getResourceAsStream("/highwaysNoVersionsNoRelationsWithNamesOnly.osm"));
-            
+            while (eventReader.hasNext()) {
+            	if (eventReader.peek().isEndDocument()) {
+            		break;
+            	}
+            	XMLEvent xmlEvent = eventReader.nextTag();
+            	if (xmlEvent.isStartElement()) {
+            		StartElement startElement = xmlEvent.asStartElement();
+                	String elementName = startElement.getName().getLocalPart();
+                	switch (elementName) {
+                		case "node" : handleNodeElement(startElement, eventReader);
+                						break;
+                		case "way" : handleWayElement(startElement, eventReader);
+                						break;
+                	    default: continue;
+                	}
+            	} else {
+            		continue;
+            	}
+            	
+            }
             
         } catch (XMLStreamException e) {
-            // TODO Auto-generated catch block
-            e.printStackTrace();
+            throw new RuntimeException(e);
         }
     }
+
+	private void handleWayElement(StartElement startElement, XMLEventReader eventReader) {
+		try {
+			List<Long> ndList = new ArrayList<>();
+			String name = null;
+			// expect set of nd elements, then tag elements
+			XMLEvent xmlEvent = null;
+			do {
+				xmlEvent = eventReader.nextTag();
+				if (xmlEvent.isStartElement()) {
+					StartElement el = xmlEvent.asStartElement();
+					switch(el.getName().getLocalPart()) {
+						case "nd" : handleNdElement(ndList, el);
+										break;
+						case "tag" : if (name == null) name = handleTagELement(el);
+										break;
+						default: continue;
+					}
+					
+				}
+				
+			} while (!xmlEvent.isEndElement()
+					|| (xmlEvent.isEndElement() && !xmlEvent.asEndElement()
+							.getName().getLocalPart().equals("way")));
+			
+			handleWay(ndList, name);
+			
+		} catch (XMLStreamException e) {
+			throw new RuntimeException(e);
+		}
+		
+	}
+
+
+	private void handleWay(List<Long> ndList, String name) {
+		LineString wayLineString = buildLineString(ndList, name);
+		
+		if (this.osmNamedStreets.containsKey(name)) {
+			
+			this.osmNamedStreets.put(name, wayLineString.union(this.osmNamedStreets.get(name)));
+		} else {
+			this.osmNamedStreets.put(name, wayLineString);
+		}
+	}
+
+
+	private LineString buildLineString(List<Long> ndList, String name) {
+		List<Point> pointList = new ArrayList<>(ndList.size());
+		for (Long osmId : ndList) {
+			Point point = this.osmNodes.get(osmId);
+			if (point != null) {
+				pointList.add(point);
+			}
+		}
+		
+		// create a line string from the nodes....
+		Coordinate[] coordinates = new Coordinate[pointList.size()];
+		
+		for (int i = 0; i < pointList.size(); i++) {
+			coordinates[i] = pointList.get(i).getCoordinate();
+		}
+		if (coordinates.length == 1) {
+			System.err.println("Only one node for way: " + name);
+		}
+		return this.geometryFactory.createLineString(coordinates);
+	}
+
+
+	private String handleTagELement(StartElement el) {
+		if (el.getAttributeByName(new QName("k")).getValue().equals("name")) {
+			return el.getAttributeByName(new QName("v")).getValue();
+		} else {
+			return null;
+		}
+	}
+
+
+	private void handleNdElement(List<Long> ndList, StartElement el) {
+		ndList.add(Long.parseLong(el.getAttributeByName(new QName("ref")).getValue()));
+	}
+
+	private void handleNodeElement(StartElement startElement, XMLEventReader eventReader) {
+		
+		Long osmId = Long.valueOf(startElement.getAttributeByName(new QName("id")).getValue());
+		
+		double lat = Double.parseDouble(startElement.getAttributeByName(new QName("lat")).getValue());
+        double lon = Double.parseDouble(startElement.getAttributeByName(new QName("lon")).getValue());
+        
+        Point prev = this.osmNodes.put(osmId, buildPoint(lat, lon));
+        if (prev != null) {
+            System.err.println("unexpected duplicate osm node: " + osmId);
+        }
+        
+        try {
+			while(!eventReader.peek().isEndElement() || (eventReader.peek().isEndElement() && !eventReader.peek().asEndElement().getName().getLocalPart().equals("node"))) {
+				eventReader.nextEvent();
+			}
+		} catch (XMLStreamException e) {
+			throw new RuntimeException(e);
+		}
+
+	}
     
     
     

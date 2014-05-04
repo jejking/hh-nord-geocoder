@@ -31,10 +31,14 @@ package info.jejking.hamburg.nord.geocoder.hh;
  */
 public interface GazetteerEntryTypes {
 
+    public static final String GAZETTEER = "GAZETTEER";
+    
     public static final String ADMIN_AREA = "ADMIN_AREA";
     public static final String CITY = "CITY";
     public static final String BOROUGH = "BOROUGH";
     public static final String NAMED_AREA = "NAMED_AREA";
     public static final String NUMBERED_DISTRICT = "NUMBERED_DISTRICT";
+    
+    public static final String STREET = "STREET";
     
 }

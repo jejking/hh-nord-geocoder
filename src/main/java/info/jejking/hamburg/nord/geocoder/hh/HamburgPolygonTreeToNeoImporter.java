@@ -54,18 +54,18 @@ public class HamburgPolygonTreeToNeoImporter {
         
         try (Transaction tx = graph.beginTx()) {
             EditableLayer administrative = getEditableLayer(spatialDatabaseService, ADMINISTRATIVE);
-            Index<Node> adminFullText = graph.index().forNodes(ADMINISTRATIVE_FULLTEXT);
-            addAdministrativeNode(administrative, adminFullText, null, root);
+            Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
+            addAdministrativeNode(administrative, fullText, null, root);
             tx.success();
         }
         
         
     }
     
-    private Node addAdministrativeNode(EditableLayer layer, Index<Node> adminFullText, Node neoParent, NamedNode<Polygon> child) {
+    private Node addAdministrativeNode(EditableLayer layer, Index<Node> fullText, Node neoParent, NamedNode<Polygon> child) {
         
         // create the child node
-        Node neoChildNode = addNamedNodeToLayer(layer, adminFullText, child);
+        Node neoChildNode = addNamedNodeToLayer(layer, fullText, child);
         
         // if parent not null, add hierarchy relationships to the node
         if (neoParent != null) {
@@ -74,7 +74,7 @@ public class HamburgPolygonTreeToNeoImporter {
         
         // recurse down the child's children....
         for (NamedNode<Polygon> childNode : child.getChildren().values()) {
-            addAdministrativeNode(layer, adminFullText, neoChildNode, childNode);
+            addAdministrativeNode(layer, fullText, neoChildNode, childNode);
         }
         
         return neoChildNode;
@@ -86,14 +86,14 @@ public class HamburgPolygonTreeToNeoImporter {
         
     }
 
-    private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> adminFullText, NamedNode<Polygon> node) {
+    private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> fullText, NamedNode<Polygon> node) {
         SpatialDatabaseRecord record = layer.add(node.getContent(), new String[]{NAME}, new Object[]{node.getName()});
         Node neoNode = record.getGeomNode();
         neoNode.addLabel(DynamicLabel.label(node.getType()));
         neoNode.addLabel(DynamicLabel.label(ADMIN_AREA));
         
-        adminFullText.add(neoNode, NAME, node.getName());
-        adminFullText.add(neoNode, TYPE, node.getType());
+        fullText.add(neoNode, NAME, node.getName());
+        fullText.add(neoNode, TYPE, node.getType());
         
         return neoNode;
     }

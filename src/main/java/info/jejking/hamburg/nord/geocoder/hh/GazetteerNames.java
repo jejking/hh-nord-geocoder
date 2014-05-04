@@ -31,5 +31,7 @@ public interface GazetteerNames {
     public static final String TYPE = "TYPE";
     
     public static final String ADMINISTRATIVE = "ADMINISTRATIVE";
-    public static final String ADMINISTRATIVE_FULLTEXT = GazetteerEntryTypes.ADMIN_AREA + "-fulltext";
+    public static final String GAZETTEER_FULLTEXT = GazetteerEntryTypes.ADMIN_AREA + "-fulltext";
+    
+   
 }

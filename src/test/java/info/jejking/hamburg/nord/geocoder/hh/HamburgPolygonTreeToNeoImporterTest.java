@@ -109,7 +109,7 @@ public class HamburgPolygonTreeToNeoImporterTest {
             
             IndexManager indexManager = graph.index();
             @SuppressWarnings("unused")
-            Index<Node> adminFullText = indexManager.forNodes(ADMINISTRATIVE_FULLTEXT,
+            Index<Node> adminFullText = indexManager.forNodes(GAZETTEER_FULLTEXT,
                                 MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
                                                   "type", "fulltext"));
             
@@ -253,7 +253,7 @@ public class HamburgPolygonTreeToNeoImporterTest {
         
         try (Transaction tx = graph.beginTx()) {
             // test with get...
-            Index<Node> adminFullText = graph.index().forNodes(ADMINISTRATIVE_FULLTEXT);
+            Index<Node> adminFullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
             IndexHits<Node> uhlenhorst = adminFullText.get(NAME, "Uhlenhorst");
             assertEquals("Uhlenhorst", uhlenhorst.getSingle().getProperty("NAME"));
             

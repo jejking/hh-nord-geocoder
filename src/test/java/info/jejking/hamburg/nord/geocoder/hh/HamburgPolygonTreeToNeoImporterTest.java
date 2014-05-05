@@ -18,6 +18,12 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.CITY;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.NAMED_AREA;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.ADMINISTRATIVE_LAYER;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.GAZETTEER_FULLTEXT;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.NAME;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -44,18 +50,9 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
 import org.neo4j.graphdb.index.IndexHits;
-import org.neo4j.graphdb.index.IndexManager;
-import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.helpers.collection.MapUtil;
-import org.neo4j.test.TestGraphDatabaseFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
-import com.vividsolutions.jts.geom.Polygon;
-
-
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.*;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.*;
 
 /**
  * Tests that the administrative polygons are imported 
@@ -67,7 +64,6 @@ import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.*;
 public class HamburgPolygonTreeToNeoImporterTest {
 
     private static GraphDatabaseService graph;
-    private static NamedNode<Polygon> polygonHamburg;
     private static ExecutionEngine executionEngine;
     
     private static SpatialDatabaseService spatialDatabaseService;
@@ -76,49 +72,14 @@ public class HamburgPolygonTreeToNeoImporterTest {
     @BeforeClass
     public static void init() {
         
-        CoordinateConverter converter = new CoordinateConverter();
-        
-        graph = new TestGraphDatabaseFactory()
-                    .newImpermanentDatabaseBuilder()
-                    .newGraphDatabase();
-        
-        buildIndexes();
-        
+        graph = TestUtil.createTestDatabase();
         
         executionEngine = new ExecutionEngine(graph);
         spatialDatabaseService = new SpatialDatabaseService(graph);
         
-        HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
-        NamedNode<String> hh = builder.buildRawTree();
-        polygonHamburg = converter.fixRoot(converter.rawToPolygon(hh));
-        
-        HamburgPolygonTreeToNeoImporter importer = new HamburgPolygonTreeToNeoImporter();
-        importer.writeToNeo(polygonHamburg, graph);
+        TestUtil.writeHamburgPolygonsToGraph(graph);
     }
     
-    private static void buildIndexes() {
-        
-        // we want an additional index on adminstrative area - name
-        try (Transaction tx = graph.beginTx()) {
-            Schema schema = graph.schema();
-            schema
-                .indexFor(DynamicLabel.label(ADMIN_AREA))
-                .on("NAME")
-                .create();
-            
-            
-            IndexManager indexManager = graph.index();
-            @SuppressWarnings("unused")
-            Index<Node> adminFullText = indexManager.forNodes(GAZETTEER_FULLTEXT,
-                                MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
-                                                  "type", "fulltext"));
-            
-            tx.success();
-        }
-        
-        
-    }
-
     @AfterClass
     public static void tearDown() {
         graph.shutdown();
@@ -215,7 +176,7 @@ public class HamburgPolygonTreeToNeoImporterTest {
     @Test
     public void spatialQueryOneHundredMetresOfLiteraturHausHamburg() {
         // Literaturhaus is at 53.568118, 10.016442 according to Google Maps
-        Layer administrative = spatialDatabaseService.getLayer(ADMINISTRATIVE);
+        Layer administrative = spatialDatabaseService.getLayer(ADMINISTRATIVE_LAYER);
         
         Point point = new Point(new CoordinateSequence2D(10.016442, 53.568118), administrative.getGeometryFactory());
         

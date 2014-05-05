@@ -30,7 +30,9 @@ public interface GazetteerNames {
     public static final String NAME = "NAME";
     public static final String TYPE = "TYPE";
     
-    public static final String ADMINISTRATIVE = "ADMINISTRATIVE";
+    public static final String ADMINISTRATIVE_LAYER = "ADMINISTRATIVE_LAYER";
+    public static final String STREET_LAYER = "STREET_LAYER";
+    
     public static final String GAZETTEER_FULLTEXT = GazetteerEntryTypes.ADMIN_AREA + "-fulltext";
     
    

@@ -53,7 +53,7 @@ public class HamburgPolygonTreeToNeoImporter {
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         
         try (Transaction tx = graph.beginTx()) {
-            EditableLayer administrative = getEditableLayer(spatialDatabaseService, ADMINISTRATIVE);
+            EditableLayer administrative = getEditableLayer(spatialDatabaseService, ADMINISTRATIVE_LAYER);
             Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
             addAdministrativeNode(administrative, fullText, null, root);
             tx.success();

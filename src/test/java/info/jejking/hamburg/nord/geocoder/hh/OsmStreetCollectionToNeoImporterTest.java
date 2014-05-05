@@ -22,13 +22,13 @@ import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.STREET;
 import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.GAZETTEER_FULLTEXT;
 import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.NAME;
 import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.TYPE;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.STREET_LAYER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import info.jejking.hamburg.nord.geocoder.GeographicFunctions;
 
 import java.util.List;
-import java.util.Map;
 
 import org.jaitools.jts.CoordinateSequence2D;
 import org.junit.AfterClass;
@@ -43,13 +43,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.index.IndexManager;
-import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.helpers.collection.MapUtil;
-import org.neo4j.test.TestGraphDatabaseFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
 
@@ -58,23 +53,13 @@ public class OsmStreetCollectionToNeoImporterTest {
     private static GraphDatabaseService graph;
     private static SpatialDatabaseService spatialDatabaseService;
     
-    private static Map<String, Geometry> streets;
-    
     @BeforeClass
     public static void init() {
         
-        graph = new TestGraphDatabaseFactory()
-                    .newImpermanentDatabaseBuilder()
-                    .newGraphDatabase();
-        
-        buildIndexes();
+        graph = TestUtil.createTestDatabase();
         spatialDatabaseService = new SpatialDatabaseService(graph);
         
-        OsmStreetCollectionBuilder builder = new OsmStreetCollectionBuilder();
-        streets = builder.buildRawStreetCollection();
-        
-        OsmStreetCollectionToNeoImporter importer = new OsmStreetCollectionToNeoImporter();
-        importer.writeNoNeo(streets, graph);
+        TestUtil.writeOsmStreetsToGraph(graph);
         
     }
     
@@ -138,7 +123,7 @@ public class OsmStreetCollectionToNeoImporterTest {
     
     @Test
     public void spatialQuery() {
-        Layer streets = spatialDatabaseService.getLayer(STREET);
+        Layer streets = spatialDatabaseService.getLayer(STREET_LAYER);
         // bus stop Mundsburger Brücke stadtauswärts (37, 172)
         Point point = new Point(new CoordinateSequence2D(10.0206119, 53.5660032), streets.getGeometryFactory());
         
@@ -174,28 +159,7 @@ public class OsmStreetCollectionToNeoImporterTest {
         
     }
     
-    private static void buildIndexes() {
-        
-        // we want an additional index on adminstrative area - name
-        try (Transaction tx = graph.beginTx()) {
-            Schema schema = graph.schema();
-            schema
-                .indexFor(DynamicLabel.label(STREET))
-                .on("NAME")
-                .create();
-            
-            
-            IndexManager indexManager = graph.index();
-            @SuppressWarnings("unused")
-            Index<Node> fullText = indexManager.forNodes(GAZETTEER_FULLTEXT,
-                                MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
-                                                  "type", "fulltext"));
-            
-            tx.success();
-        }
-        
-        
-    }
+    
 
     @AfterClass
     public static void tearDown() {

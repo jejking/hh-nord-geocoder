@@ -18,10 +18,11 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.ADMINISTRATIVE;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.NAME;
 import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.STREET;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.ADMINISTRATIVE_LAYER;
 import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.GAZETTEER_FULLTEXT;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.NAME;
+import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.STREET_LAYER;
 import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.TYPE;
 
 import java.util.Map;
@@ -50,12 +51,12 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class OsmStreetCollectionToNeoImporter {
 
-    public void writeNoNeo(Map<String, Geometry> streets, GraphDatabaseService graph) {
+    public void writeToNeo(Map<String, Geometry> streets, GraphDatabaseService graph) {
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         
         try (Transaction tx = graph.beginTx()) {
-            EditableLayer adminLayer = getEditableLayer(spatialDatabaseService, ADMINISTRATIVE);
-            EditableLayer streetLayer = getEditableLayer(spatialDatabaseService, STREET);
+            EditableLayer adminLayer = getEditableLayer(spatialDatabaseService, ADMINISTRATIVE_LAYER);
+            EditableLayer streetLayer = getEditableLayer(spatialDatabaseService, STREET_LAYER);
             Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
             
             for (Entry<String, Geometry> entry : streets.entrySet()) {
@@ -75,14 +76,20 @@ public class OsmStreetCollectionToNeoImporter {
         fullText.add(neoNode, NAME, name);
         fullText.add(neoNode, TYPE, STREET);
         
-        // next, try and put the street record in relationship to a containing admin polygon
-        
     }
 
     private EditableLayer getEditableLayer(SpatialDatabaseService spatialDatabaseService, String name) {
-        EditableLayer layer = (EditableLayer) spatialDatabaseService.createWKBLayer(name);
-        layer.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-        return layer;
+        
+        EditableLayer editableLayer = (EditableLayer) spatialDatabaseService.getLayer(name);
+        if (editableLayer != null) {
+            return editableLayer;
+        } else {
+            editableLayer = (EditableLayer) spatialDatabaseService.createWKBLayer(name);
+            editableLayer.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
+            return editableLayer;
+        }
+        
+        
     }
     
 }

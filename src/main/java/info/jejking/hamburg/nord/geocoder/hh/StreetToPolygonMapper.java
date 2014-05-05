@@ -74,25 +74,18 @@ public class StreetToPolygonMapper {
                 Geometry geometry = encoder.decodeGeometry(streetNode);
                 
                 List<Node> numberedDistrictNodes = GeoPipeline
-                        .startContainSearch(adminLayer, geometry)
+                        .startIntersectSearch(adminLayer, geometry)
                         .addPipe(new FilterTopLevelPolygons())
                         .toNodeList();
                 
-                
-                if (streetNode.getProperty("NAME").equals("Peterstraße")) {
-                    System.out.println("Handling Peterstraße");
-                }
-                
                 for (Node numberedDistrict : numberedDistrictNodes) {
                     
-                    if (streetNode.getProperty("NAME").equals("Peterstraße")) {
+                    if (streetNode.getProperty("NAME").equals("Schwanenwik")) {
                         System.out.println("mapped street " + streetNode.getProperty("NAME") + " to district " + numberedDistrict.getProperty("NAME"));
                     }
                     
                     numberedDistrict.createRelationshipTo(streetNode, CONTAINS);
                     streetNode.createRelationshipTo(numberedDistrict, CONTAINED_IN);
-                    
-                    
                     
                 }
                 

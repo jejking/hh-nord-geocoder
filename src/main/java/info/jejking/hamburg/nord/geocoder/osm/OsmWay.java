@@ -19,9 +19,11 @@
  */
 package info.jejking.hamburg.nord.geocoder.osm;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Value class representing an Open Street Map <code>way</code>, but
@@ -30,109 +32,33 @@ import java.util.Map;
  * @author jejking
  *
  */
-public final class OsmWay {
+public final class OsmWay extends OsmComponent {
 
-    private final long id;
-    private final List<OsmNode> nodes;
-    private final Map<String, String> properties;
-    
+    private final ImmutableList<Long> ndRefs;
+
     /**
-     * Constructs value object.
+     * Constructor. No property may be null - if not present, use {@link Optional#absent()}.
      * 
-     * @param id
-     * @param nodeRefs
+     * @param metadata
      * @param properties
+     * @param ndRefs values of <tt>ref</tt> attributes of <tt>nd</tt> elements
+     * @throws NullPointerException if any parameter is <code>null</code>
      */
-    public OsmWay(long id, List<OsmNode> nodes, Map<String, String> properties) {
-        super();
-        this.id = id;
-        this.nodes = Collections.unmodifiableList(nodes);
-        this.properties = Collections.unmodifiableMap(properties);
+    public OsmWay(OsmMetadata metadata, ImmutableMap<String, String> properties, 
+            ImmutableList<Long> ndRefs) {
+        super(metadata, properties);
+        this.ndRefs = checkNotNull(ndRefs);
     }
 
     
     /**
-     * @return the id
+     * @return the ndRefs
      */
-    public long getId() {
-        return id;
-    }
-
-    
-    /**
-     * @return the nodes
-     */
-    public List<OsmNode> getNodes() {
-        return nodes;
-    }
-
-    
-    /**
-     * @return the properties
-     */
-    public Map<String, String> getProperties() {
-        return properties;
+    public ImmutableList<Long> getNdRefs() {
+        return ndRefs;
     }
 
 
-    /* (non-Javadoc)
-     * @see java.lang.Object#hashCode()
-     */
-    @Override
-    public int hashCode() {
-        final int prime = 31;
-        int result = 1;
-        result = prime * result + (int) (id ^ (id >>> 32));
-        result = prime * result + ((nodes == null) ? 0 : nodes.hashCode());
-        result = prime * result + ((properties == null) ? 0 : properties.hashCode());
-        return result;
-    }
-
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#equals(java.lang.Object)
-     */
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (obj == null) {
-            return false;
-        }
-        if (!(obj instanceof OsmWay)) {
-            return false;
-        }
-        OsmWay other = (OsmWay) obj;
-        if (id != other.id) {
-            return false;
-        }
-        if (nodes == null) {
-            if (other.nodes != null) {
-                return false;
-            }
-        } else if (!nodes.equals(other.nodes)) {
-            return false;
-        }
-        if (properties == null) {
-            if (other.properties != null) {
-                return false;
-            }
-        } else if (!properties.equals(other.properties)) {
-            return false;
-        }
-        return true;
-    }
-
-
-    /* (non-Javadoc)
-     * @see java.lang.Object#toString()
-     */
-    @Override
-    public String toString() {
-        return "OsmWay [id=" + id + ", nodes=" + nodes + ", properties=" + properties + "]";
-    }
-    
     
     
 }

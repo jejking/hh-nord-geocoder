@@ -19,43 +19,30 @@
  */
 package info.jejking.hamburg.nord.geocoder.osm;
 
-import static com.google.common.base.Preconditions.checkNotNull;
-
-import com.google.common.collect.ImmutableMap;
-import com.vividsolutions.jts.geom.Point;
-
 /**
- * Value class to represent an Open Street Map node.
+ * Subscriber to an event stream from an {@link SimpleObserver}.
  * 
  * @author jejking
  *
+ * @param <T>
  */
-public final class OsmNode extends OsmComponent {
-
-    private final Point point;
-    
-    /**
-     * Constructor. No argument may be <code>null</code>.
-     * 
-     * @param metadata metadata
-     * @param properties properties
-     * @param point geometry constructed from the <tt>lat</tt> and <tt>lon</tt> attributes
-     * @throws NullPointerException if any argument is <code>null</code>
-     */
-    public OsmNode(OsmMetadata metadata, ImmutableMap<String, String> properties, Point point) {
-        super(metadata, properties);
-        this.point = checkNotNull(point);
-    }
-
-
+public interface SimpleObserver<T> {
 
     /**
-     * @return the point
+     * Notifies of next event.
+     * @param value
      */
-    public Point getPoint() {
-        return point;
-    }
-
+    void onNext(T value);
     
+    /**
+     * Notifies of error reading from stream.
+     * @param e
+     */
+    void onError(Exception e);
+    
+    /**
+     * Notifies that stream is empty.
+     */
+    void onCompleted();
     
 }

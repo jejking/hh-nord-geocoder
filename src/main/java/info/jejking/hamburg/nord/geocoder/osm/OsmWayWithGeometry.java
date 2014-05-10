@@ -25,7 +25,13 @@ import java.util.Map;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Point;
 
-
+/**
+ * Class that enhances a {@link OsmWay} with a {@link Geometry}
+ * and some related operations.
+ * 
+ * @author jejking
+ *
+ */
 public class OsmWayWithGeometry {
 
     private final OsmWay way;
@@ -54,13 +60,13 @@ public class OsmWayWithGeometry {
         return way.getId();
     }
 
-    /**
-     * @return
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmWay#getNodes()
-     */
-    public List<OsmNode> getNodes() {
-        return way.getNodes();
-    }
+//    /**
+//     * @return
+//     * @see info.jejking.hamburg.nord.geocoder.osm.OsmWay#getNodes()
+//     */
+//    public List<OsmNode> getNodes() {
+//        return way.getNodes();
+//    }
 
     /**
      * @return

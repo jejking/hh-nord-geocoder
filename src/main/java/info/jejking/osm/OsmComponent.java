@@ -17,7 +17,7 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
 import org.joda.time.DateTime;
 
@@ -43,7 +43,7 @@ public abstract class OsmComponent implements OsmMetadata, OsmProperties {
 
     /**
      * @return
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getId()
+     * @see info.jejking.osm.OsmMetadata#getId()
      */
     public final Long getId() {
         return metadata.getId();
@@ -51,7 +51,7 @@ public abstract class OsmComponent implements OsmMetadata, OsmProperties {
 
     /**
      * @return
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getTimestamp()
+     * @see info.jejking.osm.OsmMetadata#getTimestamp()
      */
     public final Optional<DateTime> getTimestamp() {
         return metadata.getTimestamp();
@@ -59,7 +59,7 @@ public abstract class OsmComponent implements OsmMetadata, OsmProperties {
 
     /**
      * @return
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getChangeset()
+     * @see info.jejking.osm.OsmMetadata#getChangeset()
      */
     public final Optional<Long> getChangeset() {
         return metadata.getChangeset();
@@ -67,7 +67,7 @@ public abstract class OsmComponent implements OsmMetadata, OsmProperties {
 
     /**
      * @return
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getUid()
+     * @see info.jejking.osm.OsmMetadata#getUid()
      */
     public final Optional<Long> getUid() {
         return metadata.getUid();
@@ -75,12 +75,15 @@ public abstract class OsmComponent implements OsmMetadata, OsmProperties {
 
     /**
      * @return
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getUser()
+     * @see info.jejking.osm.OsmMetadata#getUser()
      */
     public final Optional<String> getUser() {
         return metadata.getUser();
     }
 
-    
+    @Override
+    public final Optional<Long> getVersion() {
+        return metadata.getVersion();
+    }
     
 }

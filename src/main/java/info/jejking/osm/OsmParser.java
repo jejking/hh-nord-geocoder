@@ -17,10 +17,10 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
-import info.jejking.hamburg.nord.geocoder.osm.OsmRelation.Member;
-import info.jejking.hamburg.nord.geocoder.osm.OsmRelation.Member.MemberType;
+import info.jejking.osm.OsmRelation.Member;
+import info.jejking.osm.OsmRelation.Member.MemberType;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -39,6 +39,9 @@ import javax.xml.stream.events.XMLEvent;
 
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.joda.time.DateTime;
+import org.joda.time.DateTimeZone;
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.joda.time.format.ISODateTimeFormat;
 
 import com.google.common.base.Function;
@@ -65,6 +68,7 @@ import com.vividsolutions.jts.geom.Point;
  * @author jejking
  *
  */
+@SuppressWarnings("unused")
 public class OsmParser  {
 
     private final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
@@ -201,8 +205,23 @@ public class OsmParser  {
         }
     }
     
+    /**
+     * Gathers together functionality to build an iterator of higher level types
+     * out of an xml event stream.
+     *  
+     * @param <T>
+     */
     private static abstract class XmlEventAbstractIterator<T> extends AbstractIterator<T> {
         
+        
+        private static final class StringToDateTime implements Function<String, DateTime> {
+          //    2014-05-14T14:12:39Z
+            private static final DateTimeFormatter dateTimeFormat = DateTimeFormat.forPattern("yyyy-MM-dd'T'HH:mm:ssZ");
+            public DateTime apply(String in) {
+                return dateTimeFormat.parseDateTime(in).withZone(DateTimeZone.UTC);
+            }
+        }
+
         private static final class StringToLong implements Function<String, Long> {
 
             public Long apply(String in) {
@@ -211,6 +230,7 @@ public class OsmParser  {
         }
 
         protected static final StringToLong stringToLong = new StringToLong();
+        protected static final StringToDateTime stringToDateTime = new StringToDateTime();
         
         protected static final QName id = new QName("id");
         protected static final QName version = new QName("version");
@@ -225,13 +245,32 @@ public class OsmParser  {
         protected final String elementName;
         
         
-        
+        /**
+         * Constructor. The assumption is that a given type is associated with
+         * an element of a given name which must be supplied so that the xml
+         * event reader can be used by subclasses to build the type up from the underlying
+         * events. The iterator keeps on returning type instances whilst elements
+         * of the supplied name can be read from the event stream. If the next element
+         * is named differently, or is the end of the document, then the iteration
+         * is completed.
+         * 
+         * @param xmlEventReader
+         * @param elementName
+         */
         public XmlEventAbstractIterator(XMLEventReader xmlEventReader, String elementName) {
             this.xmlEventReader = xmlEventReader;
             this.elementName = elementName;
         }
         
-        private boolean nextElementIs(String elementName) {
+        /**
+         * Looks forward in the event stream - and checks if the next event (which should
+         * be a start element) has the same name as was supplied to the iterator in
+         * its constructor.
+         * 
+         * @param elementName
+         * @return <code>true</code> if next element has same name, else <code>false</code>
+         */
+        private boolean nextElementHasSameName() {
             try {
                 if (xmlEventReader.peek() != null && xmlEventReader.peek().isStartElement()) {
                     StartElement startElement = xmlEventReader.peek().asStartElement();
@@ -245,6 +284,15 @@ public class OsmParser  {
             return false;
         }
         
+        /**
+         * Gets the value of the attribute from the element. It is expected to be there. In this
+         * sense, the method is like a validity check on the XML in the absence of a formal schema.
+         * 
+         * @param element
+         * @param name
+         * @return value
+         * @throws IllegalStateException if attribute missing.
+         */
         protected String getMandatoryAttributeFromElement(StartElement element, QName name) {
             Attribute attr = element.getAttributeByName(name);
             if (attr == null) {
@@ -253,6 +301,14 @@ public class OsmParser  {
             return attr.getValue();
         }
         
+        /**
+         * Gets optional value. It may be there - or may have been filtered away. If not there,
+         * then {@link Optional#absent()} is returned.
+         * 
+         * @param element
+         * @param name
+         * @return
+         */
         protected Optional<String> getOptionalAttributeFromElement(StartElement element, QName name) {
             Attribute attr = element.getAttributeByName(name);
             if (attr == null) {
@@ -262,17 +318,16 @@ public class OsmParser  {
             }
         }
         
+        /**
+         * Builds standard attribute based metadata from the element.
+         * @param startElement
+         * @return metadata
+         */
         protected OsmMetadata buildOsmMetaFromElement(StartElement startElement) {
             
             Long  idValue = Long.valueOf(getMandatoryAttributeFromElement(startElement, id));
             Optional<Long> versionValue = getOptionalAttributeFromElement(startElement, version).transform(stringToLong);
-            
-            Optional<DateTime> timestampValue = getOptionalAttributeFromElement(startElement, timestamp).transform(new Function<String, DateTime>() {
-                public DateTime apply(String in) {
-                    return ISODateTimeFormat.basicDateTimeNoMillis().parseDateTime(in);
-                }
-            });
-            
+            Optional<DateTime> timestampValue = getOptionalAttributeFromElement(startElement, timestamp).transform(stringToDateTime);
             Optional<Long> changesetValue = getOptionalAttributeFromElement(startElement, changeset).transform(stringToLong);
             Optional<Long> uidValue = getOptionalAttributeFromElement(startElement, uid).transform(stringToLong);
             Optional<String> userValue = getOptionalAttributeFromElement(startElement, user);
@@ -286,16 +341,10 @@ public class OsmParser  {
             return holder;
         }
         
-        @Override
-        protected final T computeNext() {
-            while (nextElementIs(this.elementName)) {
-                return buildNext();
-            }
-            return endOfData();
-        }
-        
-        abstract T buildNext();
-
+        /**
+         * Assembles properties by iterating over nested "tag" elements.
+         * @return immutable map of properties
+         */
         protected ImmutableMap<String, String> buildProperties() {
             ImmutableMap.Builder<String, String> mapBuilder = ImmutableMap.builder();
             TagIterator tagIterator = new TagIterator(xmlEventReader);
@@ -306,8 +355,29 @@ public class OsmParser  {
             return mapBuilder.build();
         }
         
+        @Override
+        protected final T computeNext() {
+            /*
+             * While the next element has the same name, continue. Construction
+             * of types is delegated to sub-classes.
+             */
+            while (nextElementHasSameName()) {
+                return buildNext();
+            }
+            return endOfData();
+        }
+        
+        /**
+         * Assemble object from XML event stream reader.
+         * @return
+         */
+        abstract T buildNext();
+        
     }
 
+    /**
+     * Iterates over tag elements.
+     */
     private static class TagIterator extends XmlEventAbstractIterator<OsmTag> {
 
         private static final QName k = new QName("k");
@@ -333,21 +403,25 @@ public class OsmParser  {
         
     }
     
-    
+    /**
+     * Iterates over node elements. Constructs {@link Point} objects from the 
+     * latitude and longitude pairs.
+     *
+     */
     private static class NodeIterator extends XmlEventAbstractIterator<OsmNode> {
 
-        private GeometryFactory geometryFactory;
+        private final GeometryFactory geometryFactory;
         
         private static final QName lat = new QName("lat");
         private static final QName lon = new QName("lon");
         
         public NodeIterator(XMLEventReader xmlEventReader, GeometryFactory geometryFactory) {
             super(xmlEventReader, "node");
+            this.geometryFactory = geometryFactory;
         }
 
         @Override
         OsmNode buildNext() {
-            
             try {
                 StartElement nodeStartElement = xmlEventReader.nextTag().asStartElement();
                 OsmMetadata metadata = buildOsmMetaFromElement(nodeStartElement);
@@ -370,10 +444,12 @@ public class OsmParser  {
         
     }
     
+    /**
+     * Iterates over the "nd" elements that are child elements of "way".
+     * @author jejking
+     */
     private static class NdIterator extends XmlEventAbstractIterator<Long> {
 
-        
-        
         public NdIterator(XMLEventReader xmlEventReader) {
             super(xmlEventReader, "nd");
         }
@@ -392,6 +468,9 @@ public class OsmParser  {
         
     }
     
+    /**
+     * Iterates over "member" sub-elements of "relation".
+     */
     private static class MemberIterator extends XmlEventAbstractIterator<OsmRelation.Member> {
 
         private static final QName type = new QName("type");
@@ -422,13 +501,13 @@ public class OsmParser  {
 
         private MemberType buildType(StartElement nodeStartElement) {
             String typeValue = getMandatoryAttributeFromElement(nodeStartElement, type);
-            if (typeValue.equals("node")) {
-                return MemberType.NODE;
+            switch (typeValue) {
+                case "node" : return MemberType.NODE;
+                case "way": return MemberType.WAY;
+                case "relation" : return MemberType.RELATION;
+                default : throw new IllegalArgumentException("Relation type " + typeValue + " not expected");
             }
-            if (typeValue.equals("way")) {
-                return MemberType.WAY;
-            }
-            throw new IllegalArgumentException("Relation type " + typeValue + " not expected");
+               
         }
 
         private Optional<String> buildRole(StartElement nodeStartElement) {
@@ -441,7 +520,9 @@ public class OsmParser  {
         
     }
     
-    
+    /**
+     * Iterates over "way" elements.
+     */
     private static class WayIterator extends XmlEventAbstractIterator<OsmWay> {
 
         public WayIterator(XMLEventReader xmlEventReader) {
@@ -458,7 +539,7 @@ public class OsmParser  {
                 
                 NdIterator ndIterator = new NdIterator(xmlEventReader);
                 while(ndIterator.hasNext()) {
-                    Long ndVal = ndIterator.buildNext();
+                    Long ndVal = ndIterator.next();
                     ndListBuilder.add(ndVal);
                 }
                 
@@ -473,6 +554,9 @@ public class OsmParser  {
         
     }
     
+    /**
+     * Iterates over "relation" elements.
+     */
     private static class RelationIterator extends XmlEventAbstractIterator<OsmRelation> {
 
         public RelationIterator(XMLEventReader xmlEventReader) {

@@ -17,7 +17,7 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
 import java.util.LinkedList;
 
@@ -45,22 +45,33 @@ public class SimpleObservable<T> {
      * 
      * @param observer
      */
-    public void unsubscribe(SimpleObservable<T> observer) {
+    public void unsubscribe(SimpleObserver<T> observer) {
         this.subscribers.remove(observer);
     }
     
+    /**
+     * Next value supplied, all subscribers notified synchronously.
+     * @param value
+     */
     protected void next(T value) {
         for (SimpleObserver<T> subscriber: subscribers) {
             subscriber.onNext(value);
         }
     }
      
+    /**
+     * Error supplied, all subscribers notified synchronously.
+     * @param e
+     */
     protected void error(Exception e) {
         for (SimpleObserver<T> subscriber: subscribers) {
             subscriber.onError(e);
         }
     }
     
+    /**
+     * Completion signal, all subscribers notified synchronously.
+     */
     protected void completed() {
         for (SimpleObserver<T> subscriber: subscribers) {
             subscriber.onCompleted();

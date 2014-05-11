@@ -1,0 +1,36 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<osm version="0.6" generator="manual">
+	<?FOO?>
+	<foo bar="thing">
+		<wibble wobble="blah">Some text</wibble>
+		<!--a comment -->
+	</foo>
+	<bounds minlat="53.5646" minlon="10.0155" maxlat="53.5707" maxlon="10.0314"/>
+	<node id="1" lat="53.12345" lon="10.2345" version="1" timestamp="2014-05-14T14:12:39Z" changeset="1" uid="1" user="foo"/>
+	<error val="introduced unexpected element"/>
+	<node id="2" lat="54.23456" lon="11.5432">
+		<tag k="foo" v="bar">
+			<foo>this should not be here</foo>
+		</tag>
+		<tag k="wibble" v="wobble"/>
+	</node>
+	<way id="3" version="1" timestamp="2013-05-14T14:12:39Z" changeset="321" uid="21" user="bar">
+		<nd ref="1">
+			<child>irrelevant</child>
+			<child>
+				<child>also irrelevant</child>
+			</child>
+			<tag k="misleading" v="wrong"/>
+		</nd>
+		<nd ref="2" />
+		<tag k="highway" v="motorway"/>
+	</way>
+	<foo bar="123"/>
+	<!--another comment -->
+	<relation id="4">
+		<member type="node" ref="1"/>
+		<member type="way" ref="3" role=""/>
+		<member type="relation" ref="666" role="dark-satanic"/>
+		<tag k="route" v="secret"/>
+	</relation>
+</osm>

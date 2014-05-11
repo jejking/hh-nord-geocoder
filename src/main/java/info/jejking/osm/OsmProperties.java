@@ -17,37 +17,22 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
-import org.joda.time.DateTime;
+import com.google.common.collect.ImmutableMap;
 
-import com.google.common.base.Optional;
-
-public interface OsmMetadata {
-
-    /**
-     * @return the id
-     */
-    public abstract Long getId();
-
-    /**
-     * @return the timestamp
-     */
-    public abstract Optional<DateTime> getTimestamp();
+/**
+ * Simple interface to give type safe, immutable view 
+ * on to key-value string pairs.
+ * @author jejking
+ *
+ */
+public interface OsmProperties {
 
     /**
-     * @return the changeset
+     *
+     * @return key value pairs, may be empty, never <code>null</code>
      */
-    public abstract Optional<Long> getChangeset();
-
-    /**
-     * @return the uid
-     */
-    public abstract Optional<Long> getUid();
-
-    /**
-     * @return the user
-     */
-    public abstract Optional<String> getUser();
-
+    public ImmutableMap<String, String> getProperties();
+    
 }

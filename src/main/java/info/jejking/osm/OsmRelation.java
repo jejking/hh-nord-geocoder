@@ -17,7 +17,7 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -69,7 +69,7 @@ public final class OsmRelation extends OsmComponent {
      */
     public static class Member {
         
-        public enum MemberType {NODE, WAY}
+        public enum MemberType {NODE, WAY, RELATION}
         
         private final MemberType type;
         private final Long ref;
@@ -88,6 +88,46 @@ public final class OsmRelation extends OsmComponent {
             this.ref = ref;
             this.role = role;
         }
+
+        
+        
+        
+        
+        
+        /**
+         * @return the type
+         */
+        public MemberType getType() {
+            return type;
+        }
+
+
+
+
+
+        
+        /**
+         * @return the ref
+         */
+        public Long getRef() {
+            return ref;
+        }
+
+
+
+
+
+        
+        /**
+         * @return the role
+         */
+        public Optional<String> getRole() {
+            return role;
+        }
+
+
+
+
 
         /* (non-Javadoc)
          * @see java.lang.Object#hashCode()

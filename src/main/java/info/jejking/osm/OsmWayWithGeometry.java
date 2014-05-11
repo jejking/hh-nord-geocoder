@@ -17,9 +17,8 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
-import java.util.List;
 import java.util.Map;
 
 import com.vividsolutions.jts.geom.Geometry;
@@ -54,23 +53,15 @@ public class OsmWayWithGeometry {
     
     /**
      * @return
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmWay#getId()
+     * @see info.jejking.osm.OsmWay#getId()
      */
     public long getId() {
         return way.getId();
     }
 
-//    /**
-//     * @return
-//     * @see info.jejking.hamburg.nord.geocoder.osm.OsmWay#getNodes()
-//     */
-//    public List<OsmNode> getNodes() {
-//        return way.getNodes();
-//    }
-
     /**
      * @return
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmWay#getProperties()
+     * @see info.jejking.osm.OsmWay#getProperties()
      */
     public Map<String, String> getProperties() {
         return way.getProperties();

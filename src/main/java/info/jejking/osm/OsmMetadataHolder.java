@@ -17,12 +17,11 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
 import org.joda.time.DateTime;
 
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -68,7 +67,7 @@ public final class OsmMetadataHolder implements OsmMetadata {
 
     
     /* (non-Javadoc)
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getId()
+     * @see info.jejking.osm.OsmMetadata#getId()
      */
     @Override
     public Long getId() {
@@ -88,7 +87,7 @@ public final class OsmMetadataHolder implements OsmMetadata {
 
     
     /* (non-Javadoc)
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getTimestamp()
+     * @see info.jejking.osm.OsmMetadata#getTimestamp()
      */
     @Override
     public Optional<DateTime> getTimestamp() {
@@ -98,7 +97,7 @@ public final class OsmMetadataHolder implements OsmMetadata {
 
     
     /* (non-Javadoc)
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getChangeset()
+     * @see info.jejking.osm.OsmMetadata#getChangeset()
      */
     @Override
     public Optional<Long> getChangeset() {
@@ -108,7 +107,7 @@ public final class OsmMetadataHolder implements OsmMetadata {
 
     
     /* (non-Javadoc)
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getUid()
+     * @see info.jejking.osm.OsmMetadata#getUid()
      */
     @Override
     public Optional<Long> getUid() {
@@ -118,7 +117,7 @@ public final class OsmMetadataHolder implements OsmMetadata {
 
     
     /* (non-Javadoc)
-     * @see info.jejking.hamburg.nord.geocoder.osm.OsmMetadata#getUser()
+     * @see info.jejking.osm.OsmMetadata#getUser()
      */
     @Override
     public Optional<String> getUser() {

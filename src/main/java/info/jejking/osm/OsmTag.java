@@ -17,32 +17,43 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
 /**
- * Subscriber to an event stream from an {@link SimpleObserver}.
- * 
+ * Simple value class representing a string key-value pair. Correponds to "tag" element.
  * @author jejking
  *
- * @param <T>
  */
-public interface SimpleObserver<T> {
+public final class OsmTag {
 
+    private final String key;
+    private final String value;
+    
     /**
-     * Notifies of next event.
+     * Key value pair.
+     * @param key 
      * @param value
      */
-    void onNext(T value);
+    public OsmTag(String key, String value) {
+        super();
+        this.key = key;
+        this.value = value;
+    }
     
     /**
-     * Notifies of error reading from stream.
-     * @param e
+     * @return the key
      */
-    void onError(Exception e);
+    public String getKey() {
+        return key;
+    }
     
     /**
-     * Notifies that stream is empty.
+     * @return the value
      */
-    void onCompleted();
+    public String getValue() {
+        return value;
+    }
+    
+    
     
 }

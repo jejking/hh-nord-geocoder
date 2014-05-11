@@ -17,7 +17,7 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;

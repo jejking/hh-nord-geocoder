@@ -17,7 +17,7 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

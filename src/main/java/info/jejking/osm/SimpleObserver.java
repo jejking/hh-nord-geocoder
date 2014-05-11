@@ -17,34 +17,32 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
+/**
+ * Subscriber to an event stream from an {@link SimpleObserver}.
+ * 
+ * @author jejking
+ *
+ * @param <T>
+ */
+public interface SimpleObserver<T> {
 
-public class OsmTag {
-
-    private final String key;
-    private final String value;
-    
-    public OsmTag(String key, String value) {
-        super();
-        this.key = key;
-        this.value = value;
-    }
+    /**
+     * Notifies of next event.
+     * @param value
+     */
+    void onNext(T value);
     
     /**
-     * @return the key
+     * Notifies of error reading from stream.
+     * @param e
      */
-    public String getKey() {
-        return key;
-    }
+    void onError(Exception e);
     
     /**
-     * @return the value
+     * Notifies that stream is empty.
      */
-    public String getValue() {
-        return value;
-    }
-    
-    
+    void onCompleted();
     
 }

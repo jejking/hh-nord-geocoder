@@ -17,13 +17,31 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.osm;
+package info.jejking.osm;
 
-import com.google.common.collect.ImmutableMap;
+import java.util.LinkedList;
+import java.util.List;
 
+class EventCapturer<T> implements SimpleObserver<T> {
 
-public interface OsmProperties {
+    List<T> values = new LinkedList<>();
+    Exception e;
+    boolean completed;
+    
+    @Override
+    public void onNext(T value) {
+        this.values.add(value);
+    }
 
-    public ImmutableMap<String, String> getProperties();
+    @Override
+    public void onError(Exception e) {
+        this.e = e;
+        e.printStackTrace();
+    }
+
+    @Override
+    public void onCompleted() {
+        this.completed = true;
+    }
     
 }

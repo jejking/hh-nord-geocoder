@@ -22,8 +22,11 @@ import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.ADMIN_AR
 import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.STREET;
 import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.GAZETTEER_FULLTEXT;
 
+import java.io.IOException;
 import java.util.Map;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
+import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -92,11 +95,18 @@ class TestUtil {
     }
     
     static void writeOsmStreetsToGraph(GraphDatabaseService graph) {
-        OsmStreetCollectionBuilder builder = new OsmStreetCollectionBuilder();
-        Map<String, Geometry> streets = builder.buildRawStreetCollection();
+        RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(JTSFactoryFinder.getGeometryFactory(null));
+        try {
+        	Map<String, Geometry> streets = builder
+        								.streetsFromStream(
+        										new BZip2CompressorInputStream(
+        										 	TestUtil.class.getResourceAsStream("/hamburg-nord-tm470.osm.bz2")));
+        	OsmStreetCollectionToNeoImporter importer = new OsmStreetCollectionToNeoImporter();
+            importer.writeToNeo(streets, graph);
+        } catch (IOException e) {
+        	throw new RuntimeException(e);
+        }
         
-        OsmStreetCollectionToNeoImporter importer = new OsmStreetCollectionToNeoImporter();
-        importer.writeToNeo(streets, graph);
     }
     
 }

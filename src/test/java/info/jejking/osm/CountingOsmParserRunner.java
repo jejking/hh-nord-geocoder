@@ -35,11 +35,11 @@ public class CountingOsmParserRunner {
         EventCounter<OsmWay> wayCounter = new EventCounter<>("way");
         EventCounter<OsmRelation> relCounter = new EventCounter<>("relation");
         
-        OsmParser parser = new OsmParser();
-        parser.getOsmNodeObservable().subscribe(nodeCounter);
-        parser.getOsmWayObservable().subscribe(wayCounter);
-        parser.getOsmRelationObservable().subscribe(relCounter);
-        parser.parseOsmStream(new BufferedInputStream(new FileInputStream(fileName)));
+        RxOsmParser parser = new RxOsmParser(new BufferedInputStream(new FileInputStream(fileName)));
+        parser.getNodeObservable().subscribe(nodeCounter);
+        parser.getWayObservable().subscribe(wayCounter);
+        parser.getRelationObservable().subscribe(relCounter);
+        parser.parseOsmStream();
         
         System.out.println("done");
         System.out.println("Nodes counted: " + nodeCounter.count);

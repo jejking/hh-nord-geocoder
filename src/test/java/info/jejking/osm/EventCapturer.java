@@ -22,10 +22,12 @@ package info.jejking.osm;
 import java.util.LinkedList;
 import java.util.List;
 
-class EventCapturer<T> implements SimpleObserver<T> {
+import rx.Observer;
+
+class EventCapturer<T> implements Observer<T> {
 
     List<T> values = new LinkedList<>();
-    Exception e;
+    Throwable e;
     boolean completed;
     
     @Override
@@ -34,7 +36,7 @@ class EventCapturer<T> implements SimpleObserver<T> {
     }
 
     @Override
-    public void onError(Exception e) {
+    public void onError(Throwable e) {
         this.e = e;
         e.printStackTrace();
     }

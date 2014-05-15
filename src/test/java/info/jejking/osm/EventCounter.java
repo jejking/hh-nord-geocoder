@@ -19,8 +19,10 @@
  */
 package info.jejking.osm;
 
+import rx.Observer;
 
-class EventCounter<T> implements SimpleObserver<T> {
+
+class EventCounter<T> implements Observer<T> {
 
     long count = 0;
     boolean completed;
@@ -38,7 +40,7 @@ class EventCounter<T> implements SimpleObserver<T> {
     }
 
     @Override
-    public void onError(Exception e) {
+    public void onError(Throwable e) {
         e.printStackTrace();
     }
 

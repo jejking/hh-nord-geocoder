@@ -19,10 +19,10 @@
  */
 package info.jejking.osm;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import info.jejking.osm.OsmRelation.Member;
 import info.jejking.osm.OsmRelation.Member.MemberType;
 
-import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +42,9 @@ import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
-import org.joda.time.format.ISODateTimeFormat;
+
+import rx.Observable;
+import rx.observables.ConnectableObservable;
 
 import com.google.common.base.Function;
 import com.google.common.base.Optional;
@@ -54,156 +56,144 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * Parser for Open Street Map XML. The class exposes {@link SimpleObservable} instances
- * for {@link OsmNode}, {@link OsmWay} and {@link OsmRelation} classes. Clients should use
- * these to register {@link SimpleObserver} instances. They should then call the 
- * {@link OsmParser#parseOsmStream(InputStream)}, supplying an input stream that delivers
- * the XML. 
+ * Streaming parser for Open Street Map XML that exposes Rx [@link Observable}s for the underlying
+ * objects encoded as XML in the input stream.
  * 
- * <p>The parser notifies the observers (synchronously) as each object is generated from the
- * underlying XML.</p>
- * 
- * <p>The class should not be considered thread safe.</p>
- * 
+ * <p>Usage: construct the class, passing an input stream as a parameter. Attach subscribers
+ * or observers to the {@link Observable} instances exposed for each basic Open Street Map type.
+ * Then call the {@link RxOsmParser#parseOsmStream()} method - this connects to each observer
+ * in the right order (node, then way, then relation) as determined by the OSM XML conventions.
+ *  
  * @author jejking
  *
  */
-@SuppressWarnings("unused")
-public class OsmParser  {
+public class RxOsmParser  {
 
-    private final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-        
-    private final SimpleObservable<OsmNode> osmNodeObservable = new SimpleObservable<>();
-    private final SimpleObservable<OsmWay>  osmWayObservable = new SimpleObservable<>();
-    private final SimpleObservable<OsmRelation>  osmRelationObservable = new SimpleObservable<>();
-    
-    /**
+	private final GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
+
+	private final ConnectableObservable<OsmNode> nodeObservable;
+	private final ConnectableObservable<OsmWay> wayObservable;
+	private final ConnectableObservable<OsmRelation> relationObservable;
+	
+	
+	private final XMLEventReader filtered;
+	private final InputStream inputStream;
+	
+	public RxOsmParser(InputStream inputStream) {
+		
+		this.inputStream = checkNotNull(inputStream);
+		XMLInputFactory f = XMLInputFactory.newInstance();
+        try {
+            this.filtered = getFilteredXmlEventReaderForStream(inputStream, f);
+            
+            NodeIterator nodeIterator = new NodeIterator(filtered, geometryFactory);
+            WayIterator wayIterator = new WayIterator(filtered);
+            RelationIterator relationIterator = new RelationIterator(filtered);
+            
+            this.nodeObservable = fromIterable(fromIterator(nodeIterator));
+            this.wayObservable = fromIterable(fromIterator(wayIterator));
+            this.relationObservable = fromIterable(fromIterator(relationIterator));
+            
+            
+        } catch (XMLStreamException e) {
+            throw new RuntimeException(e);
+        }
+	}
+	
+	
+    private <T> ConnectableObservable<T> fromIterable(Iterable<T> iterable) {
+		Observable<T> observable = Observable.from(iterable);
+		return observable.publish();
+	}
+
+
+	private <T> Iterable<T> fromIterator(final Iterator<T> iterator) {
+		return new Iterable<T>() {
+
+			@Override
+			public Iterator<T> iterator() {
+				return iterator;
+			}
+		};
+	}
+
+	public Observable<OsmNode> getNodeObservable() {
+		return this.nodeObservable;
+	}
+
+	
+	public Observable<OsmWay> getWayObservable() {
+		return this.wayObservable;
+	}
+
+	public Observable<OsmRelation> getRelationObservable() {
+		return this.relationObservable;
+	}
+	
+
+	/**
      * Parses the XML, notifying the relevant {@link SimpleObservable} instances
      * as each relevant element is completely parsed.
      * 
      * @param inputStream stream containing OpenStreetMap XML, should not be <code>null</code>
      */
-    public void parseOsmStream(InputStream inputStream) {
-        XMLInputFactory f = XMLInputFactory.newInstance();
-        try {
-            XMLEventReader filtered = f.createFilteredReader(f.createXMLEventReader(inputStream), new EventFilter() {
-                
-                final List<String> interestingElements = ImmutableList.of("node", "way", "relation", "tag", "nd", "member");
-                
-                boolean isInterestingStartElement(StartElement startElement) {
-                    String name = startElement.getName().getLocalPart();
-                    return interestingElements.contains(name);
-                }
-                
-                private boolean isInterestingEndElement(EndElement endElement) {
-                    String name = endElement.getName().getLocalPart();
-                    return interestingElements.contains(name);
-                }
-                
-                // OSM only uses attributes and child elements, we can discard other events
-                @Override
-                public boolean accept(XMLEvent event) {
-                    
-                    if (event.isStartElement()) {
-                        return isInterestingStartElement(event.asStartElement()); 
-                    }
-                    
-                    if (event.isEndElement()) {
-                        return isInterestingEndElement(event.asEndElement());
-                    }
-                    
-                    if (event.isAttribute()) {
-                        return true;
-                    }
+    public void parseOsmStream() {
 
-                    return false;
-                    
-                }
+    	this.nodeObservable.connect();
+    	this.wayObservable.connect();
+    	this.relationObservable.connect();
+    	
+    	try {
+			filtered.close();
+			inputStream.close();
+		} catch (Exception e) {
+			throw new RuntimeException(e);
+		}
+    	
+    }
 
+	private XMLEventReader getFilteredXmlEventReaderForStream(
+			InputStream inputStream, XMLInputFactory f)
+			throws XMLStreamException {
+		return f.createFilteredReader(f.createXMLEventReader(inputStream), new EventFilter() {
+		    
+		    final List<String> interestingElements = ImmutableList.of("node", "way", "relation", "tag", "nd", "member");
+		    
+		    boolean isInterestingStartElement(StartElement startElement) {
+		        String name = startElement.getName().getLocalPart();
+		        return interestingElements.contains(name);
+		    }
+		    
+		    private boolean isInterestingEndElement(EndElement endElement) {
+		        String name = endElement.getName().getLocalPart();
+		        return interestingElements.contains(name);
+		    }
+		    
+		    // OSM only uses attributes and child elements, we can discard other events
+		    @Override
+		    public boolean accept(XMLEvent event) {
+		        
+		        if (event.isStartElement()) {
+		            return isInterestingStartElement(event.asStartElement()); 
+		        }
+		        
+		        if (event.isEndElement()) {
+		            return isInterestingEndElement(event.asEndElement());
+		        }
+		        
+		        if (event.isAttribute()) {
+		            return true;
+		        }
+
+		        return false;
+		        
+		    }
+
+   
+		});
+	}
     
-            });
-            
-            IteratorToObservable<OsmNode> nodeIteratorToObservable = new IteratorToObservable<>(new NodeIterator(filtered, geometryFactory), osmNodeObservable);
-            IteratorToObservable<OsmWay> wayIteratorToObservable = new IteratorToObservable<>(new WayIterator(filtered), osmWayObservable);
-            IteratorToObservable<OsmRelation> relationIteratorToObservable = new IteratorToObservable<>(new RelationIterator(filtered), osmRelationObservable);
-            
-            nodeIteratorToObservable.iterateAndNotify();
-            wayIteratorToObservable.iterateAndNotify();
-            relationIteratorToObservable.iterateAndNotify();
-            
-            filtered.close();
-            inputStream.close();
-        } catch (XMLStreamException | IOException e) {
-            throw new RuntimeException(e);
-        }
-    }
-    
-    /**
-     * Obtains the observable for {@link OsmNode}. Use this
-     * to register {@link SimpleObserver} instances to handle nodes.
-     * 
-     * @return observable
-     */
-    public SimpleObservable<OsmNode> getOsmNodeObservable() {
-        return osmNodeObservable;
-    }
-    
-    /**
-     * Obtains the observable for {@link OsmWay}. Use this 
-     * to register {@link SimpleObserver} instances to handle ways.
-     * 
-     * @return observable
-     */
-    public SimpleObservable<OsmWay> getOsmWayObservable() {
-        return osmWayObservable;
-    }
-    
-    /**
-     * Obtains the observable for {@link OsmRelation}. Use this 
-     * to register {@link SimpleObserver} instances to handle relations.
-     * 
-     * @return observable
-     */
-    public SimpleObservable<OsmRelation> getOsmRelationObservable() {
-        return osmRelationObservable;
-    }
-    
-    /**
-     * Bridges iterators to {@link SimpleObservable}.
-     * 
-     * @param <T>
-     */
-    private static class IteratorToObservable<T> {
-        
-        private final Iterator<T> iterator;
-        private final SimpleObservable<T> observable;
-        
-        /**
-         * Constructor.
-         * @param iterator the iterator to iterate over
-         * @param observable the observable to notify with objects extracted from the iterator
-         */
-        public IteratorToObservable(Iterator<T> iterator, SimpleObservable<T> observable) {
-            super();
-            this.iterator = iterator;
-            this.observable = observable;
-        }
-        
-        /**
-         * Goes through the iterator completely, notifying the observer on
-         * each object extrated from the iterator.
-         */
-        public void iterateAndNotify() {
-            try {
-                while (iterator.hasNext()) {
-                    observable.next(iterator.next());
-                }
-            } catch (Exception e) {
-                observable.error(e);
-            }
-            observable.completed();
-        }
-    }
+ 
     
     /**
      * Gathers together functionality to build an iterator of higher level types
@@ -372,6 +362,7 @@ public class OsmParser  {
          * @return
          */
         abstract T buildNext();
+
         
     }
 
@@ -393,7 +384,7 @@ public class OsmParser  {
                 StartElement startElement = xmlEventReader.nextTag().asStartElement();
                 String key = startElement.getAttributeByName(k).getValue();
                 String value = startElement.getAttributeByName(v).getValue();
-                xmlEventReader.nextTag(); // and ignore...
+                xmlEventReader.nextTag(); // and ignore end element...
                 return new OsmTag(key, value);
             } catch (XMLStreamException e) {
                 throw new RuntimeException(e);

@@ -27,7 +27,6 @@ import static org.junit.Assert.assertTrue;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeConstants;
 import org.joda.time.DateTimeZone;
-import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -36,24 +35,23 @@ import org.junit.Test;
  * @author jejking
  *
  */
-public class OsmParserTest {
+public class RxOsmParserTest {
 
-    
-    private OsmParser osmParser;
     private EventCapturer<OsmNode> nodeCapturer;
     private EventCapturer<OsmWay> wayCapturer;
     private EventCapturer<OsmRelation> relationCapturer;
     
-    @Before
-    public void init() {
-        this.osmParser = new OsmParser();
+    public void setUpAndParse(String resourceName) {
+        RxOsmParser rxOsmParser = new RxOsmParser(RxOsmParser.class.getResourceAsStream(resourceName));
         this.nodeCapturer = new EventCapturer<>();
         this.wayCapturer = new EventCapturer<>();
         this.relationCapturer = new EventCapturer<>();
         
-        this.osmParser.getOsmNodeObservable().subscribe(nodeCapturer);
-        this.osmParser.getOsmWayObservable().subscribe(wayCapturer);
-        this.osmParser.getOsmRelationObservable().subscribe(relationCapturer);
+        rxOsmParser.getNodeObservable().subscribe(nodeCapturer);
+        rxOsmParser.getWayObservable().subscribe(wayCapturer);
+        rxOsmParser.getRelationObservable().subscribe(relationCapturer);
+        
+        rxOsmParser.parseOsmStream();
     }
     
     @Test
@@ -62,7 +60,8 @@ public class OsmParserTest {
         /*
          * Extract direct from Open Street Map website & API.
          */
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/uhlenhorst-direct-export.osm"));
+    	setUpAndParse("/uhlenhorst-direct-export.osm");
+    	
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -79,7 +78,7 @@ public class OsmParserTest {
         /*
          * osmconver32 --drop-authors
          */
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/uhlenhorst-direct-export-no-versions.osm"));
+    	setUpAndParse("/uhlenhorst-direct-export-no-versions.osm");
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -94,7 +93,7 @@ public class OsmParserTest {
         /*
          * osmfilter --drop-version
          */
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/uhlenhorst-direct-export-no-authors.osm"));
+    	setUpAndParse("/uhlenhorst-direct-export-no-authors.osm");
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -109,7 +108,7 @@ public class OsmParserTest {
         /*
          * osmconvert32 --drop-nodes
          */
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/uhlenhorst-direct-export-no-nodes.osm"));
+        setUpAndParse("/uhlenhorst-direct-export-no-nodes.osm");
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -125,7 +124,7 @@ public class OsmParserTest {
         /*
          * osmconvert32 --drop-ways
          */
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/uhlenhorst-direct-export-no-ways.osm"));
+    	setUpAndParse("/uhlenhorst-direct-export-no-ways.osm");
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -141,7 +140,7 @@ public class OsmParserTest {
         /*
          * osmconvert32 --drop-relations
          */
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/uhlenhorst-direct-export-no-relations.osm"));
+    	setUpAndParse("/uhlenhorst-direct-export-no-relations.osm");
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -156,7 +155,7 @@ public class OsmParserTest {
         /*
          * osmconvert32 --all-to-nodes
          */
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/uhlenhorst-direct-export-all-to-nodes.osm"));
+    	setUpAndParse("/uhlenhorst-direct-export-all-to-nodes.osm");
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -168,7 +167,7 @@ public class OsmParserTest {
     
     @Test
     public void readsTest1Correctly() {
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/test1.osm"));
+    	setUpAndParse("/test1.osm");
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -188,8 +187,8 @@ public class OsmParserTest {
     
     @Test
     public void readsTest1AddedElementsCorrectly() {
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/test1-addedElements.osm"));
-        assertTrue(nodeCapturer.completed);
+    	setUpAndParse("/test1-addedElements.osm");
+        assertFalse(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
         
@@ -199,7 +198,7 @@ public class OsmParserTest {
     
     @Test
     public void readsTest1AddedAttributesCorrectly() {
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/test1-addedAttributes.osm"));
+    	setUpAndParse("/test1-addedAttributes.osm");
         assertTrue(nodeCapturer.completed);
         assertTrue(wayCapturer.completed);
         assertTrue(relationCapturer.completed);
@@ -219,21 +218,21 @@ public class OsmParserTest {
 
     @Test
     public void registersErrorForMissingNodeId() {
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/test1-missing-node-id.osm"));
+    	setUpAndParse("/test1-missing-node-id.osm");
         
         assertNotNull(nodeCapturer.e);
     }
     
     @Test
     public void registersErrorForMissingLat() {
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/test1-missing-node-lat.osm"));
+    	setUpAndParse("/test1-missing-node-lat.osm");
         assertNotNull(nodeCapturer.e);
 
     }
     
     @Test
     public void registersErrorForMissingLon() {
-        this.osmParser.parseOsmStream(OsmParserTest.class.getResourceAsStream("/test1-missing-node-lon.osm"));
+    	setUpAndParse("/test1-missing-node-lon.osm");
         assertNotNull(nodeCapturer.e);
     }
     

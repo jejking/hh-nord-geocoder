@@ -65,7 +65,7 @@ public class RxOsmStreetCollectionBuilder {
 	}
 	
 	/**
-	 * Constructs a map of street name to geeometry from XML Open Street Map
+	 * Constructs a map of street name to geometry from XML Open Street Map
 	 * data flowing from the input stream. 
 	 * 
 	 * @param inputStream with XML data

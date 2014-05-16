@@ -41,4 +41,21 @@ public interface GazetteerEntryTypes {
     
     public static final String STREET = "STREET";
     
+    public static final String BUILDING = "BUILDING";
+
+    public static final String TRANSPORT_STOP = "TRANSPORT_STOP";
+    public static final String PLACE_OF_WORSHIP = "PLACE_OF_WORSHIP";
+    public static final String SCHOOL = "SCHOOL";
+    public static final String UNIVERSITY = "UNIVERSITY";
+    public static final String EMERGENCY_SERVICES = "EMERGENCY_SERVICES";
+    public static final String ADMINISTRATION = "ADMINISTRATION";
+    public static final String PARK = "PARK";
+    public static final String WATERWAY = "WATERWAY";
+    public static final String THEATRE = "THEATRE";
+    public static final String CINEMA = "CINEMA";
+    public static final String LIBRARY = "LIBRARY";
+    public static final String HOSPITAL = "HOSPITAL";
+
+
+    
 }

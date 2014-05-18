@@ -18,12 +18,15 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
+
 import static com.google.common.base.Preconditions.checkNotNull;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.houseNumber;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.name;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.street;
 import info.jejking.osm.OsmNode;
 import info.jejking.osm.RxOsmParser;
 
 import java.io.InputStream;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -32,11 +35,9 @@ import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
-import com.google.common.collect.Sets;
-import com.vividsolutions.jts.geom.Geometry;
+import com.google.common.collect.ImmutableList.Builder;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
@@ -49,60 +50,10 @@ import com.vividsolutions.jts.geom.Point;
  */
 public class RxBuildingAndPOICollectionBuilder {
 	
-	private static final String publicTransport = "public_transport";
-	private static final String station = "station";
-	private static final String stopPosition = "stop_position";
-	private static final String railway = "railway";
-	private static final String amenity = "amenity";
-	private static final String placeOfWorship = "place_of_worship";
-	private static final String school = "school";
-	private static final String university = "university";
-	private static final String police = "police";
-	private static final String firestation = "fire_station";
-	private static final String theatre = "theatre";
-	private static final String cinema = "cinema";
-	private static final String library = "library";
-	private static final String hospital = "hospital";
-	private static final String publicBuilding = "public_building";
+	private static final IsInterestingOsmFeaturePredicate isInterestingOsmFeaturePredicate = new IsInterestingOsmFeaturePredicate();
+	private static final OsmComponentLabeller osmComponentLabeller = new OsmComponentLabeller();
 	
-	private static final String emergency = "emergency";
-	private static final String leisure = "leisure";
-	private static final String park = "park"; // (but only include if name:?) is set.
-
-	private static final String natural= "natural";
-	private static final String water = "water";
-	private static final String waterway = "waterway";
-	private static final String canal = "canal"; // only if named
-	private static final String river = "river"; // only if named
-
-	private static final String houseNumber = "addr:housenumber";
-	private static final String street = "addr:street";
-	private static final String name = "name";
 	
-	private static final ImmutableMap<String, ImmutableSet<String>> interestingTags;
-	
-	private static final ImmutableMap<String, ImmutableSet<String>> interestingTagsWithNameOnly;
-	
-	static {
-		ImmutableSet<String> emptyStringSet = ImmutableSet.of(); // signifies all values acceptable
-		ImmutableMap.Builder<String, ImmutableSet<String>> interestingTagsBuilder = ImmutableMap.builder();
-		interestingTagsBuilder
-			.put(publicTransport, ImmutableSet.of(station, stopPosition))
-			.put(railway, ImmutableSet.of(station))
-			.put(amenity, ImmutableSet.of(placeOfWorship, school, university, police, firestation, theatre, cinema, library, hospital, publicBuilding))
-			.put(emergency, emptyStringSet)
-			.put(houseNumber, emptyStringSet);
-		interestingTags = interestingTagsBuilder.build();
-		
-		ImmutableMap.Builder<String, ImmutableSet<String>> interestingTagsWithNameOnlyBuilder = ImmutableMap.builder();
-		interestingTagsWithNameOnlyBuilder
-			.put(leisure, ImmutableSet.of(park))
-			.put(natural, ImmutableSet.of(water))
-			.put(waterway, ImmutableSet.of(canal, river));
-		interestingTagsWithNameOnly = interestingTagsWithNameOnlyBuilder.build();
-		
-	}
-
 	private final GeometryFactory geometryFactory;
 	private final Map<Long, Point> osmPoints = new HashMap<>();
 	private ImmutableList.Builder<PointOfInterest> pointOfInterestListBuilder;
@@ -126,54 +77,42 @@ public class RxBuildingAndPOICollectionBuilder {
 	public List<PointOfInterest> pointsOfInterestFromStream(final InputStream inputStream) {
 		this.pointOfInterestListBuilder = new ImmutableList.Builder<>();
 		RxOsmParser rxOsmParser = new RxOsmParser(inputStream);
+		
 		attachNodeGeometryMapBuilder(rxOsmParser);
-		attachNodeToPointOfInterestFilterAndTransformer(rxOsmParser);
+		attachNodePointOfInterestBuilderTo(rxOsmParser.getNodeObservable(), this.pointOfInterestListBuilder);
 		
 		return this.pointOfInterestListBuilder.build();
 	}
 	
-	private void attachNodeToPointOfInterestFilterAndTransformer(
-			RxOsmParser rxOsmParser) {
-		Observable<OsmNode> nodeObservable = rxOsmParser.getNodeObservable();
-		
+
+    void attachNodePointOfInterestBuilderTo(Observable<OsmNode> nodeObservable, final Builder<PointOfInterest> poiListBuilder) {
+  	
 		// retain nodes that represent buildings and points of interest...
-		nodeObservable.filter(new Func1<OsmNode, Boolean>() {
+		nodeObservable
+		    .filter(isInterestingOsmFeaturePredicate)
+		    .map(new Func1<OsmNode, PointOfInterest>() { // map remaining set to points of interest
 
-			@Override
-			public Boolean call(OsmNode osmNode) {
-				ImmutableMap<String, String> props = osmNode.getProperties();
-				for (String interestingTag : interestingTags.keySet()) {
-					// all values are ok if we attached empty set to allowed values
-					if (props.containsKey(interestingTag) && interestingTags.get(interestingTag).isEmpty()) {
-						return Boolean.TRUE;
-					}
-					// retain if an interesting tag and value is one we are interested in
-					if (props.containsKey(interestingTag) 
-							&& hasInterestingValue(interestingTags,  props, interestingTag)) {
-						return Boolean.TRUE;
-					}
-				}
-				for (String tagInterestingIfNamed : interestingTagsWithNameOnly.keySet()) {
-					if (props.containsKey(tagInterestingIfNamed)
-							&& hasInterestingValue(interestingTagsWithNameOnly, props,tagInterestingIfNamed)
-							&& props.containsKey(name)) {
-						return Boolean.TRUE;
-					}
-				}
-				return Boolean.FALSE;
-			}
+                @Override
+                public PointOfInterest call(OsmNode osmNode) {
+                    PointOfInterest poi = new PointOfInterest(
+                                            osmComponentLabeller.call(osmNode), 
+                                            osmNode.getPoint(), 
+                                            Optional.fromNullable(osmNode.getProperties().get(houseNumber)), 
+                                            Optional.fromNullable(osmNode.getProperties().get(street)), 
+                                            Optional.fromNullable(osmNode.getProperties().get(name)));
+                    return poi;
+                }
 
-			private boolean hasInterestingValue(ImmutableMap<String, ImmutableSet<String>> map,
-					ImmutableMap<String, String> props,
-					String tagInterestingIfNamed) {
-				return map.get(tagInterestingIfNamed).contains(props.get(tagInterestingIfNamed));
-			}
+               
+            })
+            .subscribe(new Action1<PointOfInterest>() { // add them to our list of points of interest
 
-			
-			
-		});
-		
-	}
+                @Override
+                public void call(PointOfInterest poi) {
+                    poiListBuilder.add(poi);
+                }
+            });
+    }
 
 	private void attachNodeGeometryMapBuilder(RxOsmParser rxOsmParser) {
 		
@@ -187,5 +126,7 @@ public class RxBuildingAndPOICollectionBuilder {
 		});
 		
 	}
+	
+	 
 	
 }

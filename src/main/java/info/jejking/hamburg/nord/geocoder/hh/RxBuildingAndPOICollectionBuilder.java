@@ -24,6 +24,7 @@ import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.houseNumber;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.name;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.street;
 import info.jejking.osm.OsmNode;
+import info.jejking.osm.OsmWay;
 import info.jejking.osm.RxOsmParser;
 
 import java.io.InputStream;
@@ -55,9 +56,8 @@ public class RxBuildingAndPOICollectionBuilder {
 	
 	
 	private final GeometryFactory geometryFactory;
-	private final Map<Long, Point> osmPoints = new HashMap<>();
-	private ImmutableList.Builder<PointOfInterest> pointOfInterestListBuilder;
 	
+		
 	/**
 	 * Constructor.
 	 * @param geometryFactory a geometry factory, may not be <code>null</code>
@@ -75,15 +75,45 @@ public class RxBuildingAndPOICollectionBuilder {
 	 * @return map of street name to geometry mappings
 	 */
 	public List<PointOfInterest> pointsOfInterestFromStream(final InputStream inputStream) {
-		this.pointOfInterestListBuilder = new ImmutableList.Builder<>();
+	    ImmutableList.Builder<PointOfInterest> pointOfInterestListBuilder = new ImmutableList.Builder<>();
+		Map<Long, Point> osmPoints = new HashMap<>();
 		RxOsmParser rxOsmParser = new RxOsmParser(inputStream);
 		
-		attachNodeGeometryMapBuilder(rxOsmParser);
-		attachNodePointOfInterestBuilderTo(rxOsmParser.getNodeObservable(), this.pointOfInterestListBuilder);
+		attachNodeGeometryMapBuilderTo(rxOsmParser.getNodeObservable(), osmPoints);
+		attachNodePointOfInterestBuilderTo(rxOsmParser.getNodeObservable(), pointOfInterestListBuilder);
 		
-		return this.pointOfInterestListBuilder.build();
+		attachWayPointOfInterestBuilderTo(rxOsmParser.getWayObservable(), osmPoints, pointOfInterestListBuilder);
+		
+		
+		return pointOfInterestListBuilder.build();
 	}
 	
+
+    void attachWayPointOfInterestBuilderTo(Observable<OsmWay> wayObservable,
+            Map<Long, Point> osmPoints, final Builder<PointOfInterest> poiListBuilder) {
+        
+        WayNdsToLineString wayNdsToLineString = new WayNdsToLineString(geometryFactory, osmPoints);
+        
+        wayObservable
+            .filter(isInterestingOsmFeaturePredicate)
+            .map(new Func1<OsmWay, PointOfInterest>() {
+
+                @Override
+                public PointOfInterest call(OsmWay t1) {
+                    // TODO Auto-generated method stub
+                    return null;
+                }
+                
+            })
+            .subscribe(new Action1<PointOfInterest>() { // add them to our list of points of interest
+
+                @Override
+                public void call(PointOfInterest poi) {
+                    poiListBuilder.add(poi);
+                }
+            });
+        
+    }
 
     void attachNodePointOfInterestBuilderTo(Observable<OsmNode> nodeObservable, final Builder<PointOfInterest> poiListBuilder) {
   	
@@ -114,14 +144,13 @@ public class RxBuildingAndPOICollectionBuilder {
             });
     }
 
-	private void attachNodeGeometryMapBuilder(RxOsmParser rxOsmParser) {
+	private void attachNodeGeometryMapBuilderTo(Observable<OsmNode> nodeObservable, final Map<Long, Point> nodePointMap) {
 		
-		Observable<OsmNode> nodeObservable = rxOsmParser.getNodeObservable();
 		nodeObservable.subscribe(new Action1<OsmNode>() {
 
 			@Override
 			public void call(OsmNode node) {
-				RxBuildingAndPOICollectionBuilder.this.osmPoints.put(node.getId(), node.getPoint());
+			    nodePointMap.put(node.getId(), node.getPoint());
 			}
 		});
 		

@@ -95,8 +95,9 @@ public class RxOsmStreetCollectionBuilder {
 			@Override
 			public void call(OsmWay way) {
 				String name = way.getProperties().get(NAME);
+				WayNdsToLineString wayNdsToLineString = new WayNdsToLineString(geometryFactory, osmPoints);
 				// assemble geometry from the points referenced in nd child elements of way
-			    LineString wayLineString = buildLineString(way.getNdRefs(), name);
+			    LineString wayLineString = wayNdsToLineString.call(way.getNdRefs());
 				
 				if (osmNamedStreets.containsKey(name)) {
 				    // if we already have the name of the street, then perform a union with existing geometry
@@ -107,29 +108,7 @@ public class RxOsmStreetCollectionBuilder {
 				
 			}
 			
-			private LineString buildLineString(List<Long> ndList, String name) {
-				List<Point> pointList = new ArrayList<>(ndList.size());
-				
-				// find all the referenced points. Ignore any we can't find, perhaps
-				// because they were orphaned as we cut the extract around Nord.
-				for (Long osmId : ndList) {
-					Point point = osmPoints.get(osmId);
-					if (point != null) {
-						pointList.add(point);
-					}
-				}
-				
-				// create a line string from the nodes....
-				Coordinate[] coordinates = new Coordinate[pointList.size()];
-				
-				for (int i = 0; i < pointList.size(); i++) {
-					coordinates[i] = pointList.get(i).getCoordinate();
-				}
-				if (coordinates.length == 1) {
-					System.err.println("Only one node for way: " + name);
-				}
-				return geometryFactory.createLineString(coordinates);
-			}
+		
 			
 		});
 		

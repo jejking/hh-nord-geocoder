@@ -24,6 +24,9 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import info.jejking.osm.OsmMetadataHolder;
 import info.jejking.osm.OsmNode;
+import info.jejking.osm.OsmWay;
+
+import java.util.Map;
 
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.joda.time.DateTime;
@@ -73,9 +76,7 @@ public class RxBuildingAndPOICollectionBuilderTest {
         this.builder = new RxBuildingAndPOICollectionBuilder(geometryFactory);
     }
     
-    /*
-     * Filter is applied.
-     */
+
     @Test
     public void poisBuiltFromNodes() {
         OsmNode retain = buildTestOsmNode(ImmutableMap.of(houseNumber, "22", "building", "yes"));
@@ -97,7 +98,36 @@ public class RxBuildingAndPOICollectionBuilderTest {
         assertTrue(poi.getLabels().contains(GazetteerEntryTypes.BUILDING));
     }
 
+    @Test
+    public void poisBuiltFromWays() {
+        ImmutableMap<String, String> empty = ImmutableMap.of(); 
+        
+        // constructs a square from the origin of size 2
+        OsmNode bottomLeft = new OsmNode(DUMMY_METADATA, empty, geometryFactory.createPoint(new Coordinate(0, 0)));
+        OsmNode bottomRight = new OsmNode(DUMMY_METADATA, empty, geometryFactory.createPoint(new Coordinate(2, 0)));
+        OsmNode topRight = new OsmNode(DUMMY_METADATA, empty, geometryFactory.createPoint(new Coordinate(2, 2)));
+        OsmNode topLeft = new OsmNode(DUMMY_METADATA, empty, geometryFactory.createPoint(new Coordinate(0, 2)));
+        
+        OsmWay way = new OsmWay(DUMMY_METADATA, 
+                                ImmutableMap.of(houseNumber, "22", "building", "yes"), 
+                                ImmutableList.of(1L, 2L, 3L, 4L, 1L));
+        
+        Map<Long, Point> osmPoints = ImmutableMap.of(1L, bottomLeft.getPoint(), 
+                                                     2L, bottomRight.getPoint(),
+                                                     3l, topRight.getPoint(), 
+                                                     4L, topLeft.getPoint());
+        
+        ImmutableList.Builder<PointOfInterest> poiListBuilder = ImmutableList.builder();
+        builder.attachWayPointOfInterestBuilderTo(Observable.from(way), osmPoints, poiListBuilder);
+        
+        PointOfInterest poi = poiListBuilder.build().get(0);
+        assertFalse(poi.getStreet().isPresent());
+        assertEquals("22", poi.getHouseNumber().get());
+        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.BUILDING));
+        
+        // centroid is 1,1 : intersection of diagonals.
+        assertEquals(geometryFactory.createPoint(new Coordinate(1, 1)), poi.getPoint());
+    }
     
- 
 
 }

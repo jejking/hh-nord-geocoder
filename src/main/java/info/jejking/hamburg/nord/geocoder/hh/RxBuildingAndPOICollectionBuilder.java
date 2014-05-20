@@ -92,16 +92,21 @@ public class RxBuildingAndPOICollectionBuilder {
     void attachWayPointOfInterestBuilderTo(Observable<OsmWay> wayObservable,
             Map<Long, Point> osmPoints, final Builder<PointOfInterest> poiListBuilder) {
         
-        WayNdsToLineString wayNdsToLineString = new WayNdsToLineString(geometryFactory, osmPoints);
+        final WayNdsToLineString wayNdsToLineString = new WayNdsToLineString(geometryFactory, osmPoints);
         
         wayObservable
             .filter(isInterestingOsmFeaturePredicate)
             .map(new Func1<OsmWay, PointOfInterest>() {
 
                 @Override
-                public PointOfInterest call(OsmWay t1) {
-                    // TODO Auto-generated method stub
-                    return null;
+                public PointOfInterest call(OsmWay osmWay) {
+                    PointOfInterest poi = new PointOfInterest(
+                            osmComponentLabeller.call(osmWay), 
+                            wayNdsToLineString.call(osmWay.getNdRefs()).getCentroid(),
+                            Optional.fromNullable(osmWay.getProperties().get(houseNumber)), 
+                            Optional.fromNullable(osmWay.getProperties().get(street)), 
+                            Optional.fromNullable(osmWay.getProperties().get(name)));
+                    return poi;
                 }
                 
             })

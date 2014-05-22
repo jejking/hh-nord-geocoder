@@ -58,4 +58,11 @@ public interface OsmConstants {
     String street = "addr:street";
     String name = "name";
     
+    String type = "type";
+    String multipolygon = "multipolygon";
+    
+    String way = "way";
+    String outer = "outer";
+    String inner = "inner";
+    
 }

@@ -23,7 +23,10 @@ import static com.google.common.base.Preconditions.checkNotNull;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.houseNumber;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.name;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.street;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.type;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.multipolygon;
 import info.jejking.osm.OsmNode;
+import info.jejking.osm.OsmRelation;
 import info.jejking.osm.OsmWay;
 import info.jejking.osm.RxOsmParser;
 
@@ -40,7 +43,9 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
 import com.vividsolutions.jts.geom.GeometryFactory;
+import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Class to assemble useful descriptions of buildings and other points
@@ -77,19 +82,76 @@ public class RxBuildingAndPOICollectionBuilder {
 	public List<PointOfInterest> pointsOfInterestFromStream(final InputStream inputStream) {
 	    ImmutableList.Builder<PointOfInterest> pointOfInterestListBuilder = new ImmutableList.Builder<>();
 		Map<Long, Point> osmPoints = new HashMap<>();
+		Map<Long, LineString> osmLineStrings = new HashMap<>();
+		
 		RxOsmParser rxOsmParser = new RxOsmParser(inputStream);
 		
 		attachNodeGeometryMapBuilderTo(rxOsmParser.getNodeObservable(), osmPoints);
 		attachNodePointOfInterestBuilderTo(rxOsmParser.getNodeObservable(), pointOfInterestListBuilder);
 		
+		attachWayGeometryMapBuilderTo(rxOsmParser.getWayObservable(), osmPoints, osmLineStrings);
 		attachWayPointOfInterestBuilderTo(rxOsmParser.getWayObservable(), osmPoints, pointOfInterestListBuilder);
 		
+		
+		attachRelationPointOfInterestBuilderTo(rxOsmParser.getRelationObservable(), osmLineStrings, pointOfInterestListBuilder);
 		
 		return pointOfInterestListBuilder.build();
 	}
 	
+	void attachRelationPointOfInterestBuilderTo(Observable<OsmRelation> relationObservable, final Map<Long, LineString> osmLineStrings, final Builder<PointOfInterest> poiListBuilder) {
+		
+		relationObservable
+			.filter(isInterestingOsmFeaturePredicate)
+			.filter(new Func1<OsmRelation, Boolean>() {
 
-    void attachWayPointOfInterestBuilderTo(Observable<OsmWay> wayObservable,
+				@Override
+				public Boolean call(OsmRelation osmRelation) {
+					if (osmRelation.getProperties().containsKey(type) 
+							&& osmRelation.getProperties().get(type).equals(multipolygon)) {
+						return Boolean.TRUE;
+					}
+					return Boolean.FALSE;
+				}
+				
+			})
+			.map(new Func1<OsmRelation, Optional<PointOfInterest>>() {
+
+				final RelationWaysToPolygon relationWaysToPolygon = new RelationWaysToPolygon(geometryFactory, osmLineStrings);
+				
+				@Override
+				public Optional<PointOfInterest> call(OsmRelation osmRelation) {
+
+					Optional<Polygon> polygon = relationWaysToPolygon.call(osmRelation);
+					if (polygon.isPresent()) {
+						PointOfInterest poi = new PointOfInterest(
+								osmComponentLabeller.call(osmRelation), 
+								polygon.get().getCentroid(), 
+								Optional.fromNullable(osmRelation.getProperties().get(houseNumber)), 
+	                            Optional.fromNullable(osmRelation.getProperties().get(street)), 
+	                            Optional.fromNullable(osmRelation.getProperties().get(name)));
+						return Optional.of(poi);
+					} else {
+						return Optional.absent();
+					}
+					
+				}
+				
+			})
+			.subscribe(new Action1<Optional<PointOfInterest>>() {
+
+				@Override
+				public void call(Optional<PointOfInterest> poi) {
+					if (poi.isPresent()) {
+						poiListBuilder.add(poi.get());	
+					}
+				}
+				
+			});
+		
+		
+	}
+
+	void attachWayPointOfInterestBuilderTo(Observable<OsmWay> wayObservable,
             Map<Long, Point> osmPoints, final Builder<PointOfInterest> poiListBuilder) {
         
         final WayNdsToLineString wayNdsToLineString = new WayNdsToLineString(geometryFactory, osmPoints);
@@ -159,6 +221,19 @@ public class RxBuildingAndPOICollectionBuilder {
 			}
 		});
 		
+	}
+	
+	private void attachWayGeometryMapBuilderTo(Observable<OsmWay> wayObservable, final Map<Long, Point> nodePointMap, final Map<Long, LineString> osmLineStrings) {
+		
+		final WayNdsToLineString wayNdsToLineString = new WayNdsToLineString(geometryFactory, nodePointMap);
+		
+		wayObservable.subscribe(new Action1<OsmWay>() {
+
+			@Override
+			public void call(OsmWay osmWay) {
+				osmLineStrings.put(osmWay.getId(), wayNdsToLineString.call(osmWay.getNdRefs()));
+			}
+		});
 	}
 	
 	 

@@ -50,7 +50,7 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author jejking
  *
  */
-public class StreetToPolygonMapper {
+public class StreetToAdminPolygonMapper {
 
     /**
      * Does the work. Assumes that the graph database service has been

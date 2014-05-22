@@ -75,12 +75,7 @@ class WayNdsToLineString implements Func1<List<Long>, Geometry> {
         for (int i = 0; i < pointList.size(); i++) {
             coordinates[i] = pointList.get(i).getCoordinate();
         }
-        LineString lineString = geometryFactory.createLineString(coordinates);
-        if (lineString.isClosed()) {
-            return geometryFactory.createLinearRing(coordinates);
-        } else {
-            return lineString;
-        }
+        return geometryFactory.createLineString(coordinates);
     }
 
 

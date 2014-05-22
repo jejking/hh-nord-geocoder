@@ -54,7 +54,7 @@ public class StreetToPolygonMapperTest {
         TestUtil.writeOsmStreetsToGraph(graphDatabaseService);
         System.out.println("wrote streets");
         
-        StreetToPolygonMapper mapper = new StreetToPolygonMapper();
+        StreetToAdminPolygonMapper mapper = new StreetToAdminPolygonMapper();
         mapper.mapStreetsToPolygons(graphDatabaseService);
         
         System.out.println("mapped streets to districts");

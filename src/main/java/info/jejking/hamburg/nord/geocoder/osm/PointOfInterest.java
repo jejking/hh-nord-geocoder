@@ -16,8 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder;
+package info.jejking.hamburg.nord.geocoder.osm;
 
+
+import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableSet;

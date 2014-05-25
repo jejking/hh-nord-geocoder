@@ -22,7 +22,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import info.jejking.hamburg.nord.geocoder.hh.HamburgRawTreeBuilder;
-import info.jejking.hamburg.nord.geocoder.hh.NamedNode;
+import info.jejking.hamburg.nord.geocoder.hh.NamedTreeNode;
 
 import org.junit.BeforeClass;
 import org.junit.Test;
@@ -34,7 +34,7 @@ import org.junit.Test;
  */
 public class RawTreeBuilderTest {
 
-    private static NamedNode<String> hh;
+    private static NamedTreeNode<String> hh;
     
     @BeforeClass
     public static void init() {
@@ -59,7 +59,7 @@ public class RawTreeBuilderTest {
     public void areAllNamedAreasLoaded() {
         // do we have 104 named areas?
         int count = 0;
-        for (NamedNode<String> bezirk : hh.getChildren().values()) {
+        for (NamedTreeNode<String> bezirk : hh.getChildren().values()) {
             count += bezirk.getChildren().size();
         }
         assertEquals(104, count);
@@ -80,8 +80,8 @@ public class RawTreeBuilderTest {
     public void areAllNumberedDistrictsLoaded() {
         // expecting 180 Ortsteile.
         int count = 0;
-        for (NamedNode<String> borough : hh.getChildren().values()) {
-            for(NamedNode<String> namedArea : borough.getChildren().values()) {
+        for (NamedTreeNode<String> borough : hh.getChildren().values()) {
+            for(NamedTreeNode<String> namedArea : borough.getChildren().values()) {
                 count += namedArea.getChildren().size();
             }
         }
@@ -91,7 +91,7 @@ public class RawTreeBuilderTest {
     
     @Test
     public void doesUhlenhorstHaveTheCorrectTwoOrtsteile() {
-        NamedNode<String> uhlenhorst = hh.getChildren().get("Hamburg-Nord").getChildren().get("Uhlenhorst");
+        NamedTreeNode<String> uhlenhorst = hh.getChildren().get("Hamburg-Nord").getChildren().get("Uhlenhorst");
         assertNotNull(uhlenhorst);
         
         assertEquals(2, uhlenhorst.getChildren().size());
@@ -101,7 +101,7 @@ public class RawTreeBuilderTest {
     
     @Test
     public void does414HaveCorrectPolygon() {
-        NamedNode<String> uhlenhorst414 = hh
+        NamedTreeNode<String> uhlenhorst414 = hh
                                             .getChildren().get("Hamburg-Nord")
                                             .getChildren().get("Uhlenhorst")
                                             .getChildren().get("414");

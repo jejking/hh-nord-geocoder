@@ -27,7 +27,6 @@ import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.natural;
 import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.street;
 import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.type;
 import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.waterway;
-import info.jejking.hamburg.nord.geocoder.PointOfInterest;
 import info.jejking.osm.OsmComponent;
 import info.jejking.osm.OsmNode;
 import info.jejking.osm.OsmRelation;

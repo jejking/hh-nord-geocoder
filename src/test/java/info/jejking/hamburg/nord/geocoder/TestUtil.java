@@ -16,16 +16,24 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder;
 
 import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.ADMIN_AREA;
 import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;
 import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
 
+import info.jejking.hamburg.nord.geocoder.hh.CoordinateConverter;
+import info.jejking.hamburg.nord.geocoder.hh.HamburgPolygonTreeToNeoImporter;
+import info.jejking.hamburg.nord.geocoder.hh.HamburgRawTreeBuilder;
+import info.jejking.hamburg.nord.geocoder.hh.NamedTreeNode;
 import info.jejking.hamburg.nord.geocoder.osm.OsmStreetCollectionToNeoImporter;
+import info.jejking.hamburg.nord.geocoder.osm.PointOfInterest;
+import info.jejking.hamburg.nord.geocoder.osm.PointOfInterestToNeoImporter;
+import info.jejking.hamburg.nord.geocoder.osm.RxBuildingAndPOICollectionBuilder;
 import info.jejking.hamburg.nord.geocoder.osm.RxOsmStreetCollectionBuilder;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
@@ -72,6 +80,10 @@ public class TestUtil {
                 .on("NAME")
                 .create();
             
+            schema
+                .indexFor(DynamicLabel.label(GazetteerEntryTypes.POINT_OF_INTEREST))
+                .on("NAME")
+                .create();
             
             IndexManager indexManager = graph.index();
             @SuppressWarnings("unused")
@@ -90,14 +102,14 @@ public class TestUtil {
         CoordinateConverter converter = new CoordinateConverter();
         
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
-        NamedNode<String> hh = builder.buildRawTree();
-        NamedNode<Polygon> polygonHamburg = converter.fixRoot(converter.rawToPolygon(hh));
+        NamedTreeNode<String> hh = builder.buildRawTree();
+        NamedTreeNode<Polygon> polygonHamburg = converter.fixRoot(converter.rawToPolygon(hh));
         
         HamburgPolygonTreeToNeoImporter importer = new HamburgPolygonTreeToNeoImporter();
         importer.writeToNeo(polygonHamburg, graph);
     }
     
-    public static void writeOsmStreetsToGraph(GraphDatabaseService graph) {
+    public static void writeHamburgNordOsmStreetsToGraph(GraphDatabaseService graph) {
         RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(JTSFactoryFinder.getGeometryFactory(null));
         try {
         	Map<String, Geometry> streets = builder
@@ -109,6 +121,27 @@ public class TestUtil {
         } catch (IOException e) {
         	throw new RuntimeException(e);
         }
+        
+    }
+    
+    public static void writeUhlenhorstOsmStreetsToGraph(GraphDatabaseService graph) {
+        RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(JTSFactoryFinder.getGeometryFactory(null));
+
+        Map<String, Geometry> streets = builder
+                                    .streetsFromStream(
+                                            TestUtil.class.getResourceAsStream("/uhlenhorst-direct-export.osm"));
+        OsmStreetCollectionToNeoImporter importer = new OsmStreetCollectionToNeoImporter();
+        importer.writeToNeo(streets, graph);
+    }
+    
+    
+    public static void writeUhlenhorstPoisToGraph(GraphDatabaseService graph) {
+        RxBuildingAndPOICollectionBuilder builder = new RxBuildingAndPOICollectionBuilder(JTSFactoryFinder.getGeometryFactory());
+        List<PointOfInterest> pois = builder
+                                        .pointsOfInterestFromStream( TestUtil.class.getResourceAsStream("/uhlenhorst-direct-export.osm"));
+        
+        PointOfInterestToNeoImporter importer = new PointOfInterestToNeoImporter();
+        importer.writeToNeo(pois, graph);
         
     }
     

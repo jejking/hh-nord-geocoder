@@ -19,16 +19,16 @@
 package info.jejking.hamburg.nord.geocoder.osm;
 
 import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;
-import static info.jejking.hamburg.nord.geocoder.GazetteerNames.ADMINISTRATIVE_LAYER;
 import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
 import static info.jejking.hamburg.nord.geocoder.GazetteerNames.NAME;
 import static info.jejking.hamburg.nord.geocoder.GazetteerNames.STREET_LAYER;
 import static info.jejking.hamburg.nord.geocoder.GazetteerNames.TYPE;
 
+import info.jejking.hamburg.nord.geocoder.AbstractNeoImporter;
+
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.neo4j.gis.spatial.EditableLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseRecord;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
@@ -49,18 +49,17 @@ import com.vividsolutions.jts.geom.Geometry;
  * @author jejking
  *
  */
-public class OsmStreetCollectionToNeoImporter {
+public class OsmStreetCollectionToNeoImporter extends AbstractNeoImporter<Map<String, Geometry>> {
 
     public void writeToNeo(Map<String, Geometry> streets, GraphDatabaseService graph) {
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         
         try (Transaction tx = graph.beginTx()) {
-            EditableLayer adminLayer = getEditableLayer(spatialDatabaseService, ADMINISTRATIVE_LAYER);
             EditableLayer streetLayer = getEditableLayer(spatialDatabaseService, STREET_LAYER);
             Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
             
             for (Entry<String, Geometry> entry : streets.entrySet()) {
-                addStreet(entry.getKey(), entry.getValue(), streetLayer, adminLayer, fullText);
+                addStreet(entry.getKey(), entry.getValue(), streetLayer, fullText);
             }
             
             tx.success();
@@ -68,27 +67,13 @@ public class OsmStreetCollectionToNeoImporter {
         
     }
 
-    private void addStreet(String name, Geometry geometry, EditableLayer streetLayer, EditableLayer adminLayer, Index<Node> fullText) {
+    private void addStreet(String name, Geometry geometry, EditableLayer streetLayer, Index<Node> fullText) {
         SpatialDatabaseRecord record = streetLayer.add(geometry, new String[]{NAME}, new Object[]{name});
         Node neoNode = record.getGeomNode();
         neoNode.addLabel(DynamicLabel.label(STREET));
                 
         fullText.add(neoNode, NAME, name);
         fullText.add(neoNode, TYPE, STREET);
-        
-    }
-
-    private EditableLayer getEditableLayer(SpatialDatabaseService spatialDatabaseService, String name) {
-        
-        EditableLayer editableLayer = (EditableLayer) spatialDatabaseService.getLayer(name);
-        if (editableLayer != null) {
-            return editableLayer;
-        } else {
-            editableLayer = (EditableLayer) spatialDatabaseService.createWKBLayer(name);
-            editableLayer.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-            return editableLayer;
-        }
-        
         
     }
     

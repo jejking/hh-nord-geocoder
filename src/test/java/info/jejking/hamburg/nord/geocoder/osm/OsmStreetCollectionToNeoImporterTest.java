@@ -28,7 +28,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 import info.jejking.hamburg.nord.geocoder.GeographicFunctions;
-import info.jejking.hamburg.nord.geocoder.hh.TestUtil;
+import info.jejking.hamburg.nord.geocoder.TestUtil;
 
 import java.util.List;
 
@@ -61,7 +61,7 @@ public class OsmStreetCollectionToNeoImporterTest {
         graph = TestUtil.createTestDatabase();
         spatialDatabaseService = new SpatialDatabaseService(graph);
         
-        TestUtil.writeOsmStreetsToGraph(graph);
+        TestUtil.writeHamburgNordOsmStreetsToGraph(graph);
         
     }
     

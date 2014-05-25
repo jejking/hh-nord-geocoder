@@ -27,14 +27,14 @@ import java.util.Map;
  *
  * @param <T> the type
  */
-public class NamedNode<T> {
+public class NamedTreeNode<T> {
 
     private final String name;
     private final String type;
-    private final HashMap<String, NamedNode<T>> children = new HashMap<String, NamedNode<T>>();
+    private final HashMap<String, NamedTreeNode<T>> children = new HashMap<String, NamedTreeNode<T>>();
     private final T content;
     
-    public NamedNode(String name, String type, T content) {
+    public NamedTreeNode(String name, String type, T content) {
         super();
         this.name = name;
         this.type = type;
@@ -67,7 +67,7 @@ public class NamedNode<T> {
     /**
      * @return the children
      */
-    public Map<String, NamedNode<T>> getChildren() {
+    public Map<String, NamedTreeNode<T>> getChildren() {
         return children;
     }
 
@@ -98,10 +98,10 @@ public class NamedNode<T> {
         if (obj == null) {
             return false;
         }
-        if (!(obj instanceof NamedNode)) {
+        if (!(obj instanceof NamedTreeNode)) {
             return false;
         }
-        NamedNode<?> other = (NamedNode<?>) obj;
+        NamedTreeNode<?> other = (NamedTreeNode<?>) obj;
         if (children == null) {
             if (other.children != null) {
                 return false;
@@ -139,7 +139,7 @@ public class NamedNode<T> {
      */
     @Override
     public String toString() {
-        return "NamedNode [name=" + name + ", type=" + type + ", children=" + children + ", content=" + content + "]";
+        return "NamedTreeNode [name=" + name + ", type=" + type + ", children=" + children + ", content=" + content + "]";
     }
 
     

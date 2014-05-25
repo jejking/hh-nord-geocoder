@@ -80,10 +80,6 @@ public class StreetToAdminPolygonMapper {
                 
                 for (Node numberedDistrict : numberedDistrictNodes) {
                     
-                    if (streetNode.getProperty("NAME").equals("Schwanenwik")) {
-                        System.out.println("mapped street " + streetNode.getProperty("NAME") + " to district " + numberedDistrict.getProperty("NAME"));
-                    }
-                    
                     numberedDistrict.createRelationshipTo(streetNode, CONTAINS);
                     streetNode.createRelationshipTo(numberedDistrict, CONTAINED_IN);
                     

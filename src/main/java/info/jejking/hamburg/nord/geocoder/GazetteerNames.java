@@ -33,8 +33,10 @@ public interface GazetteerNames {
     
     public static final String ADMINISTRATIVE_LAYER = "ADMINISTRATIVE_LAYER";
     public static final String STREET_LAYER = "STREET_LAYER";
+    public static final String POI_LAYER = "POI_LAYER";
     
-    public static final String GAZETTEER_FULLTEXT = GazetteerEntryTypes.ADMIN_AREA + "-fulltext";
+    public static final String GAZETTEER_FULLTEXT = "GAZETTEER_FULLTEXT";
     
+    public static final String HOUSE_NUMBER = "HOUSE_NUMBER";
    
 }

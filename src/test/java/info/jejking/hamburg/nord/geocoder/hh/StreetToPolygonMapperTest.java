@@ -26,6 +26,7 @@ import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 import info.jejking.hamburg.nord.geocoder.GazetteerNames;
 import info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes;
 import info.jejking.hamburg.nord.geocoder.StreetToAdminPolygonMapper;
+import info.jejking.hamburg.nord.geocoder.TestUtil;
 
 import java.util.Iterator;
 
@@ -56,7 +57,7 @@ public class StreetToPolygonMapperTest {
         System.out.println("created database");
         TestUtil.writeHamburgPolygonsToGraph(graphDatabaseService);
         System.out.println("wrote polygons");
-        TestUtil.writeOsmStreetsToGraph(graphDatabaseService);
+        TestUtil.writeHamburgNordOsmStreetsToGraph(graphDatabaseService);
         System.out.println("wrote streets");
         
         StreetToAdminPolygonMapper mapper = new StreetToAdminPolygonMapper();

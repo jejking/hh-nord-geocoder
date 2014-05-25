@@ -17,7 +17,6 @@
  */
 package info.jejking.hamburg.nord.geocoder.osm;
 
-import info.jejking.hamburg.nord.geocoder.PointOfInterest;
 import info.jejking.osm.OsmComponent;
 
 import java.util.Map;

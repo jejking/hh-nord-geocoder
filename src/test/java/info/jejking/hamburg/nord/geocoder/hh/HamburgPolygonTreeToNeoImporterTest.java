@@ -30,6 +30,7 @@ import static org.junit.Assert.assertTrue;
 import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 import info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes;
 import info.jejking.hamburg.nord.geocoder.GeographicFunctions;
+import info.jejking.hamburg.nord.geocoder.TestUtil;
 
 import java.util.Iterator;
 import java.util.List;

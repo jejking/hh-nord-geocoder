@@ -26,7 +26,7 @@ import info.jejking.hamburg.nord.geocoder.hh.CoordinateConverter;
 import info.jejking.hamburg.nord.geocoder.hh.HamburgRawTreeBuilder;
 import info.jejking.hamburg.nord.geocoder.hh.CoordinateConverter.PolygonConversion;
 import info.jejking.hamburg.nord.geocoder.hh.CoordinateConverter.WktToGeometry;
-import info.jejking.hamburg.nord.geocoder.hh.NamedNode;
+import info.jejking.hamburg.nord.geocoder.hh.NamedTreeNode;
 
 import org.junit.Test;
 
@@ -70,9 +70,9 @@ public class CoordinateConverterTest {
     @Test
     public void convertRawHamburgData() {
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
-        NamedNode<String> rawHamburg = builder.buildRawTree();
+        NamedTreeNode<String> rawHamburg = builder.buildRawTree();
         @SuppressWarnings("unused")
-        NamedNode<Polygon> polygonHamburg = new CoordinateConverter().rawToPolygon(rawHamburg);
+        NamedTreeNode<Polygon> polygonHamburg = new CoordinateConverter().rawToPolygon(rawHamburg);
         // just runs through to prove it doesn't crash out :)
     }
     
@@ -87,10 +87,10 @@ public class CoordinateConverterTest {
     
     @Test
     public void testRecursiveConversion() {
-        NamedNode<String> root = new NamedNode<String>("root", "foo", "0");
-        NamedNode<String> one = new NamedNode<String>("one", "foo", "1");
-        NamedNode<String> ten = new NamedNode<String>("ten", "foo", "10");
-        NamedNode<String> two = new NamedNode<String>("two","foo", "2");
+        NamedTreeNode<String> root = new NamedTreeNode<String>("root", "foo", "0");
+        NamedTreeNode<String> one = new NamedTreeNode<String>("one", "foo", "1");
+        NamedTreeNode<String> ten = new NamedTreeNode<String>("ten", "foo", "10");
+        NamedTreeNode<String> two = new NamedTreeNode<String>("two","foo", "2");
         
         root.getChildren().put("one", one);
         root.getChildren().put("two", two);
@@ -98,31 +98,31 @@ public class CoordinateConverterTest {
         one.getChildren().put("ten", ten);
         
         CoordinateConverter converter = new CoordinateConverter();
-        NamedNode<Integer> rootInt = converter.convert(root, new StringToIntConverter());
+        NamedTreeNode<Integer> rootInt = converter.convert(root, new StringToIntConverter());
         
         assertEquals(0, rootInt.getContent().intValue());
         assertEquals("root", rootInt.getName());
         
-        Map<String, NamedNode<Integer>> rootIntChildren = rootInt.getChildren();
+        Map<String, NamedTreeNode<Integer>> rootIntChildren = rootInt.getChildren();
         assertEquals(2, rootIntChildren.size());
         
-        NamedNode<Integer> oneInt = rootIntChildren.get("one");
+        NamedTreeNode<Integer> oneInt = rootIntChildren.get("one");
         assertEquals(1, oneInt.getContent().intValue());
         
-        NamedNode<Integer> twoInt = rootIntChildren.get("two");
+        NamedTreeNode<Integer> twoInt = rootIntChildren.get("two");
         assertEquals(2, twoInt.getContent().intValue());
         
-        NamedNode<Integer> tenInt = oneInt.getChildren().get("ten");
+        NamedTreeNode<Integer> tenInt = oneInt.getChildren().get("ten");
         assertEquals(10, tenInt.getContent().intValue());
     }
     
     @Test
     public void fixRootCreatesHamburgPolygon() {
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
-        NamedNode<String> rawHamburg = builder.buildRawTree();
-        NamedNode<Polygon> roughRootPolygonHamburg = new CoordinateConverter().rawToPolygon(rawHamburg);
+        NamedTreeNode<String> rawHamburg = builder.buildRawTree();
+        NamedTreeNode<Polygon> roughRootPolygonHamburg = new CoordinateConverter().rawToPolygon(rawHamburg);
         @SuppressWarnings("unused")
-        NamedNode<Polygon> fixedRootPolygonHamburg = new CoordinateConverter().fixRoot(roughRootPolygonHamburg);
+        NamedTreeNode<Polygon> fixedRootPolygonHamburg = new CoordinateConverter().fixRoot(roughRootPolygonHamburg);
     }
 
 }

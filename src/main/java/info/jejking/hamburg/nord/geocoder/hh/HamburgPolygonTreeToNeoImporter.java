@@ -19,7 +19,8 @@
 package info.jejking.hamburg.nord.geocoder.hh;
 
 
-import org.geotools.referencing.crs.DefaultGeographicCRS;
+import info.jejking.hamburg.nord.geocoder.AbstractNeoImporter;
+
 import org.neo4j.gis.spatial.EditableLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseRecord;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
@@ -41,7 +42,7 @@ import static info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes.*;
  * @author jejking
  *
  */
-public class HamburgPolygonTreeToNeoImporter {
+public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<NamedTreeNode<Polygon>> {
 
     /**
      * Writes the root node to the graph database, along with all children,
@@ -50,7 +51,7 @@ public class HamburgPolygonTreeToNeoImporter {
      * @param root
      * @param graph
      */
-    public void writeToNeo(NamedNode<Polygon> root, GraphDatabaseService graph) {
+    public void writeToNeo(NamedTreeNode<Polygon> root, GraphDatabaseService graph) {
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         
         try (Transaction tx = graph.beginTx()) {
@@ -63,7 +64,7 @@ public class HamburgPolygonTreeToNeoImporter {
         
     }
     
-    private Node addAdministrativeNode(EditableLayer layer, Index<Node> fullText, Node neoParent, NamedNode<Polygon> child) {
+    private Node addAdministrativeNode(EditableLayer layer, Index<Node> fullText, Node neoParent, NamedTreeNode<Polygon> child) {
         
         // create the child node
         Node neoChildNode = addNamedNodeToLayer(layer, fullText, child);
@@ -74,7 +75,7 @@ public class HamburgPolygonTreeToNeoImporter {
         }
         
         // recurse down the child's children....
-        for (NamedNode<Polygon> childNode : child.getChildren().values()) {
+        for (NamedTreeNode<Polygon> childNode : child.getChildren().values()) {
             addAdministrativeNode(layer, fullText, neoChildNode, childNode);
         }
         
@@ -87,7 +88,7 @@ public class HamburgPolygonTreeToNeoImporter {
         
     }
 
-    private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> fullText, NamedNode<Polygon> node) {
+    private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> fullText, NamedTreeNode<Polygon> node) {
         SpatialDatabaseRecord record = layer.add(node.getContent(), new String[]{NAME}, new Object[]{node.getName()});
         Node neoNode = record.getGeomNode();
         neoNode.addLabel(DynamicLabel.label(node.getType()));
@@ -99,12 +100,4 @@ public class HamburgPolygonTreeToNeoImporter {
         return neoNode;
     }
     
-    
-
-    private EditableLayer getEditableLayer(SpatialDatabaseService spatialDatabaseService, String name) {
-        EditableLayer layer = (EditableLayer) spatialDatabaseService.createWKBLayer(name);
-        layer.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-        return layer;
-    }
-
 }

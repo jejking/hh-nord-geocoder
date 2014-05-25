@@ -1,0 +1,134 @@
+/* 
+ *  Hamburg-Nord Geocoder, by John King.
+ *  Copyright (C) 2014,  John King
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program.  If not, see <http://www.gnu.org/licenses/>
+ *
+ */
+package info.jejking.hamburg.nord.geocoder.osm;
+
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.POINT_OF_INTEREST;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.HOUSE_NUMBER;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.NAME;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.POI_LAYER;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.TYPE;
+import info.jejking.hamburg.nord.geocoder.AbstractNeoImporter;
+import info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes;
+
+import java.util.List;
+import java.util.NoSuchElementException;
+
+import org.neo4j.gis.spatial.EditableLayer;
+import org.neo4j.gis.spatial.SpatialDatabaseRecord;
+import org.neo4j.gis.spatial.SpatialDatabaseService;
+import org.neo4j.graphdb.DynamicLabel;
+import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexHits;
+
+/**
+ * Writes {@link PointOfInterest} instances to Neo4j. In particular,
+ * connections are made, where possible, to street instances already in the
+ * database.
+ * 
+ * @author jejking
+ */
+public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<PointOfInterest>> {
+
+    public void writeToNeo(List<PointOfInterest> pois, GraphDatabaseService graph) {
+        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
+        
+        try (Transaction tx = graph.beginTx()) {
+            EditableLayer poiLayer = getEditableLayer(spatialDatabaseService, POI_LAYER);
+            Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
+            
+            for (PointOfInterest poi : pois) {
+                addPoi(poi, poiLayer, fullText);
+            }
+            
+            tx.success();
+        }
+        
+    }
+
+    private void addPoi(PointOfInterest poi, EditableLayer poiLayer, Index<Node> fullText) {
+
+        SpatialDatabaseRecord record = createSpatialDatabaseRecord(poi, poiLayer);;
+        
+        Node neoNode = record.getGeomNode();
+        
+        labelNode(poi, neoNode);
+        
+        linkNodeToStreet(poi, neoNode, fullText);
+        
+        doFullTextIndexing(poi, neoNode, fullText);
+        
+    }
+
+    private void linkNodeToStreet(PointOfInterest poi, Node neoNode, Index<Node> fullText) {
+        if (poi.getStreet().isPresent()) {
+            
+            IndexHits<Node> streets = fullText.get(NAME, poi.getStreet().get());
+            try {
+                Node streetNode = streets.getSingle();
+                
+                Relationship contained = neoNode.createRelationshipTo(streetNode, GazetteerRelationshipTypes.CONTAINED_IN);
+                Relationship contains = streetNode.createRelationshipTo(neoNode, GazetteerRelationshipTypes.CONTAINS);
+                
+                if (poi.getHouseNumber().isPresent()) {
+                    contained.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
+                    contains.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
+                }
+                
+            } catch(NoSuchElementException e) {
+                // oops, no match...
+                System.err.println("No street named " + poi.getStreet().get());
+            }
+        }
+        
+    }
+
+    private void doFullTextIndexing(PointOfInterest poi, Node neoNode, Index<Node> fullText) {
+        if (poi.getName().isPresent()) {
+            fullText.add(neoNode, NAME, poi.getName().get());
+            fullText.add(neoNode, TYPE, POINT_OF_INTEREST);
+        }
+        
+    }
+
+    private void labelNode(PointOfInterest poi, Node neoNode) {
+        for (String label : poi.getLabels()) {
+            neoNode.addLabel(DynamicLabel.label(label));
+        }
+    }
+
+    private SpatialDatabaseRecord createSpatialDatabaseRecord(PointOfInterest poi, EditableLayer poiLayer) {
+        SpatialDatabaseRecord record;
+        if (poi.getName().isPresent()) {
+            record = poiLayer
+                    .add(poi.getPoint(), 
+                            new String[]{NAME}, new Object[]{poi.getName().get()});
+        } else {
+            record = poiLayer.add(poi.getPoint());
+        }
+        return record;
+    }
+
+    
+    
+}

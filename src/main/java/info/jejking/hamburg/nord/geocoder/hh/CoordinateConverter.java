@@ -56,7 +56,7 @@ public class CoordinateConverter {
      * @param rawRoot
      * @return
      */
-    public NamedNode<Polygon> rawToPolygon(NamedNode<String> rawRoot) {
+    public NamedTreeNode<Polygon> rawToPolygon(NamedTreeNode<String> rawRoot) {
        return convert(rawRoot, compose(new PolygonConversion(), new WktToGeometry()));
     }
     
@@ -67,12 +67,12 @@ public class CoordinateConverter {
      * @param root
      * @return
      */
-    public NamedNode<Polygon> fixRoot(NamedNode<Polygon> root) {
+    public NamedTreeNode<Polygon> fixRoot(NamedTreeNode<Polygon> root) {
         
         Geometry unionOfBoroughs = computeUnionOfBoroughs(root);
         Polygon boundaryAsPolygon = convertToPolygon(unionOfBoroughs);
        
-        NamedNode<Polygon> fixedRoot = new NamedNode<Polygon>("Hamburg", GazetteerEntryTypes.CITY, boundaryAsPolygon);
+        NamedTreeNode<Polygon> fixedRoot = new NamedTreeNode<Polygon>("Hamburg", GazetteerEntryTypes.CITY, boundaryAsPolygon);
         fixedRoot.getChildren().putAll(root.getChildren());
         return fixedRoot;
     }
@@ -85,8 +85,8 @@ public class CoordinateConverter {
         return boundaryAsPolygon;
     }
 
-    private Geometry computeUnionOfBoroughs(NamedNode<Polygon> root) {
-        Iterator<NamedNode<Polygon>> iterator = root.getChildren().values().iterator();
+    private Geometry computeUnionOfBoroughs(NamedTreeNode<Polygon> root) {
+        Iterator<NamedTreeNode<Polygon>> iterator = root.getChildren().values().iterator();
         Geometry unionOfBoroughs = iterator.next().getContent();
         
         
@@ -99,17 +99,17 @@ public class CoordinateConverter {
     }
     
     /**
-     * Recursively converts a NamedNode<F> to a NamedNode<T>. Names are retained throughout.
+     * Recursively converts a NamedTreeNode<F> to a NamedTreeNode<T>. Names are retained throughout.
      * @param from from
      * @param conversion the function to apply to the payload
-     * @return converted NamedNode<T>
+     * @return converted NamedTreeNode<T>
      */
-    public <T, F> NamedNode<T> convert(NamedNode<F> from, Conversion<F, T> conversion) {
+    public <T, F> NamedTreeNode<T> convert(NamedTreeNode<F> from, Conversion<F, T> conversion) {
         // convert node content itself, keeping the name
-        NamedNode<T> to = new NamedNode<T>(from.getName(), from.getType(), conversion.convert(from.getContent()));
+        NamedTreeNode<T> to = new NamedTreeNode<T>(from.getName(), from.getType(), conversion.convert(from.getContent()));
         
         // apply same conversion to children, they retain the same name
-        Map<String, NamedNode<T>> toChildren = to.getChildren();
+        Map<String, NamedTreeNode<T>> toChildren = to.getChildren();
         for (String fromChildKey : from.getChildren().keySet()) {
             toChildren.put(fromChildKey, convert(from.getChildren().get(fromChildKey), conversion));
         }

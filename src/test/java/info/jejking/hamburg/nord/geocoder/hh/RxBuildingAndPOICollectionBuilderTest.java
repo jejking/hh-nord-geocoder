@@ -19,12 +19,19 @@
 package info.jejking.hamburg.nord.geocoder.hh;
 
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.houseNumber;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.inner;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.outer;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.type;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.multipolygon;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import info.jejking.osm.OsmMetadataHolder;
 import info.jejking.osm.OsmNode;
+import info.jejking.osm.OsmRelation;
 import info.jejking.osm.OsmWay;
+import info.jejking.osm.OsmRelation.Member;
+import info.jejking.osm.OsmRelation.Member.MemberType;
 
 import java.util.Map;
 
@@ -36,8 +43,10 @@ import org.junit.Test;
 import rx.Observable;
 
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
@@ -129,5 +138,86 @@ public class RxBuildingAndPOICollectionBuilderTest {
         assertEquals(geometryFactory.createPoint(new Coordinate(1, 1)), poi.getPoint());
     }
     
+    
+    
+    @Test
+    public void poisBuiltFromRelations() {
+        
+        OsmRelation.Member way1 = new Member(MemberType.WAY, 1L, Optional.of(outer));
+        OsmRelation.Member way2 = new Member(MemberType.WAY, 2L, Optional.of(inner));
+        OsmRelation.Member way3 = new Member(MemberType.WAY, 3L, Optional.of(inner));
+        
+        OsmRelation relation = new OsmRelation(DUMMY_METADATA, 
+                                                ImmutableMap.of(houseNumber, "22",
+                                                                "building", "yes",
+                                                                type, multipolygon),
+                                                ImmutableList.of(way1, way2, way3));
+        
+        
+        ImmutableList.Builder<PointOfInterest> poiListBuilder = ImmutableList.builder();
+        builder.attachRelationPointOfInterestBuilderTo(Observable.from(relation),
+                                                        RelationWaysToPolygonTest.buildOsmLineStrings(),
+                                                        poiListBuilder);
+        
+        PointOfInterest poi = poiListBuilder.build().get(0);
+        assertFalse(poi.getStreet().isPresent());
+        assertEquals("22", poi.getHouseNumber().get());
+        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.BUILDING));
+        
+        assertEquals(geometryFactory.createPoint(new Coordinate(4.5, 3.5)), poi.getPoint());
+        
+    }
+    
+    @Test
+    public void canReadUhlenhorst() {
+        
+        ImmutableList<PointOfInterest> pois = builder.pointsOfInterestFromStream(RxBuildingAndPOICollectionBuilder.class.getResourceAsStream("/uhlenhorst-direct-export.osm"));
+        
+        // test for some arbitrary points of interest....
+        
+        // a node, Mundsburger Damm 12, lat="53.5646073" lon="10.0187863"
+        PointOfInterest md12 = Iterables.find(pois, new Predicate<PointOfInterest>() {
+            @Override
+            public boolean apply(PointOfInterest input) {
+                if (input.getHouseNumber().isPresent() && input.getHouseNumber().get().equals("12")) {
+                    if (input.getStreet().isPresent() && input.getStreet().get().equals("Mundsburger Damm")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        assertEquals(md12.getPoint().getCoordinate().x, 10.01878, 0.001);
+        assertEquals(md12.getPoint().getCoordinate().y, 53.5646, 0.001);
+        
+        // a way, uhlenhorster weg 4, ca 53.568621, 10.017030 according to Google Maps
+        PointOfInterest uw4 = Iterables.find(pois, new Predicate<PointOfInterest>() {
+            @Override
+            public boolean apply(PointOfInterest input) {
+                if (input.getHouseNumber().isPresent() && input.getHouseNumber().get().equals("4")) {
+                    if (input.getStreet().isPresent() && input.getStreet().get().equals("Uhlenhorster Weg")) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        });
+        assertEquals(uw4.getPoint().getCoordinate().x, 10.01703, 0.001);
+        assertEquals(uw4.getPoint().getCoordinate().y, 53.5686, 0.001);
+        
+        
+        PointOfInterest lerchenfeldGymnasium = Iterables.find(pois, new Predicate<PointOfInterest>() {
+            @Override
+            public boolean apply(PointOfInterest input) {
+                if (input.getName().isPresent() && input.getName().get().equals("Gymnasium Lerchenfeld")) {
+                    return true;
+                }
+                return false;
+            }
+        });
+        assertTrue(lerchenfeldGymnasium.getLabels().contains(GazetteerEntryTypes.SCHOOL));        
+        assertEquals("Lerchenfeld", lerchenfeldGymnasium.getStreet().get());
+        assertEquals("10", lerchenfeldGymnasium.getHouseNumber().get());
+    }
 
 }

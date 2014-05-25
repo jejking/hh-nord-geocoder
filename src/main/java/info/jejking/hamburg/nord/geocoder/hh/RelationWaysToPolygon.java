@@ -20,14 +20,26 @@ package info.jejking.hamburg.nord.geocoder.hh;
 
 import info.jejking.osm.OsmRelation;
 
+
+import info.jejking.osm.OsmRelation.Member;
+
 import java.util.Map;
 
 import rx.functions.Func1;
 
+import com.google.common.base.Function;
 import com.google.common.base.Optional;
+import com.google.common.base.Predicate;
+import com.google.common.collect.Iterables;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
+
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.type;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.multipolygon;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.outer;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.inner;
 
 /**
  * Function to map a relation that is a multipolygon to an optional polgyon. The 
@@ -59,9 +71,17 @@ class RelationWaysToPolygon implements Func1<OsmRelation, Optional<Polygon>> {
 	public Optional<Polygon> call(OsmRelation osmRelation) {
 		
 		try {
-			// get outer....
-			
-			
+		    if (osmRelation.getProperties().get(type) != null && 
+		            osmRelation.getProperties().get(type).equals(multipolygon)) {
+
+		        LinearRing shell = buildShell(osmRelation); 
+		        LinearRing[] holes = buildHoles(osmRelation); 
+		        
+		        Polygon poly = this.geometryFactory.createPolygon(shell, holes);
+		        return Optional.of(poly);
+
+		    }
+		    
 			// get any inner....
 			return Optional.absent();
 			
@@ -73,5 +93,59 @@ class RelationWaysToPolygon implements Func1<OsmRelation, Optional<Polygon>> {
 		
 		
 	}
+
+    private LinearRing[] buildHoles(OsmRelation osmRelation) {
+        Iterable<LinearRing> linearRings = Iterables.transform(getInners(osmRelation), new Function<OsmRelation.Member, LinearRing>() {
+            
+            @Override
+            public LinearRing apply(OsmRelation.Member member) {
+                return linearRingFromMember(member);
+            }
+            
+        });
+        return Iterables.toArray(linearRings, LinearRing.class);
+    }
+    
+    private Iterable<OsmRelation.Member> getInners(OsmRelation osmRelation) {
+        return Iterables.filter(osmRelation.getMembers(), new Predicate<OsmRelation.Member>() {
+            @Override
+            public boolean apply(Member member) {
+                if (member.getRole().isPresent() &&
+                        member.getRole().get().equals(inner)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        });
+    }
+
+    private LinearRing buildShell(OsmRelation osmRelation) {
+        return linearRingFromMember(getOuter(osmRelation));
+    }
+
+    private LinearRing linearRingFromMember(OsmRelation.Member member) {
+        return this.geometryFactory
+                    .createLinearRing(
+                            osmLineStrings.get(member.getRef())
+                                .getCoordinates());
+    }
+
+    private Member getOuter(OsmRelation osmRelation) {
+        return Iterables.filter(osmRelation.getMembers(), new Predicate<OsmRelation.Member>() {
+   
+            @Override
+            public boolean apply(Member member) {
+                if (member.getRole().isPresent() &&
+                        member.getRole().get().equals(outer)) {
+                    return true;
+                } else {
+                    return false;
+                }
+            }
+        })
+        .iterator()
+        .next();
+    }
 
 }

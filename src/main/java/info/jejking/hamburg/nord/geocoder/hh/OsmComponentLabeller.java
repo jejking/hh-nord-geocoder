@@ -29,6 +29,7 @@ import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.library;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.park;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.placeOfWorship;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.police;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.publicBuilding;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.publicTransport;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.railway;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.school;
@@ -71,6 +72,7 @@ class OsmComponentLabeller implements Func1<OsmComponent, ImmutableSet<String>> 
                     case theatre : setBuilder.add(GazetteerEntryTypes.THEATRE); break;
                     case university : setBuilder.add(GazetteerEntryTypes.UNIVERSITY); break;
                     case placeOfWorship : setBuilder.add(GazetteerEntryTypes.PLACE_OF_WORSHIP); break;
+                    case publicBuilding : setBuilder.add(GazetteerEntryTypes.PUBLIC_BUILDING); break;
                     default: ; // nothing
                 }
             }

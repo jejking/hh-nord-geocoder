@@ -25,6 +25,9 @@ import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.name;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.street;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.type;
 import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.multipolygon;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.natural;
+import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.waterway;
+import info.jejking.osm.OsmComponent;
 import info.jejking.osm.OsmNode;
 import info.jejking.osm.OsmRelation;
 import info.jejking.osm.OsmWay;
@@ -32,7 +35,6 @@ import info.jejking.osm.RxOsmParser;
 
 import java.io.InputStream;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import rx.Observable;
@@ -56,7 +58,19 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class RxBuildingAndPOICollectionBuilder {
 	
-	private static final IsInterestingOsmFeaturePredicate isInterestingOsmFeaturePredicate = new IsInterestingOsmFeaturePredicate();
+	private static final class FilterWaterwaysPredicate implements Func1<OsmComponent, Boolean> {
+
+        @Override
+        public Boolean call(OsmComponent osmComponent) {
+            if (osmComponent.getProperties().containsKey(waterway)
+                    || osmComponent.getProperties().containsKey(natural)) {
+                return Boolean.FALSE;
+            }
+            return Boolean.TRUE;
+        }
+    }
+
+    private static final IsInterestingOsmFeaturePredicate isInterestingOsmFeaturePredicate = new IsInterestingOsmFeaturePredicate();
 	private static final OsmComponentLabeller osmComponentLabeller = new OsmComponentLabeller();
 	
 	
@@ -79,7 +93,7 @@ public class RxBuildingAndPOICollectionBuilder {
 	 * @param inputStream with XML data
 	 * @return map of street name to geometry mappings
 	 */
-	public List<PointOfInterest> pointsOfInterestFromStream(final InputStream inputStream) {
+	public ImmutableList<PointOfInterest> pointsOfInterestFromStream(final InputStream inputStream) {
 	    ImmutableList.Builder<PointOfInterest> pointOfInterestListBuilder = new ImmutableList.Builder<>();
 		Map<Long, Point> osmPoints = new HashMap<>();
 		Map<Long, LineString> osmLineStrings = new HashMap<>();
@@ -95,6 +109,8 @@ public class RxBuildingAndPOICollectionBuilder {
 		
 		attachRelationPointOfInterestBuilderTo(rxOsmParser.getRelationObservable(), osmLineStrings, pointOfInterestListBuilder);
 		
+		
+		rxOsmParser.parseOsmStream();
 		return pointOfInterestListBuilder.build();
 	}
 	
@@ -102,6 +118,7 @@ public class RxBuildingAndPOICollectionBuilder {
 		
 		relationObservable
 			.filter(isInterestingOsmFeaturePredicate)
+			.filter(new FilterWaterwaysPredicate())
 			.filter(new Func1<OsmRelation, Boolean>() {
 
 				@Override
@@ -158,6 +175,7 @@ public class RxBuildingAndPOICollectionBuilder {
         
         wayObservable
             .filter(isInterestingOsmFeaturePredicate)
+            .filter(new FilterWaterwaysPredicate())
             .map(new Func1<OsmWay, PointOfInterest>() {
 
                 @Override
@@ -187,6 +205,7 @@ public class RxBuildingAndPOICollectionBuilder {
 		// retain nodes that represent buildings and points of interest...
 		nodeObservable
 		    .filter(isInterestingOsmFeaturePredicate)
+		    .filter(new FilterWaterwaysPredicate())
 		    .map(new Func1<OsmNode, PointOfInterest>() { // map remaining set to points of interest
 
                 @Override

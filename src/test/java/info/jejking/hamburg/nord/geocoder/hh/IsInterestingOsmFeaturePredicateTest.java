@@ -250,9 +250,10 @@ public class IsInterestingOsmFeaturePredicateTest {
     
     
     @Test
-    public void filterRetainsNodesWithHouseNumbers() {
+    public void filterRetainsBuildingNodesWithHouseNumbers() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(houseNumber, "34");
+        builder1.put("building", "yes");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
         

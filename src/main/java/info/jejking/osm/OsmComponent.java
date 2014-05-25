@@ -85,5 +85,15 @@ public abstract class OsmComponent implements OsmMetadata, OsmProperties {
     public final Optional<Long> getVersion() {
         return metadata.getVersion();
     }
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "OsmComponent [metadata=" + metadata + ", properties=" + properties + "]";
+    }
+    
+    
     
 }

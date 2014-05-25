@@ -56,6 +56,16 @@ public final class OsmNode extends OsmComponent {
         return point;
     }
 
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "OsmNode [point=" + point + ", toString()=" + super.toString() + "]";
+    }
+
     
     
 }

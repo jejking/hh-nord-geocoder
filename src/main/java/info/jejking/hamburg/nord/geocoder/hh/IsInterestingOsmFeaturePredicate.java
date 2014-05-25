@@ -52,8 +52,7 @@ final class IsInterestingOsmFeaturePredicate implements Func1<OsmComponent, Bool
             .put(publicTransport, ImmutableSet.of(station, stopPosition))
             .put(railway, ImmutableSet.of(station))
             .put(amenity, ImmutableSet.of(placeOfWorship, school, university, police, firestation, theatre, cinema, library, hospital, publicBuilding))
-            .put(emergency, emptyStringSet)
-            .put(houseNumber, emptyStringSet);
+            .put(emergency, emptyStringSet);
         interestingTags = interestingTagsBuilder.build();
         
         ImmutableMap.Builder<String, ImmutableSet<String>> interestingTagsWithNameOnlyBuilder = ImmutableMap.builder();
@@ -86,6 +85,11 @@ final class IsInterestingOsmFeaturePredicate implements Func1<OsmComponent, Bool
     			return Boolean.TRUE;
     		}
     	}
+    	
+    	if (props.containsKey(building) && props.containsKey(houseNumber)) {
+    	    return Boolean.TRUE;
+    	}
+    	
     	return Boolean.FALSE;
     }
 

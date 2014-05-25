@@ -55,7 +55,7 @@ public interface GazetteerEntryTypes {
     public static final String CINEMA = "CINEMA";
     public static final String LIBRARY = "LIBRARY";
     public static final String HOSPITAL = "HOSPITAL";
-
+    public static final String PUBLIC_BUILDING = "PUBLIC_BUILDING";
 
     
 }

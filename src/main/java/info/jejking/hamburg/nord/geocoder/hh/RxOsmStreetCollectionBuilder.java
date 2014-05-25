@@ -18,27 +18,23 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
+import static com.google.common.base.Preconditions.checkNotNull;
 import info.jejking.osm.OsmNode;
 import info.jejking.osm.OsmWay;
 import info.jejking.osm.RxOsmParser;
 
 import java.io.InputStream;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Point;
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Class to extract street names and geometries from an

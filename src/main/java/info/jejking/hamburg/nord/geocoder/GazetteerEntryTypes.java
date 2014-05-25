@@ -17,7 +17,7 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder;
 
 /**
  * Defines some "types" from the point of a view of a typical geocoding gazetteer

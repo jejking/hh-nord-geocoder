@@ -16,16 +16,19 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.houseNumber;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.inner;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.outer;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.type;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.multipolygon;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.houseNumber;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.inner;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.multipolygon;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.outer;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.type;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
+import info.jejking.hamburg.nord.geocoder.PointOfInterest;
+import info.jejking.hamburg.nord.geocoder.osm.RxBuildingAndPOICollectionBuilder;
 import info.jejking.osm.OsmMetadataHolder;
 import info.jejking.osm.OsmNode;
 import info.jejking.osm.OsmRelation;

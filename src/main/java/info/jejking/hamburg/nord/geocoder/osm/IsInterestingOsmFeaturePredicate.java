@@ -15,8 +15,9 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
+import info.jejking.hamburg.nord.geocoder.PointOfInterest;
 import info.jejking.osm.OsmComponent;
 
 import java.util.Map;
@@ -26,7 +27,7 @@ import rx.functions.Func1;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.*;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.*;
 
 /**
  * Predicate for use in filtering streams of {@link OsmComponent} to retain only

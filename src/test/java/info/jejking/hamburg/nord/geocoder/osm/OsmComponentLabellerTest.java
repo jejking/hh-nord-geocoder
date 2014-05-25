@@ -16,11 +16,13 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.*;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.*;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
+import info.jejking.hamburg.nord.geocoder.osm.OsmComponentLabeller;
 import info.jejking.osm.OsmMetadataHolder;
 
 import org.joda.time.DateTime;

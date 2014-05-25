@@ -16,10 +16,12 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
+
+import info.jejking.hamburg.nord.geocoder.osm.RxOsmStreetCollectionBuilder;
 
 import java.util.Map;
 

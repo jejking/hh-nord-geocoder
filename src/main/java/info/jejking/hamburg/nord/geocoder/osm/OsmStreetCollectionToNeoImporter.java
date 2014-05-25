@@ -16,14 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.STREET;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.ADMINISTRATIVE_LAYER;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.GAZETTEER_FULLTEXT;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.NAME;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.STREET_LAYER;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.TYPE;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.ADMINISTRATIVE_LAYER;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.NAME;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.STREET_LAYER;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.TYPE;
 
 import java.util.Map;
 import java.util.Map.Entry;

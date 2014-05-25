@@ -17,23 +17,16 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder;
+
+import org.neo4j.graphdb.RelationshipType;
 
 /**
- * Constants for property names and the like.
+ * Defines relationship types for use in the gazetteer.
  * 
  * @author jejking
- *
  */
-public interface GazetteerNames {
-
-    public static final String NAME = "NAME";
-    public static final String TYPE = "TYPE";
-    
-    public static final String ADMINISTRATIVE_LAYER = "ADMINISTRATIVE_LAYER";
-    public static final String STREET_LAYER = "STREET_LAYER";
-    
-    public static final String GAZETTEER_FULLTEXT = GazetteerEntryTypes.ADMIN_AREA + "-fulltext";
-    
-   
+public enum GazetteerRelationshipTypes implements RelationshipType {
+    CONTAINS,
+    CONTAINED_IN;
 }

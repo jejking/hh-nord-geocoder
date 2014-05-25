@@ -16,30 +16,31 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.amenity;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.building;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.cinema;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.emergency;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.firestation;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.hospital;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.leisure;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.library;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.park;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.placeOfWorship;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.police;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.publicBuilding;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.publicTransport;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.railway;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.school;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.theatre;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.university;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.amenity;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.building;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.cinema;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.emergency;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.firestation;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.hospital;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.leisure;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.library;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.park;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.placeOfWorship;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.police;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.publicBuilding;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.publicTransport;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.railway;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.school;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.theatre;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.university;
 
 import java.util.Map;
 
 import com.google.common.collect.ImmutableSet;
 
+import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 import info.jejking.osm.OsmComponent;
 import rx.functions.Func1;
 

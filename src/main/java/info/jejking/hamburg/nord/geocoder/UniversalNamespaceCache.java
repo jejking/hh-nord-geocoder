@@ -1,4 +1,4 @@
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder;
 
 import java.util.HashMap;
 import java.util.Iterator;

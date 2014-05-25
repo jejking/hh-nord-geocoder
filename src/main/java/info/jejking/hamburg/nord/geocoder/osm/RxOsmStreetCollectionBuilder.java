@@ -16,9 +16,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
 import static com.google.common.base.Preconditions.checkNotNull;
+
 import info.jejking.osm.OsmNode;
 import info.jejking.osm.OsmWay;
 import info.jejking.osm.RxOsmParser;

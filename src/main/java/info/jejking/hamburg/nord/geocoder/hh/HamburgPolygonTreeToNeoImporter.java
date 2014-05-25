@@ -18,6 +18,7 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
+
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.neo4j.gis.spatial.EditableLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseRecord;
@@ -30,9 +31,9 @@ import org.neo4j.graphdb.index.Index;
 
 import com.vividsolutions.jts.geom.Polygon;
 
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.*;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerRelationshipTypes.*;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.*;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.*;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.*;
+import static info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes.*;
 
 /**
  * Class to insert hierarchy of {@link GazetteerEntry} instances

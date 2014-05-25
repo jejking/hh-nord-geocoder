@@ -17,13 +17,13 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder;
 
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.NUMBERED_DISTRICT;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.STREET;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.ADMINISTRATIVE_LAYER;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerRelationshipTypes.CONTAINED_IN;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerRelationshipTypes.CONTAINS;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.NUMBERED_DISTRICT;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.ADMINISTRATIVE_LAYER;
+import static info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes.CONTAINED_IN;
+import static info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes.CONTAINS;
 
 import java.util.List;
 

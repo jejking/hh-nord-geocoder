@@ -16,17 +16,18 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
 
 import static com.google.common.base.Preconditions.checkNotNull;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.houseNumber;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.name;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.street;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.type;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.multipolygon;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.natural;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.waterway;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.houseNumber;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.multipolygon;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.name;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.natural;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.street;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.type;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.waterway;
+import info.jejking.hamburg.nord.geocoder.PointOfInterest;
 import info.jejking.osm.OsmComponent;
 import info.jejking.osm.OsmNode;
 import info.jejking.osm.OsmRelation;

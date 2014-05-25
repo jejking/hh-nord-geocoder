@@ -16,8 +16,9 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
+import info.jejking.hamburg.nord.geocoder.osm.RelationWaysToPolygon;
 import info.jejking.osm.OsmMetadataHolder;
 import info.jejking.osm.OsmRelation;
 import info.jejking.osm.OsmRelation.Member;
@@ -38,10 +39,10 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.Polygon;
 
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.type;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.multipolygon;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.outer;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.inner;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.inner;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.multipolygon;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.outer;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.type;
 import static org.junit.Assert.assertEquals;
 
 /**

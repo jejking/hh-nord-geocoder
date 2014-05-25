@@ -18,15 +18,17 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.CITY;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.NAMED_AREA;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.ADMINISTRATIVE_LAYER;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.GAZETTEER_FULLTEXT;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.NAME;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.TYPE;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.CITY;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.NAMED_AREA;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.ADMINISTRATIVE_LAYER;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.NAME;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
+import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
+import info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes;
 import info.jejking.hamburg.nord.geocoder.GeographicFunctions;
 
 import java.util.Iterator;

@@ -19,6 +19,9 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
+import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
+import info.jejking.hamburg.nord.geocoder.UniversalNamespaceCache;
+
 import java.io.IOException;
 import java.util.Properties;
 

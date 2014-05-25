@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.geocoder.hh;
+package info.jejking.hamburg.nord.geocoder.osm;
 
 import info.jejking.osm.OsmRelation;
 
@@ -36,10 +36,10 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.LinearRing;
 import com.vividsolutions.jts.geom.Polygon;
 
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.type;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.multipolygon;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.outer;
-import static info.jejking.hamburg.nord.geocoder.hh.OsmConstants.inner;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.inner;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.multipolygon;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.outer;
+import static info.jejking.hamburg.nord.geocoder.osm.OsmConstants.type;
 
 /**
  * Function to map a relation that is a multipolygon to an optional polgyon. The 

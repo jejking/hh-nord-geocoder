@@ -19,6 +19,8 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
+import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
+
 import java.util.Iterator;
 import java.util.Map;
 

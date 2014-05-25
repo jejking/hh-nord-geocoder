@@ -18,9 +18,12 @@
  */
 package info.jejking.hamburg.nord.geocoder.hh;
 
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.ADMIN_AREA;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerEntryTypes.STREET;
-import static info.jejking.hamburg.nord.geocoder.hh.GazetteerNames.GAZETTEER_FULLTEXT;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.ADMIN_AREA;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
+
+import info.jejking.hamburg.nord.geocoder.osm.OsmStreetCollectionToNeoImporter;
+import info.jejking.hamburg.nord.geocoder.osm.RxOsmStreetCollectionBuilder;
 
 import java.io.IOException;
 import java.util.Map;
@@ -46,13 +49,13 @@ import com.vividsolutions.jts.geom.Polygon;
  * @author jejking
  *
  */
-class TestUtil {
+public class TestUtil {
 
     /*
      * Creates fresh test database with some
      * standard schema and full-text indexes set up already. 
      */
-    static GraphDatabaseService createTestDatabase() {
+    public static GraphDatabaseService createTestDatabase() {
         GraphDatabaseService graph =  new TestGraphDatabaseFactory()
                                                         .newImpermanentDatabaseBuilder()
                                                         .newGraphDatabase();
@@ -83,7 +86,7 @@ class TestUtil {
         
     }
     
-    static void writeHamburgPolygonsToGraph(GraphDatabaseService graph) {
+    public static void writeHamburgPolygonsToGraph(GraphDatabaseService graph) {
         CoordinateConverter converter = new CoordinateConverter();
         
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
@@ -94,7 +97,7 @@ class TestUtil {
         importer.writeToNeo(polygonHamburg, graph);
     }
     
-    static void writeOsmStreetsToGraph(GraphDatabaseService graph) {
+    public static void writeOsmStreetsToGraph(GraphDatabaseService graph) {
         RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(JTSFactoryFinder.getGeometryFactory(null));
         try {
         	Map<String, Geometry> streets = builder

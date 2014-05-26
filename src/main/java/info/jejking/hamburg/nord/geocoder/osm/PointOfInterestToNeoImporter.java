@@ -25,10 +25,10 @@ import static info.jejking.hamburg.nord.geocoder.GazetteerNames.NAME;
 import static info.jejking.hamburg.nord.geocoder.GazetteerNames.POI_LAYER;
 import static info.jejking.hamburg.nord.geocoder.GazetteerNames.TYPE;
 import info.jejking.hamburg.nord.geocoder.AbstractNeoImporter;
+import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 import info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes;
 
 import java.util.List;
-import java.util.NoSuchElementException;
 
 import org.neo4j.gis.spatial.EditableLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseRecord;
@@ -37,9 +37,11 @@ import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.index.IndexHits;
+
+import com.google.common.collect.Lists;
 
 /**
  * Writes {@link PointOfInterest} instances to Neo4j. In particular,
@@ -53,52 +55,74 @@ public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<Point
     public void writeToNeo(List<PointOfInterest> pois, GraphDatabaseService graph) {
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         
-        try (Transaction tx = graph.beginTx()) {
-            EditableLayer poiLayer = getEditableLayer(spatialDatabaseService, POI_LAYER);
-            Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
-            
-            for (PointOfInterest poi : pois) {
+        int i = 0;
+        for (PointOfInterest poi : pois) {
+            try (Transaction tx = graph.beginTx()) {
+                EditableLayer poiLayer = getEditableLayer(spatialDatabaseService, POI_LAYER);
+                Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
+                
                 addPoi(poi, poiLayer, fullText);
-            }
-            
-            tx.success();
+                tx.success();
+                i++;
+                
+                if ( i % 1000 == 0) {
+                	System.out.println("Written " + i + " points of interest of " + pois.size());
+                }
+            } catch (Exception e) {
+            	e.printStackTrace();
+			}
         }
         
     }
 
     private void addPoi(PointOfInterest poi, EditableLayer poiLayer, Index<Node> fullText) {
 
-        SpatialDatabaseRecord record = createSpatialDatabaseRecord(poi, poiLayer);;
+        try {
+        	SpatialDatabaseRecord record = createSpatialDatabaseRecord(poi, poiLayer);
+        	Node neoNode = record.getGeomNode();
+            
+            labelNode(poi, neoNode);
+            
+            linkNodeToStreet(poi, neoNode, fullText.getGraphDatabase());
+            
+            doFullTextIndexing(poi, neoNode, fullText);
+        } catch (Exception e) {
+        	System.err.println("Error inserting poi: " + poi);
+        	e.printStackTrace();
+        }
         
-        Node neoNode = record.getGeomNode();
         
-        labelNode(poi, neoNode);
-        
-        linkNodeToStreet(poi, neoNode, fullText);
-        
-        doFullTextIndexing(poi, neoNode, fullText);
         
     }
 
-    private void linkNodeToStreet(PointOfInterest poi, Node neoNode, Index<Node> fullText) {
+    private void linkNodeToStreet(PointOfInterest poi, Node neoNode, GraphDatabaseService graphDatabaseService) {
         if (poi.getStreet().isPresent()) {
             
-            IndexHits<Node> streets = fullText.get(NAME, poi.getStreet().get());
-            try {
-                Node streetNode = streets.getSingle();
-                
-                Relationship contained = neoNode.createRelationshipTo(streetNode, GazetteerRelationshipTypes.CONTAINED_IN);
-                Relationship contains = streetNode.createRelationshipTo(neoNode, GazetteerRelationshipTypes.CONTAINS);
-                
-                if (poi.getHouseNumber().isPresent()) {
-                    contained.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
-                    contains.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
-                }
-                
-            } catch(NoSuchElementException e) {
-                // oops, no match...
-                System.err.println("No street named " + poi.getStreet().get());
+            try (ResourceIterator<Node> iterator = graphDatabaseService
+                    .findNodesByLabelAndProperty(
+                            DynamicLabel.label(GazetteerEntryTypes.STREET),
+                            NAME, poi.getStreet().get()).iterator()) {
+            	
+            	if (iterator.hasNext()) {
+            		Node streetNode = iterator.next();
+            		if (streetNode != null) {
+                        Relationship contained = neoNode.createRelationshipTo(streetNode, GazetteerRelationshipTypes.CONTAINED_IN);
+                        Relationship contains = streetNode.createRelationshipTo(neoNode, GazetteerRelationshipTypes.CONTAINS);
+                        
+                        if (poi.getHouseNumber().isPresent()) {
+                            contained.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
+                            contains.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
+                        }
+                    }
+            	} else {
+            		System.err.println("No result for street " + poi.getStreet().get());
+            	}
+            	if (iterator.hasNext()) {
+            		System.err.println("More than one result for street " + poi.getStreet().get());
+            	}
+            	
             }
+
         }
         
     }

@@ -74,22 +74,22 @@ public class CreateGazetteer {
         
         // we want an additional index on adminstrative area - name
         setUpIndexes(graph);
-        System.out.println("Setup indexes. Elapsed time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+        System.out.println("Setup indexes. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
         writeHamburgPolygons(graph);
-        System.out.println("Wrote hamburg polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+        System.out.println("Wrote hamburg polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
         writeStreets(geometryFactory, graph);
-        System.out.println("Wrote streets. Elapsed time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+        System.out.println("Wrote streets. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
         mapStreetsToAdminPolygons(graph);
-        System.out.println("Linked streets to polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+        System.out.println("Linked streets to polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
         writeBuildingsAndPointsOfInterest(geometryFactory, graph);
-        System.out.println("Wrote buildings and points of interest. Elapsed time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+        System.out.println("Wrote buildings and points of interest. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
         graph.shutdown();
-        System.out.println("Done. Elapsed time: " + stopwatch.elapsed(TimeUnit.MILLISECONDS) + "ms");
+        System.out.println("Done. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
     }
 
     private static void writeBuildingsAndPointsOfInterest(GeometryFactory geometryFactory, GraphDatabaseService graph) {

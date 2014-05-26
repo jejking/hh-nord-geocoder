@@ -88,6 +88,13 @@ public final class PointOfInterest {
 	public Optional<String> getName() {
 		return name;
 	}
+
+	@Override
+	public String toString() {
+		return "PointOfInterest [labels=" + labels + ", point=" + point
+				+ ", houseNumber=" + houseNumber + ", street=" + street
+				+ ", name=" + name + "]";
+	}
 	
 	
 	

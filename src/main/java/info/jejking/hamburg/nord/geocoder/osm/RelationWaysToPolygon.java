@@ -86,7 +86,6 @@ class RelationWaysToPolygon implements Func1<OsmRelation, Optional<Polygon>> {
 			return Optional.absent();
 			
 		} catch (Exception e) {
-			e.printStackTrace();
 			return Optional.absent();
 		}
 		

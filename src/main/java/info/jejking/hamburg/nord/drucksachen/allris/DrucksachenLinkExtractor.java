@@ -71,15 +71,12 @@ public class DrucksachenLinkExtractor implements Callable<ImmutableList<URL>> {
 	}
 
 	public static void main(String[] args) throws Exception {
-		URL copy = new URL("file:///home/jejking/projects/drucksachen/hamburg-nord-drucksachen/Drucksachen.html");
+		URL copy = new URL(args[0]);
 		DrucksachenLinkExtractor extractor = new DrucksachenLinkExtractor(copy.openStream());
 		ImmutableList<URL> urls = extractor.call();
 		
 		System.out.println("Found " + urls.size() + " urls");
 		
-//		for (URL url : urls) {
-//			System.out.println(url);
-//		}
 	}
 	
 }

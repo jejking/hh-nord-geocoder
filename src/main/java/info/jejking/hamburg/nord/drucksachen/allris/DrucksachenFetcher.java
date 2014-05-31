@@ -33,7 +33,7 @@ import com.google.common.collect.ImmutableList;
  * @author jejking
  *
  */
-public class DrucksachenRunner {
+public class DrucksachenFetcher {
 
     /**
      * Extracts links and downloads all the Drucksachen in such a way as the server is not

@@ -1,8 +1,3 @@
-package info.jejking.hamburg.nord.drucksachen.allris;
-
-import java.net.URL;
-
-import org.joda.time.LocalDate;
 /* 
  *  Hamburg-Nord Geocoder, by John King.
  *  Copyright (C) 2014,  John King
@@ -22,42 +17,97 @@ import org.joda.time.LocalDate;
  *
  *    
  */
+package info.jejking.hamburg.nord.drucksachen.allris;
+
+import java.io.Serializable;
+import java.net.URL;
 
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.ImmutableMap;
+
+
+import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Type safe representation of key information to be extracted
- * from the HTML representing a <i>Drucksache</i>.
+ * from the HTML representing a <i>Drucksache</i>. In this sense,
+ * represents the results of the first stage of processing the corpus. 
  * 
  * @author jejking
  *
  */
-public class RawDrucksache {
+public final class RawDrucksache implements Serializable {
 
-	private final String id;
-	private final String title;
-	private final String type;
+	/**
+     * Default.
+     */
+    private static final long serialVersionUID = 1L;
+    
+    private final String drucksachenId;
 	private final URL originalUrl;
-	private final LocalDate creationDate;
+	private final ImmutableMap<String, String> extractedProperties;
 	
-	private final ImmutableList<String> extractedHtmlContentItems;
+	private final ImmutableList<String> extractedContent;
 
-	public RawDrucksache(String id, String title, String type, URL originalUrl,
-			LocalDate creationDate,
-			ImmutableList<String> extractedHtmlContentItems) {
-		super();
-		this.id = id;
-		this.title = title;
-		this.type = type;
-		this.originalUrl = originalUrl;
-		this.creationDate = creationDate;
-		this.extractedHtmlContentItems = extractedHtmlContentItems;
-	}
-	
-	/*
-	 * Omitted. Any attachments, links to actual meetings or agendas,
-	 * decision status (if any), coordination.
-	 */
+    /**
+     * Constructor.
+     * 
+     * @param drucksachenId id
+     * @param originalUrl the originating URL
+     * @param extractedProperties properties (e.g. type, status, etc)
+     * @param extractedContent plain text content extracted from the HTML
+     */
+	public RawDrucksache(String drucksachenId, URL originalUrl, ImmutableMap<String, String> extractedProperties,
+            ImmutableList<String> extractedContent) {
+        super();
+        this.drucksachenId = checkNotNull(drucksachenId);
+        this.originalUrl = checkNotNull(originalUrl);
+        this.extractedProperties = checkNotNull(extractedProperties);
+        this.extractedContent = checkNotNull(extractedContent);
+    }
+
+    
+    /**
+     * @return the drucksachenId
+     */
+    public String getDrucksachenId() {
+        return drucksachenId;
+    }
+
+    
+    /**
+     * @return the originalUrl
+     */
+    public URL getOriginalUrl() {
+        return originalUrl;
+    }
+
+    
+    /**
+     * @return the extractedProperties
+     */
+    public ImmutableMap<String, String> getExtractedProperties() {
+        return extractedProperties;
+    }
+
+    
+    /**
+     * @return the extractedContent
+     */
+    public ImmutableList<String> getExtractedContent() {
+        return extractedContent;
+    }
+
+
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "RawDrucksache [drucksachenId=" + drucksachenId + ", originalUrl=" + originalUrl
+                + ", extractedProperties=" + extractedProperties + ", extractedContent=" + extractedContent + "]";
+    }
+
 	
 	
 	

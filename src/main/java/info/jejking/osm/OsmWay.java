@@ -59,6 +59,15 @@ public final class OsmWay extends OsmComponent {
     }
 
 
+    /* (non-Javadoc)
+     * @see java.lang.Object#toString()
+     */
+    @Override
+    public String toString() {
+        return "OsmWay [ndRefs=" + ndRefs + ", " + super.toString() + "]";
+    }
+
+    
     
     
 }

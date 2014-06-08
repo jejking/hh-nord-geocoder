@@ -96,7 +96,15 @@ public class RxOsmStreetCollectionBuilder {
             
 		    @Override
             public Boolean call(OsmWay way) {
-                return !pattern.matcher(way.getProperties().get("name")).matches();
+                return !pattern.matcher(way.getProperties().get(NAME)).matches();
+            }
+        })
+        .filter(new Func1<OsmWay, Boolean>() {
+            // work around to exclude the street Plan (which is in Mitte)
+            // and which is easy to confuse with the noun "Plan", as in cunning plan.
+            @Override
+            public Boolean call(OsmWay way) {
+                return !way.getProperties().get(NAME).equals("Plan");
             }
         })
 		.subscribe(new Action1<OsmWay>() {

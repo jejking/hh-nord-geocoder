@@ -27,6 +27,7 @@ import info.jejking.osm.RxOsmParser;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import rx.Observable;
 import rx.functions.Action1;
@@ -87,7 +88,18 @@ public class RxOsmStreetCollectionBuilder {
 			public Boolean call(OsmWay way) {
 				return way.getProperties().containsKey(HIGHWAY) && way.getProperties().containsKey(NAME);
 			}
-		}).subscribe(new Action1<OsmWay>() {
+		})
+		.filter(new Func1<OsmWay, Boolean>() {
+            
+		    // matches digits only. Used to exclude some stray bus stops 
+		    Pattern pattern = Pattern.compile("(\\d)+");
+            
+		    @Override
+            public Boolean call(OsmWay way) {
+                return !pattern.matcher(way.getProperties().get("name")).matches();
+            }
+        })
+		.subscribe(new Action1<OsmWay>() {
 
 			@Override
 			public void call(OsmWay way) {

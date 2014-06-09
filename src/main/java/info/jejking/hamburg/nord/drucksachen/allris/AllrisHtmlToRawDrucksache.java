@@ -20,6 +20,7 @@
 package info.jejking.hamburg.nord.drucksachen.allris;
 
 import java.io.BufferedInputStream;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
@@ -30,6 +31,7 @@ import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.DecoderException;
 import org.apache.commons.codec.binary.Hex;
 import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.joda.time.LocalDate;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -41,6 +43,8 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
+import static com.google.common.base.Preconditions.checkNotNull;
+
 /**
  * Class to map a file (previously downloaded from a URL encoded to a hex-string that is the 
  * file's name, and gzipped) to an initial representation we can work with.
@@ -50,12 +54,11 @@ import com.google.common.collect.ImmutableMap;
  */
 public class AllrisHtmlToRawDrucksache implements Func1<File, Optional<RawDrucksache>>{
 
-    public static void main(String[] args) {
-        File f = new File("/home/jejking/tmp/drucksachen/687474703a2f2f72617473696e666f726d6174696f6e2e7765622e68616d627572672e64653a38352f62692f766f3032302e6173703f564f4c46444e523d39393939266f7074696f6e733d34.gz");
-        AllrisHtmlToRawDrucksache a = new AllrisHtmlToRawDrucksache();
-        a.call(f);
-    }
+    private final ImmutableMap<URL, Optional<LocalDate>> urlToDateMap;
     
+    public AllrisHtmlToRawDrucksache(ImmutableMap<URL, Optional<LocalDate>> urlToDateMap) {
+        this.urlToDateMap = checkNotNull(urlToDateMap);
+    }
     
     @Override
     public Optional<RawDrucksache> call(File file) {
@@ -69,7 +72,9 @@ public class AllrisHtmlToRawDrucksache implements Func1<File, Optional<RawDrucks
                 ImmutableMap<String, String> props = druckSachenProperties(htmlDoc);
                 ImmutableList<String> contents = druckSachenContents(htmlDoc);
                 
-                RawDrucksache drucksache = new RawDrucksache(druckSacheId, originalUrl, props, contents);
+                Optional<LocalDate> optionalDate = this.urlToDateMap.get(originalUrl);
+                
+                RawDrucksache drucksache = new RawDrucksache(druckSacheId, originalUrl, optionalDate, props, contents);
                 
                 return Optional.of(drucksache);
             }

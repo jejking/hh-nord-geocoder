@@ -19,37 +19,62 @@
  */
 package info.jejking.hamburg.nord.drucksachen.allris;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
+import java.net.URL;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import org.apache.commons.codec.Charsets;
 import org.apache.commons.codec.binary.Hex;
-
-import com.google.common.base.Optional;
+import org.joda.time.LocalDate;
 
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 import rx.schedulers.Schedulers;
 
+import com.google.common.base.Optional;
+import com.google.common.collect.ImmutableMap;
 
+/**
+ * Batch processor that to create a directory full of serialised {@link RawDrucksache} objects
+ * from a directory full of compressed HTML files extracted from Allris using the {@link DrucksachenHtmlFetcher}. The
+ * documents are assigned optional dates given a map of {@link URL} to {@link LocalDate} created from the 
+ * Allris Drucksachen index page (or a copy thereof) using {@link DrucksachenLinkAndDateExtractor}. 
+ * 
+ * @author jejking
+ *
+ */
 public class FetchedDruckSachenProcessor {
 
     private final AtomicInteger counter = new AtomicInteger();
     
     /**
-     * @param args
+     * Runs the program. The arguments expected are:
+     * <ol>
+     * <li>file path to a copy of the HTML Drucksachen index.</li>
+     * <li>directory containing compressed HTML files downloaded where the file name is the hex encoded originating URL</li>
+     * <li>directory to which serialised {@link RawDrucksache} objects are to be written to</li>
+     * </ol>
+     * 
+     * @param args, as above
      */
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+        BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(args[0]));
+        DrucksachenLinkAndDateExtractor linkAndDateExtractor = new DrucksachenLinkAndDateExtractor(inputStream);
+        
+        ImmutableMap<URL, Optional<LocalDate>> urlDateMap = linkAndDateExtractor.call();
+        
         FetchedDruckSachenProcessor proc = new FetchedDruckSachenProcessor();
-        proc.preProcessFetchedDocuments(new File(args[0]), new File(args[1]));
+        proc.preProcessFetchedDocuments(new File(args[1]), new File(args[2]), urlDateMap);
 
     }
     
-    public void preProcessFetchedDocuments(final File inputDirectory, final File outputDirectory) {
+    public void preProcessFetchedDocuments(final File inputDirectory, final File outputDirectory, ImmutableMap<URL, Optional<LocalDate>> urlDateMap) {
         Observable.from(inputDirectory.list())
         .map(new Func1<String, File>() {
 
@@ -59,7 +84,7 @@ public class FetchedDruckSachenProcessor {
             }
             
         })
-        .map(new AllrisHtmlToRawDrucksache())
+        .map(new AllrisHtmlToRawDrucksache(urlDateMap))
         .observeOn(Schedulers.io())
         .subscribe(new Action1<Optional<RawDrucksache>>() {
 

@@ -22,6 +22,9 @@ package info.jejking.hamburg.nord.drucksachen.allris;
 import java.io.Serializable;
 import java.net.URL;
 
+import org.joda.time.LocalDate;
+
+import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
@@ -45,8 +48,8 @@ public final class RawDrucksache implements Serializable {
     
     private final String drucksachenId;
 	private final URL originalUrl;
+	private final Optional<LocalDate> date;
 	private final ImmutableMap<String, String> extractedProperties;
-	
 	private final ImmutableList<String> extractedContent;
 
     /**
@@ -54,14 +57,16 @@ public final class RawDrucksache implements Serializable {
      * 
      * @param drucksachenId id
      * @param originalUrl the originating URL
+     * @param date optional date (if available), may not be <code>null</code>
      * @param extractedProperties properties (e.g. type, status, etc)
      * @param extractedContent plain text content extracted from the HTML
      */
-	public RawDrucksache(String drucksachenId, URL originalUrl, ImmutableMap<String, String> extractedProperties,
+	public RawDrucksache(String drucksachenId, URL originalUrl, Optional<LocalDate> date, ImmutableMap<String, String> extractedProperties,
             ImmutableList<String> extractedContent) {
         super();
         this.drucksachenId = checkNotNull(drucksachenId);
         this.originalUrl = checkNotNull(originalUrl);
+        this.date = checkNotNull(date);
         this.extractedProperties = checkNotNull(extractedProperties);
         this.extractedContent = checkNotNull(extractedContent);
     }
@@ -97,6 +102,17 @@ public final class RawDrucksache implements Serializable {
     public ImmutableList<String> getExtractedContent() {
         return extractedContent;
     }
+    
+    
+    
+
+    
+    /**
+     * @return the date
+     */
+    public Optional<LocalDate> getDate() {
+        return date;
+    }
 
 
     /* (non-Javadoc)
@@ -104,9 +120,12 @@ public final class RawDrucksache implements Serializable {
      */
     @Override
     public String toString() {
-        return "RawDrucksache [drucksachenId=" + drucksachenId + ", originalUrl=" + originalUrl
+        return "RawDrucksache [drucksachenId=" + drucksachenId + ", originalUrl=" + originalUrl + ", date=" + date
                 + ", extractedProperties=" + extractedProperties + ", extractedContent=" + extractedContent + "]";
     }
+
+
+    
 
 	
 	

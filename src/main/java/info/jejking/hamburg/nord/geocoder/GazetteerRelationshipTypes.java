@@ -28,5 +28,6 @@ import org.neo4j.graphdb.RelationshipType;
  */
 public enum GazetteerRelationshipTypes implements RelationshipType {
     CONTAINS,
-    CONTAINED_IN;
+    CONTAINED_IN,
+    REFERS_TO;
 }

@@ -1,71 +1,87 @@
 package info.jejking.hamburg.nord.drucksachen.importer;
 
-import java.util.ArrayList;
-import java.util.List;
-
 import info.jejking.hamburg.nord.drucksachen.allris.RawDrucksache;
-import info.jejking.hamburg.nord.drucksachen.matcher.DrucksachenGazetteerKeywordMatcher;
-import info.jejking.hamburg.nord.drucksachen.matcher.GazetteerKeywordMatcher;
-import info.jejking.hamburg.nord.drucksachen.matcher.RawDrucksacheWithMatchesOfType;
+import info.jejking.hamburg.nord.drucksachen.matcher.RawDrucksacheWithLabelledMatches;
 import info.jejking.hamburg.nord.geocoder.AbstractNeoImporter;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.ObjectInputStream;
 
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Transaction;
 
-import com.google.common.collect.ImmutableList;
+import rx.Observable;
+import rx.functions.Action1;
+import rx.functions.Func1;
 
-import static com.google.common.base.Preconditions.checkNotNull;
 
-public class DrucksachenImporter extends AbstractNeoImporter<RawDrucksache> {
-
-    private final ImmutableList<DrucksachenGazetteerKeywordMatcher> matchers;
-    
-    public DrucksachenImporter(ImmutableList<DrucksachenGazetteerKeywordMatcher> matchers) {
-        this.matchers = checkNotNull(matchers);
-    }
+public class DrucksachenImporter extends AbstractNeoImporter<Iterable<File>>{
 
     @Override
-    public void writeToNeo(RawDrucksache rawDrucksache, GraphDatabaseService graph) {
-        RawDrucksache enhanced = attemptToAddDateIfNecessary(rawDrucksache);
-        List<RawDrucksacheWithMatchesOfType> matchingResults = new ArrayList<>(this.matchers.size());
-        for (DrucksachenGazetteerKeywordMatcher matcher : matchers) {
-            matchingResults.add(matcher.call(enhanced));
-        }
-        
-        try (Transaction tx = graph.beginTx()) {
-            Node druckSachenNode = writeDrucksache(enhanced);
-            
-            for (RawDrucksacheWithMatchesOfType match : matchingResults) {
-                for (String headerMatch : match.getMatchesInHeader()) {
-                    buildRelationshipToNamedGazetteerEntry(druckSachenNode, headerMatch, match.getEntryType(), "HEADER");
-                }
-                
-                for (String bodyMatch : match.getMatchesInBody()) {
-                    buildRelationshipToNamedGazetteerEntry(druckSachenNode, bodyMatch, match.getEntryType(), "BODY");
+    public void writeToNeo(Iterable<File> files, final GraphDatabaseService graph) {
+        Observable.from(files)
+        .map(new Func1<File, RawDrucksache>() {
+
+            @Override
+            public RawDrucksache call(File t1) {
+                try (ObjectInputStream ois = new ObjectInputStream(new BufferedInputStream(new FileInputStream(t1)))) {
+                    return (RawDrucksache) ois.readObject();
+                } catch (IOException | ClassNotFoundException e) {
+                    throw new RuntimeException(e);
                 }
             }
             
-            tx.success();
-        } 
+        })
+        .map(new Func1<RawDrucksache, RawDrucksache>() {
+            // attempt to extract a date from the contents if we have optional absent.
+            @Override
+            public RawDrucksache call(RawDrucksache t1) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+            
+        })
+        .map(new Func1<RawDrucksache, RawDrucksacheWithLabelledMatches>() {
+
+            @Override
+            public RawDrucksacheWithLabelledMatches call(RawDrucksache t1) {
+                // TODO run the matchers and attach their results
+                return null;
+            }
+            
+        })
+        .subscribe(new Action1<RawDrucksacheWithLabelledMatches>() {
+
+            @Override
+            public void call(RawDrucksacheWithLabelledMatches t1) {
+                try (Transaction tx = graph.beginTx()) {
+                    
+                    Node drucksachenNode = writeDruckSache(graph);
+                    
+                    createRelationshipsToGazetteer(drucksachenNode, graph);
+                    
+                    tx.success();
+                }
+                
+                
+            }
+
+            private void createRelationshipsToGazetteer(Node drucksachenNode, GraphDatabaseService graph) {
+                // TODO Auto-generated method stub
+                
+            }
+
+            private Node writeDruckSache(GraphDatabaseService graph) {
+                // TODO Auto-generated method stub
+                return null;
+            }
+        });
         
-    }
-
-    private void buildRelationshipToNamedGazetteerEntry(Node druckSachenNode, String bodyMatch, String entryType,
-            String string) {
-        // TODO Auto-generated method stub
         
-    }
-
-    private Node writeDrucksache(RawDrucksache enhanced) {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    private RawDrucksache attemptToAddDateIfNecessary(RawDrucksache rawDrucksache) {
-        // TODO Auto-generated method stub
-        return null;
     }
 
 }
- 

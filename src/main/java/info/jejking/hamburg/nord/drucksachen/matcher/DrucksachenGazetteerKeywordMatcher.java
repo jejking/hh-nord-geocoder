@@ -33,7 +33,7 @@ import rx.functions.Func1;
  * @author jejking
  *
  */
-public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, RawDrucksacheWithMatchesOfType> {
+public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, Matches> {
 
     private final GazetteerKeywordMatcher gazetteerKeywordMatcher;
     
@@ -43,7 +43,7 @@ public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, 
     
 
     @Override
-    public RawDrucksacheWithMatchesOfType call(RawDrucksache rawDrucksache) {
+    public Matches call(RawDrucksache rawDrucksache) {
        
         ImmutableSet.Builder<String> matchesInBodyBuilder = ImmutableSet.builder();
         for (String text : rawDrucksache.getExtractedContent()) {
@@ -52,12 +52,7 @@ public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, 
         
         ImmutableSet<String> matchesInHeader = matchHeader(rawDrucksache);
         
-        
-        return new RawDrucksacheWithMatchesOfType(
-                    rawDrucksache, 
-                    matchesInBodyBuilder.build(),
-                    matchesInHeader,
-                    this.gazetteerKeywordMatcher.getEntryType());
+        return new Matches(matchesInBodyBuilder.build(), matchesInHeader);
     }
 
 

@@ -19,12 +19,11 @@
  */
 package info.jejking.hamburg.nord.drucksachen.matcher;
 
-import com.google.common.collect.ImmutableSet;
+import static com.google.common.base.Preconditions.checkNotNull;
+
+import com.google.common.collect.ImmutableMap;
 
 import info.jejking.hamburg.nord.drucksachen.allris.RawDrucksache;
-
-
-import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
  * Data class that represents the result of associating a {@link RawDrucksache}
@@ -34,30 +33,24 @@ import static com.google.common.base.Preconditions.checkNotNull;
  * @author jejking
  *
  */
-public class RawDrucksacheWithMatchesOfType {
+public class RawDrucksacheWithLabelledMatches {
 
     private final RawDrucksache original;
-    private final ImmutableSet<String> matchesInBody;
-    private final ImmutableSet<String> matchesInHeader;
-    private final String entryType;
+    private final ImmutableMap<String, Matches> matchesMap;
     
     /**
      * Constructor.
      * @param original the original
-     * @param matchesInBody set of matches from the body of the document
-     * @param matchesInHeader set of matches from the "Betreff" property, if any
-     * @param entryType the type of gazetteer entry being referred to
+     * @param matchesMap map of matches keyed on the type
      * @throws NullPointerException if any parameter is <code>null</code>
      */
-    public RawDrucksacheWithMatchesOfType(RawDrucksache original, ImmutableSet<String> matchesInBody, ImmutableSet<String> matchesInHeader, String entryType) {
+    public RawDrucksacheWithLabelledMatches(RawDrucksache original, ImmutableMap<String, Matches> matchesMap) {
         super();
         this.original = checkNotNull(original);
-        this.matchesInBody = checkNotNull(matchesInBody);
-        this.matchesInHeader = checkNotNull(matchesInHeader);
-        this.entryType = checkNotNull(entryType);
+        this.matchesMap = checkNotNull(matchesMap);
     }
-
     
+  
     /**
      * @return the original
      */
@@ -65,28 +58,8 @@ public class RawDrucksacheWithMatchesOfType {
         return original;
     }
 
-    /**
-     * @return the matchesInBody
-     */
-    public ImmutableSet<String> getMatchesInBody() {
-        return matchesInBody;
-    }
-
-
-    
-    /**
-     * @return the matchesInHeader
-     */
-    public ImmutableSet<String> getMatchesInHeader() {
-        return matchesInHeader;
-    }
-
-
-    /**
-     * @return the entryType
-     */
-    public String getEntryType() {
-        return entryType;
+    public ImmutableMap<String, Matches> getMatchesMap() {
+        return matchesMap;
     }
     
     

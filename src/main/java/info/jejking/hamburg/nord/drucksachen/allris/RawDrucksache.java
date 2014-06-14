@@ -70,8 +70,23 @@ public final class RawDrucksache implements Serializable {
         this.extractedProperties = checkNotNull(extractedProperties);
         this.extractedContent = checkNotNull(extractedContent);
     }
-
-    
+	
+	/**
+	 * Returns a new instance which makes a copy of <code>this</code> with the exception of the new date 
+	 * (for example if a date is subsequently discovered).
+	 * 
+	 * @param newOptionalDate new optional date, may not be <code>null</code>. Ideally, should have a value.
+	 * @return new instance with new date set.
+	 */
+	public RawDrucksache withNewOptionalDate(Optional<LocalDate> newOptionalDate) {
+        return new RawDrucksache(this.drucksachenId, 
+                                 this.originalUrl, 
+                                 newOptionalDate, 
+                                 this.extractedProperties, 
+                                 this.extractedContent);
+    }
+	
+	
     /**
      * @return the drucksachenId
      */
@@ -123,6 +138,9 @@ public final class RawDrucksache implements Serializable {
         return "RawDrucksache [drucksachenId=" + drucksachenId + ", originalUrl=" + originalUrl + ", date=" + date
                 + ", extractedProperties=" + extractedProperties + ", extractedContent=" + extractedContent + "]";
     }
+
+
+    
 
 
     

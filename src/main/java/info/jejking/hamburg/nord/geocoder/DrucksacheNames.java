@@ -27,11 +27,13 @@ import info.jejking.hamburg.nord.drucksachen.allris.RawDrucksache;
  * @author jejking
  *
  */
-public interface DrucksachenPropertyNames {
+public interface DrucksacheNames {
 
+    public static final String DRUCKSACHE = "DRUCKSACHE";
     public static final String DRUCKSACHE_ID = "DRUCKSACHE_ID";
     public static final String ORIGINAL_URL = "ORIGINAL_URL";
     public static final String DATE = "DATE";
+    public static final String HEADER = "HEADER";
     
     public static final String REF_LOCATION = "REF_LOCATION";
     public static final String IN_HEADER = "IN_HEADER";

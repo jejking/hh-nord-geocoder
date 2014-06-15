@@ -45,14 +45,14 @@ public final class RawDrucksachenLabeller implements Func1<RawDrucksache, RawDru
     }
     
     @Override
-    public RawDrucksacheWithLabelledMatches call(RawDrucksache t1) {
+    public RawDrucksacheWithLabelledMatches call(RawDrucksache rawDrucksache) {
         
         ImmutableMap.Builder<String, Matches> matchesMapBuilder = ImmutableMap.builder();
         
         for (Map.Entry<String, DrucksachenGazetteerKeywordMatcher> entry : matchersMap.entrySet()) {
-            matchesMapBuilder.put(entry.getKey(), entry.getValue().call(t1));
+            matchesMapBuilder.put(entry.getKey(), entry.getValue().call(rawDrucksache));
         }
         
-        return new RawDrucksacheWithLabelledMatches(t1, matchesMapBuilder.build());
+        return new RawDrucksacheWithLabelledMatches(rawDrucksache, matchesMapBuilder.build());
     }
 }

@@ -19,12 +19,15 @@
 
 package info.jejking.hamburg.nord.drucksachen.importer;
 
-import static info.jejking.hamburg.nord.geocoder.DrucksachenPropertyNames.DATE;
-import static info.jejking.hamburg.nord.geocoder.DrucksachenPropertyNames.DRUCKSACHE_ID;
-import static info.jejking.hamburg.nord.geocoder.DrucksachenPropertyNames.IN_BODY;
-import static info.jejking.hamburg.nord.geocoder.DrucksachenPropertyNames.IN_HEADER;
-import static info.jejking.hamburg.nord.geocoder.DrucksachenPropertyNames.ORIGINAL_URL;
-import static info.jejking.hamburg.nord.geocoder.DrucksachenPropertyNames.REF_LOCATION;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.DATE;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.DRUCKSACHE;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.DRUCKSACHE_ID;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.HEADER;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.IN_BODY;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.IN_HEADER;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.ORIGINAL_URL;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.REF_LOCATION;
+import info.jejking.hamburg.nord.drucksachen.allris.DrucksachenPropertyKeys;
 import info.jejking.hamburg.nord.drucksachen.allris.RawDrucksache;
 import info.jejking.hamburg.nord.drucksachen.matcher.Matches;
 import info.jejking.hamburg.nord.drucksachen.matcher.RawDrucksacheWithLabelledMatches;
@@ -34,6 +37,8 @@ import info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes;
 
 import java.util.Map;
 
+import org.joda.time.format.DateTimeFormat;
+import org.joda.time.format.DateTimeFormatter;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
@@ -54,6 +59,7 @@ import rx.functions.Action1;
 public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractNeoImporter<RawDrucksacheWithLabelledMatches> implements Action1<RawDrucksacheWithLabelledMatches>  {
 
     private final GraphDatabaseService graph;
+    private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
 
     RawDrucksacheWithLabelledMatchesNeoImporter(GraphDatabaseService graph) {
         this.graph = graph;
@@ -115,11 +121,14 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
         RawDrucksache original = rawDrucksacheWithLabelledMatches.getOriginal();
         // set some properties
         drucksacheNode.setProperty(DRUCKSACHE_ID, original.getDrucksachenId());
-        drucksacheNode.setProperty(ORIGINAL_URL, original.getOriginalUrl());
+        drucksacheNode.setProperty(ORIGINAL_URL, original.getOriginalUrl().toExternalForm());
         if (original.getDate().isPresent()) {
-            drucksacheNode.setProperty(DATE, original.getDate().get());    
+            drucksacheNode.setProperty(DATE, this.dateFormat.print(original.getDate().get()));    
         }
-        
+        if (original.getExtractedProperties().containsKey(DrucksachenPropertyKeys.BETREFF)) {
+            drucksacheNode.setProperty(HEADER, original.getExtractedProperties().get(DrucksachenPropertyKeys.BETREFF));
+        }
+        drucksacheNode.addLabel(DynamicLabel.label(DRUCKSACHE));
         return drucksacheNode;
     }
 

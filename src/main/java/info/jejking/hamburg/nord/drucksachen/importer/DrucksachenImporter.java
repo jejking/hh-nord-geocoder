@@ -30,6 +30,7 @@ import java.io.IOException;
 import java.io.ObjectInputStream;
 
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Label;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -50,6 +51,14 @@ public class DrucksachenImporter extends AbstractNeoImporter<Iterable<File>> {
 
     private final RawDrucksachenLabeller rawDrucksachenLabeller;
     
+    /**
+     * Constructor. Needs to be supplied with a suitably initialised map of {@link DrucksachenGazetteerKeywordMatcher}
+     * instances. The keys must correspond to Node {@link Label} instances in the Neo4j gazetteer
+     * in order to be effective.
+     *  
+     * @param matchersMap may not be <code>null</code>
+     * @throws NullPointerException if param is <code>null</code>
+     */
     public DrucksachenImporter(ImmutableMap<String, DrucksachenGazetteerKeywordMatcher> matchersMap) {
         this.rawDrucksachenLabeller = new RawDrucksachenLabeller(matchersMap);
     }

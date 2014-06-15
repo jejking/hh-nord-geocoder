@@ -41,8 +41,6 @@ import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
 
-import com.google.common.collect.Lists;
-
 /**
  * Writes {@link PointOfInterest} instances to Neo4j. In particular,
  * connections are made, where possible, to street instances already in the
@@ -138,6 +136,8 @@ public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<Point
     private void labelNode(PointOfInterest poi, Node neoNode) {
         for (String label : poi.getLabels()) {
             neoNode.addLabel(DynamicLabel.label(label));
+        }
+        if (poi.getName().isPresent()) {
             neoNode.addLabel(DynamicLabel.label(POINT_OF_INTEREST));
         }
     }

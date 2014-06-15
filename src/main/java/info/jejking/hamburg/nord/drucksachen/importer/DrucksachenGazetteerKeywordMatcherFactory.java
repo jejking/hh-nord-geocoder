@@ -21,12 +21,9 @@ package info.jejking.hamburg.nord.drucksachen.importer;
 import info.jejking.hamburg.nord.drucksachen.matcher.DrucksachenGazetteerKeywordMatcher;
 import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 
-import java.util.HashMap;
 import java.util.Iterator;
-import java.util.Map;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
-import org.neo4j.cypher.javacompat.ExecutionResult;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 

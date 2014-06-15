@@ -138,6 +138,7 @@ public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<Point
     private void labelNode(PointOfInterest poi, Node neoNode) {
         for (String label : poi.getLabels()) {
             neoNode.addLabel(DynamicLabel.label(label));
+            neoNode.addLabel(DynamicLabel.label(POINT_OF_INTEREST));
         }
     }
 

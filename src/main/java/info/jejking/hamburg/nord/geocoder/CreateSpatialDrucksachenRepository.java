@@ -65,6 +65,9 @@ public class CreateSpatialDrucksachenRepository {
         DrucksachenImporter importer = new DrucksachenImporter(matchersMap);
         System.out.println("Initialised matchers after " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
+        importer.createDrucksachenIndexes(graph);
+        System.out.println("Created indexes for Drucksachen after " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+        
         File drucksachenDirectory = new File(args[1]); 
         importer.writeToNeo(Arrays.asList(drucksachenDirectory.listFiles()), graph);
         System.out.println("Completed import after " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");

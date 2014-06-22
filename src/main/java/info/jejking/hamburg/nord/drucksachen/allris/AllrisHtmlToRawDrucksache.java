@@ -161,7 +161,7 @@ public class AllrisHtmlToRawDrucksache implements Func1<File, Optional<RawDrucks
         Elements druckSacheIdElememnts = htmlDoc.select("#risname > h1");
         Element druckSacheIdElement = druckSacheIdElememnts.first();
         String elementText = druckSacheIdElement.text();
-        String druckSacheId = elementText.substring("Drucksache - ".length()).trim();
+        String druckSacheId = removeNonBreakingSpacesAndTrim(elementText.substring("Drucksache - ".length()));
         return druckSacheId;
     }
 

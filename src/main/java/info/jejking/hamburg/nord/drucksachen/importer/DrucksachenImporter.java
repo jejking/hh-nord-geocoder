@@ -18,6 +18,8 @@
  */
 package info.jejking.hamburg.nord.drucksachen.importer;
 
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.DRUCKSACHE;
+import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.DRUCKSACHE_ID;
 import info.jejking.hamburg.nord.drucksachen.allris.RawDrucksache;
 import info.jejking.hamburg.nord.drucksachen.matcher.DrucksachenGazetteerKeywordMatcher;
 import info.jejking.hamburg.nord.drucksachen.matcher.GazetteerKeywordMatcher;
@@ -29,8 +31,11 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 
+import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.schema.Schema;
 
 import com.google.common.collect.ImmutableMap;
 
@@ -62,6 +67,23 @@ public class DrucksachenImporter extends AbstractNeoImporter<Iterable<File>> {
     public DrucksachenImporter(ImmutableMap<String, DrucksachenGazetteerKeywordMatcher> matchersMap) {
         this.rawDrucksachenLabeller = new RawDrucksachenLabeller(matchersMap);
     }
+    
+    /**
+     * Creates indices.
+     * 
+     * @param graph
+     */
+    public void createDrucksachenIndexes(GraphDatabaseService graph) {
+        try (Transaction tx = graph.beginTx()) {
+            Schema schema = graph.schema();
+            schema
+                .indexFor(DynamicLabel.label(DRUCKSACHE))
+                .on(DRUCKSACHE_ID)
+                .create();
+            tx.success();
+        }
+    }
+    
     
     @Override
     public void writeToNeo(Iterable<File> files, final GraphDatabaseService graph) {

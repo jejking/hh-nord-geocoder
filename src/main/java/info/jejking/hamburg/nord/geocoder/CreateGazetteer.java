@@ -36,6 +36,7 @@ import info.jejking.hamburg.nord.geocoder.osm.PointOfInterest;
 import info.jejking.hamburg.nord.geocoder.osm.PointOfInterestToNeoImporter;
 import info.jejking.hamburg.nord.geocoder.osm.RxBuildingAndPOICollectionBuilder;
 import info.jejking.hamburg.nord.geocoder.osm.RxOsmStreetCollectionBuilder;
+import info.jejking.hamburg.nord.geocoder.osm.StreetToAdminPolygonMapper;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.geotools.geometry.jts.JTSFactoryFinder;

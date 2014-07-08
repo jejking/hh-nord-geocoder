@@ -17,7 +17,7 @@
  *
  *    
  */
-package info.jejking.hamburg.nord.geocoder;
+package info.jejking.hamburg.nord.geocoder.osm;
 
 import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.NUMBERED_DISTRICT;
 import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;

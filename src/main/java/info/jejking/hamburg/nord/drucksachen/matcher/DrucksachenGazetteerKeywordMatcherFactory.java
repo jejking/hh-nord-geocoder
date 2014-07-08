@@ -16,9 +16,8 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package info.jejking.hamburg.nord.drucksachen.importer;
+package info.jejking.hamburg.nord.drucksachen.matcher;
 
-import info.jejking.hamburg.nord.drucksachen.matcher.DrucksachenGazetteerKeywordMatcher;
 import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 
 import java.util.Iterator;

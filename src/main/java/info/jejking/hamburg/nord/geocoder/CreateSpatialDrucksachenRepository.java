@@ -29,9 +29,9 @@ import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableMap;
 
 import info.jejking.hamburg.nord.drucksachen.allris.RawDrucksache;
-import info.jejking.hamburg.nord.drucksachen.importer.DrucksachenGazetteerKeywordMatcherFactory;
 import info.jejking.hamburg.nord.drucksachen.importer.DrucksachenImporter;
 import info.jejking.hamburg.nord.drucksachen.matcher.DrucksachenGazetteerKeywordMatcher;
+import info.jejking.hamburg.nord.drucksachen.matcher.DrucksachenGazetteerKeywordMatcherFactory;
 
 /**
  * Given a gazetteer Neo4j Database, as created by {@link CreateGazetteer},

@@ -25,8 +25,8 @@ import static org.junit.Assert.fail;
 import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 import info.jejking.hamburg.nord.geocoder.GazetteerNames;
 import info.jejking.hamburg.nord.geocoder.GazetteerRelationshipTypes;
-import info.jejking.hamburg.nord.geocoder.StreetToAdminPolygonMapper;
 import info.jejking.hamburg.nord.geocoder.TestUtil;
+import info.jejking.hamburg.nord.geocoder.osm.StreetToAdminPolygonMapper;
 
 import java.util.Iterator;
 

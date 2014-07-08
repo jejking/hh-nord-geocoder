@@ -26,6 +26,7 @@ import java.net.URL;
 
 import info.jejking.hamburg.nord.drucksachen.allris.RawDrucksache;
 import info.jejking.hamburg.nord.drucksachen.matcher.DrucksachenGazetteerKeywordMatcher;
+import info.jejking.hamburg.nord.drucksachen.matcher.DrucksachenGazetteerKeywordMatcherFactory;
 import info.jejking.hamburg.nord.drucksachen.matcher.Matches;
 import info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes;
 

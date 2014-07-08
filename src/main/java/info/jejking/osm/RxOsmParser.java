@@ -56,7 +56,7 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * Streaming parser for Open Street Map XML that exposes Rx [@link Observable}s for the underlying
+ * Streaming parser for Open Street Map XML that exposes Rx {@link Observable}s for the underlying
  * objects encoded as XML in the input stream.
  * 
  * <p>Usage: construct the class, passing an input stream as a parameter. Attach subscribers

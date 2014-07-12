@@ -91,47 +91,36 @@ public class RawDrucksacheWithLabelledMatchesNeoImporterTest {
     private void thenTheNodesAndRelationshipsAreCreatedCorrectly() {
         try(Transaction tx = this.graph.beginTx()) {
             Node drucksacheNode = drucksacheNodeWasCreated();
-            headerRelationshipsWereCreated(drucksacheNode);
-            bodyRelationshipsWereCreated(drucksacheNode);
+//            headerRelationshipsWereCreated(drucksacheNode);
+//            bodyRelationshipsWereCreated(drucksacheNode);
+            relationshipsWereCreated(drucksacheNode);
             tx.success();
         }
         
     }
-
-    private void bodyRelationshipsWereCreated(Node drucksacheNode) {
+    
+    private void relationshipsWereCreated(Node drucksacheNode) {
         Iterable<Relationship> relationshipsIterable = drucksacheNode.getRelationships(GazetteerRelationshipTypes.REFERS_TO);
-        int bodyRelationshipCount = 0;
-        for (Relationship rel : relationshipsIterable) {
-            if (rel.hasProperty(DrucksacheNames.REF_LOCATION)) {
-                if (rel.getProperty(DrucksacheNames.REF_LOCATION).equals(DrucksacheNames.IN_BODY)) {
-                    bodyRelationshipCount++;
-                    Node target = rel.getEndNode();
-                    assertTrue(target.hasLabel(DynamicLabel.label("bar")));
-                    String nodeName = (String) target.getProperty(GazetteerNames.NAME);
-                    assertTrue(nodeName.equals("pub") || nodeName.equals("cocktail"));
-                }
-            }
-        }
-        assertEquals(2, bodyRelationshipCount);
+        int relCount = 0;
         
-    }
-
-    private void headerRelationshipsWereCreated(Node drucksacheNode) {
-        Iterable<Relationship> relationshipsIterable = drucksacheNode.getRelationships(GazetteerRelationshipTypes.REFERS_TO);
-        int headerRelationshipCount = 0;
         for (Relationship rel : relationshipsIterable) {
-            if (rel.hasProperty(DrucksacheNames.REF_LOCATION)) {
-                if (rel.getProperty(DrucksacheNames.REF_LOCATION).equals(DrucksacheNames.IN_HEADER)) {
-                    headerRelationshipCount++;
-                    Node target = rel.getEndNode();
-                    assertTrue(target.hasLabel(DynamicLabel.label("foo")));
-                    assertEquals("fu", target.getProperty(GazetteerNames.NAME));
-                }
+            relCount++;
+            if (rel.getEndNode().hasLabel(DynamicLabel.label("foo"))) {
+                // has both
+                assertTrue(rel.hasProperty(DrucksacheNames.IN_HEADER));
+                assertTrue(rel.hasProperty(DrucksacheNames.IN_BODY));
+            }
+            if (rel.getEndNode().hasLabel(DynamicLabel.label("bar"))) {
+                // only in body
+                assertFalse(rel.hasProperty(DrucksacheNames.IN_HEADER));
+                assertTrue(rel.hasProperty(DrucksacheNames.IN_BODY));
             }
         }
-        assertEquals(1, headerRelationshipCount);
+        
+        assertEquals(3, relCount); // fu, pub and cocktail are the relationships
     }
 
+    
     private Node drucksacheNodeWasCreated() {
         ResourceIterator<Node> iterator = this.graph.findNodesByLabelAndProperty(
                                             DynamicLabel.label(DrucksacheNames.DRUCKSACHE), 
@@ -173,8 +162,8 @@ public class RawDrucksacheWithLabelledMatchesNeoImporterTest {
             
             ImmutableMap.Builder<String, Matches> matchesMapBuilder = ImmutableMap.builder();
             ImmutableSet<String> emptySet = ImmutableSet.of();
-            // fu of type "foo" referred to in header. No body matches
-            matchesMapBuilder.put("foo", new Matches(emptySet, ImmutableSet.of("fu")));
+            // fu of type "foo" referred to in header and body. We want *one* relationship with two properties.
+            matchesMapBuilder.put("foo", new Matches(ImmutableSet.of("fu"), ImmutableSet.of("fu")));
             // pub, cocktail of type "bar" referred to in body, No header matches
             matchesMapBuilder.put("bar", new Matches(ImmutableSet.of("pub", "cocktail"), emptySet));
             

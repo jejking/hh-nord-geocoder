@@ -18,15 +18,7 @@
  */
 package info.jejking.hamburg.nord.geocoder;
 
-import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.ADMIN_AREA;
-import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;
-import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.TimeUnit;
-
+import static info.jejking.hamburg.nord.geocoder.AbstractNeoImporter.setupSchema;
 import info.jejking.hamburg.nord.geocoder.hh.CoordinateConverter;
 import info.jejking.hamburg.nord.geocoder.hh.HamburgPolygonTreeToNeoImporter;
 import info.jejking.hamburg.nord.geocoder.hh.HamburgRawTreeBuilder;
@@ -38,17 +30,15 @@ import info.jejking.hamburg.nord.geocoder.osm.RxBuildingAndPOICollectionBuilder;
 import info.jejking.hamburg.nord.geocoder.osm.RxOsmStreetCollectionBuilder;
 import info.jejking.hamburg.nord.geocoder.osm.StreetToAdminPolygonMapper;
 
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.TimeUnit;
+
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
-import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.index.IndexManager;
-import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.helpers.collection.MapUtil;
 
 import com.google.common.base.Stopwatch;
 import com.vividsolutions.jts.geom.Geometry;
@@ -74,7 +64,7 @@ public class CreateGazetteer {
         registerShutdownHook(graph);
         
         // we want an additional index on adminstrative area - name
-        setUpIndexes(graph);
+        setupSchema(graph);
         System.out.println("Setup indexes. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
         writeHamburgPolygons(graph);
@@ -135,33 +125,7 @@ public class CreateGazetteer {
         hamburgPolygonTreeToNeoImporter.writeToNeo(hamburgPolygons, graph);
     }
 
-    private static void setUpIndexes(GraphDatabaseService graph) {
-        try (Transaction tx = graph.beginTx()) {
-            Schema schema = graph.schema();
-            schema
-                .indexFor(DynamicLabel.label(ADMIN_AREA))
-                .on("NAME")
-                .create();
-            
-            schema
-                .indexFor(DynamicLabel.label(STREET))
-                .on("NAME")
-                .create();
-            
-            schema
-                .indexFor(DynamicLabel.label(GazetteerEntryTypes.POINT_OF_INTEREST))
-                .on("NAME")
-                .create();
-            
-            IndexManager indexManager = graph.index();
-            @SuppressWarnings("unused")
-            Index<Node> fullText = indexManager.forNodes(GAZETTEER_FULLTEXT,
-                                MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
-                                                  "type", "fulltext"));
-            
-            tx.success();
-        }
-    }
+    
 
     private static void registerShutdownHook(final GraphDatabaseService graphDb) {
         Runtime.getRuntime().addShutdownHook(new Thread() {

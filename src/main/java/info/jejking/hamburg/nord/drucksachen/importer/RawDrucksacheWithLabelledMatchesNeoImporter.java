@@ -26,7 +26,6 @@ import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.HEADER;
 import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.IN_BODY;
 import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.IN_HEADER;
 import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.ORIGINAL_URL;
-import static info.jejking.hamburg.nord.geocoder.DrucksacheNames.REF_LOCATION;
 import info.jejking.hamburg.nord.drucksachen.allris.DrucksachenPropertyKeys;
 import info.jejking.hamburg.nord.drucksachen.allris.RawDrucksache;
 import info.jejking.hamburg.nord.drucksachen.matcher.Matches;
@@ -39,6 +38,7 @@ import java.util.Map;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Label;
@@ -46,6 +46,8 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.Transaction;
+
+import com.google.common.base.Optional;
 
 import rx.functions.Action1;
 
@@ -110,10 +112,28 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
     private void createRelationship(Label neoLabel, Node drucksachenNode, String match, String relationshipProperty) {
         ResourceIterable<Node> targetResourceIterable = graph.findNodesByLabelAndProperty(neoLabel, GazetteerNames.NAME, match);
         for (Node targetNode : targetResourceIterable) {
-             Relationship rel = drucksachenNode.createRelationshipTo(targetNode, GazetteerRelationshipTypes.REFERS_TO);
-             rel.setProperty(REF_LOCATION, relationshipProperty);
+            Relationship rel = null; 
+            Optional<Relationship> existingRelationship = getRelationship(drucksachenNode, targetNode);
+            if (existingRelationship.isPresent()) {
+                rel = existingRelationship.get();
+            } else {
+                rel = drucksachenNode.createRelationshipTo(targetNode, GazetteerRelationshipTypes.REFERS_TO);
+            }
+            rel.setProperty(relationshipProperty, Boolean.TRUE);
         }
         
+    }
+
+    private Optional<Relationship> getRelationship(Node drucksachenNode, Node targetNode) {
+        Relationship targetRel = null;
+        Iterable<Relationship> relationshipIterable = drucksachenNode.getRelationships(GazetteerRelationshipTypes.REFERS_TO, Direction.OUTGOING);
+        for (Relationship rel : relationshipIterable) {
+            if (rel.getEndNode().equals(targetNode)) {
+                targetRel = rel;
+                break;
+            }
+        }
+        return Optional.fromNullable(targetRel);
     }
 
     private Node createDrucksacheNode(RawDrucksacheWithLabelledMatches rawDrucksacheWithLabelledMatches, GraphDatabaseService graph) {

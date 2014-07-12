@@ -19,10 +19,24 @@
  */
 package info.jejking.hamburg.nord.geocoder;
 
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.ADMIN_AREA;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.BOROUGH;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.NAMED_AREA;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.POINT_OF_INTEREST;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;
+import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
+
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.neo4j.gis.spatial.EditableLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
+import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
+import org.neo4j.graphdb.Node;
+import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.Index;
+import org.neo4j.graphdb.index.IndexManager;
+import org.neo4j.graphdb.schema.Schema;
+import org.neo4j.helpers.collection.MapUtil;
 
 /**
  * Abstract class with some shared functionality.
@@ -58,8 +72,44 @@ public abstract class AbstractNeoImporter<T> {
             editableLayer.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
             return editableLayer;
         }
-        
-        
+    }
+    
+    public static void setupSchema(GraphDatabaseService graph) {
+     // we want an additional index on adminstrative area - name
+        try (Transaction tx = graph.beginTx()) {
+            Schema schema = graph.schema();
+            schema
+                .constraintFor(DynamicLabel.label(BOROUGH))
+                .assertPropertyIsUnique(GazetteerNames.NAME)
+                .create();
+            
+            schema
+                .constraintFor(DynamicLabel.label(NAMED_AREA))
+                .assertPropertyIsUnique(GazetteerNames.NAME)
+                .create();
+            
+            schema
+                .constraintFor(DynamicLabel.label(STREET))
+                .assertPropertyIsUnique(GazetteerNames.NAME)
+                .create();
+            
+            schema.indexFor(DynamicLabel.label(ADMIN_AREA))
+                .on(GazetteerNames.NAME)
+                .create();
+            
+            schema
+                .indexFor(DynamicLabel.label(POINT_OF_INTEREST))
+                .on(GazetteerNames.NAME)
+                .create();
+            
+            IndexManager indexManager = graph.index();
+            @SuppressWarnings("unused")
+            Index<Node> fullText = indexManager.forNodes(GAZETTEER_FULLTEXT,
+                                MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
+                                                  "type", "fulltext"));
+            
+            tx.success();
+        }
     }
 
 }

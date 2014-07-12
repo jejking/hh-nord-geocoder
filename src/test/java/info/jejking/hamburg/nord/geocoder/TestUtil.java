@@ -19,7 +19,10 @@
 package info.jejking.hamburg.nord.geocoder;
 
 import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.ADMIN_AREA;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.BOROUGH;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.NAMED_AREA;
 import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.STREET;
+import static info.jejking.hamburg.nord.geocoder.GazetteerEntryTypes.POINT_OF_INTEREST;
 import static info.jejking.hamburg.nord.geocoder.GazetteerNames.GAZETTEER_FULLTEXT;
 
 import info.jejking.hamburg.nord.geocoder.hh.CoordinateConverter;
@@ -51,6 +54,8 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
+
+import static info.jejking.hamburg.nord.geocoder.AbstractNeoImporter.setupSchema;
 /**
  * Helper class to set up database and load data.
  * 
@@ -67,33 +72,8 @@ public class TestUtil {
         GraphDatabaseService graph =  new TestGraphDatabaseFactory()
                                                         .newImpermanentDatabaseBuilder()
                                                         .newGraphDatabase();
-        // we want an additional index on adminstrative area - name
-        try (Transaction tx = graph.beginTx()) {
-            Schema schema = graph.schema();
-            schema
-                .indexFor(DynamicLabel.label(ADMIN_AREA))
-                .on("NAME")
-                .create();
-            
-            schema
-                .indexFor(DynamicLabel.label(STREET))
-                .on("NAME")
-                .create();
-            
-            schema
-                .indexFor(DynamicLabel.label(GazetteerEntryTypes.POINT_OF_INTEREST))
-                .on("NAME")
-                .create();
-            
-            IndexManager indexManager = graph.index();
-            @SuppressWarnings("unused")
-            Index<Node> fullText = indexManager.forNodes(GAZETTEER_FULLTEXT,
-                                MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
-                                                  "type", "fulltext"));
-            
-            tx.success();
-        }
         
+        setupSchema(graph);
         return graph;
         
     }

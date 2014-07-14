@@ -19,13 +19,6 @@
 package com.jejking.hh.nord;
 
 import static com.jejking.hh.nord.AbstractNeoImporter.setupSchema;
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.ADMIN_AREA;
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.BOROUGH;
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NAMED_AREA;
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.POINT_OF_INTEREST;
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.GAZETTEER_FULLTEXT;
-
 
 import java.io.IOException;
 import java.util.List;
@@ -33,20 +26,13 @@ import java.util.Map;
 
 import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.geotools.geometry.jts.JTSFactoryFinder;
-import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
-import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.index.Index;
-import org.neo4j.graphdb.index.IndexManager;
-import org.neo4j.graphdb.schema.Schema;
-import org.neo4j.helpers.collection.MapUtil;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
-import com.jejking.hh.nord.gazetteer.opendata.CoordinateConverter;
+import com.jejking.hh.nord.gazetteer.opendata.AdminAreaTreeNode;
+import com.jejking.hh.nord.gazetteer.opendata.AdminAreaTreeNodeTransformer;
 import com.jejking.hh.nord.gazetteer.opendata.HamburgPolygonTreeToNeoImporter;
 import com.jejking.hh.nord.gazetteer.opendata.HamburgRawTreeBuilder;
-import com.jejking.hh.nord.gazetteer.opendata.NamedTreeNode;
 import com.jejking.hh.nord.gazetteer.osm.OsmStreetCollectionToNeoImporter;
 import com.jejking.hh.nord.gazetteer.osm.PointOfInterest;
 import com.jejking.hh.nord.gazetteer.osm.PointOfInterestToNeoImporter;
@@ -79,11 +65,11 @@ public class TestUtil {
     }
     
     public static void writeHamburgPolygonsToGraph(GraphDatabaseService graph) {
-        CoordinateConverter converter = new CoordinateConverter();
+        AdminAreaTreeNodeTransformer t = new AdminAreaTreeNodeTransformer();
         
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
-        NamedTreeNode<String> hh = builder.buildRawTree();
-        NamedTreeNode<Polygon> polygonHamburg = converter.fixRoot(converter.rawToPolygon(hh));
+        AdminAreaTreeNode<String> hh = builder.buildRawTree();
+        AdminAreaTreeNode<Polygon> polygonHamburg = t.call(hh);
         
         HamburgPolygonTreeToNeoImporter importer = new HamburgPolygonTreeToNeoImporter();
         importer.writeToNeo(polygonHamburg, graph);

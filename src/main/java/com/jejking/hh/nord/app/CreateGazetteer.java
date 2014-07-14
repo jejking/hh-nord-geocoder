@@ -31,10 +31,10 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import com.google.common.base.Stopwatch;
-import com.jejking.hh.nord.gazetteer.opendata.CoordinateConverter;
+import com.jejking.hh.nord.gazetteer.opendata.AdminAreaTreeNodeTransformer;
 import com.jejking.hh.nord.gazetteer.opendata.HamburgPolygonTreeToNeoImporter;
 import com.jejking.hh.nord.gazetteer.opendata.HamburgRawTreeBuilder;
-import com.jejking.hh.nord.gazetteer.opendata.NamedTreeNode;
+import com.jejking.hh.nord.gazetteer.opendata.AdminAreaTreeNode;
 import com.jejking.hh.nord.gazetteer.osm.OsmStreetCollectionToNeoImporter;
 import com.jejking.hh.nord.gazetteer.osm.PointOfInterest;
 import com.jejking.hh.nord.gazetteer.osm.PointOfInterestToNeoImporter;
@@ -118,9 +118,11 @@ public class CreateGazetteer {
 
     private static void writeHamburgPolygons(GraphDatabaseService graph) {
         HamburgRawTreeBuilder hamburgRawTreeBuilder = new HamburgRawTreeBuilder();
-        NamedTreeNode<String> hamburgNodes = hamburgRawTreeBuilder.buildRawTree();
-        CoordinateConverter converter = new CoordinateConverter();
-        NamedTreeNode<Polygon> hamburgPolygons = converter.fixRoot(converter.rawToPolygon(hamburgNodes));
+        AdminAreaTreeNode<String> hamburgNodes = hamburgRawTreeBuilder.buildRawTree();
+
+        AdminAreaTreeNodeTransformer t = new AdminAreaTreeNodeTransformer();
+        AdminAreaTreeNode<Polygon> hamburgPolygons = t.call(hamburgNodes);
+        
         HamburgPolygonTreeToNeoImporter hamburgPolygonTreeToNeoImporter = new HamburgPolygonTreeToNeoImporter();
         hamburgPolygonTreeToNeoImporter.writeToNeo(hamburgPolygons, graph);
     }

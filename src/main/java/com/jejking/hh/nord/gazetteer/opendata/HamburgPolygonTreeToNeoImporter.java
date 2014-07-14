@@ -42,7 +42,7 @@ import static com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes.*;
  * @author jejking
  *
  */
-public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<NamedTreeNode<Polygon>> {
+public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<AdminAreaTreeNode<Polygon>> {
 
     /**
      * Writes the root node to the graph database, along with all children,
@@ -51,7 +51,7 @@ public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<NamedTr
      * @param root
      * @param graph
      */
-    public void writeToNeo(NamedTreeNode<Polygon> root, GraphDatabaseService graph) {
+    public void writeToNeo(AdminAreaTreeNode<Polygon> root, GraphDatabaseService graph) {
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         
         try (Transaction tx = graph.beginTx()) {
@@ -64,7 +64,7 @@ public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<NamedTr
         
     }
     
-    private Node addAdministrativeNode(EditableLayer layer, Index<Node> fullText, Node neoParent, NamedTreeNode<Polygon> child) {
+    private Node addAdministrativeNode(EditableLayer layer, Index<Node> fullText, Node neoParent, AdminAreaTreeNode<Polygon> child) {
         
         // create the child node
         Node neoChildNode = addNamedNodeToLayer(layer, fullText, child);
@@ -75,7 +75,7 @@ public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<NamedTr
         }
         
         // recurse down the child's children....
-        for (NamedTreeNode<Polygon> childNode : child.getChildren().values()) {
+        for (AdminAreaTreeNode<Polygon> childNode : child.getChildren().values()) {
             addAdministrativeNode(layer, fullText, neoChildNode, childNode);
         }
         
@@ -88,7 +88,7 @@ public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<NamedTr
         
     }
 
-    private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> fullText, NamedTreeNode<Polygon> node) {
+    private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> fullText, AdminAreaTreeNode<Polygon> node) {
         SpatialDatabaseRecord record = layer.add(node.getContent(), new String[]{NAME}, new Object[]{node.getName()});
         Node neoNode = record.getGeomNode();
         neoNode.addLabel(DynamicLabel.label(node.getType()));

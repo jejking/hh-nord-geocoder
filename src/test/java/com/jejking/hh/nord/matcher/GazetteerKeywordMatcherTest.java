@@ -21,20 +21,13 @@ package com.jejking.hh.nord.matcher;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import java.util.Random;
 import java.util.concurrent.ConcurrentLinkedQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
-
 
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableSet;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
-import com.jejking.hh.nord.matcher.GazetteerKeywordMatcher;
 
 /**
  * Tests {@link GazetteerKeywordMatcher}.
@@ -137,58 +130,7 @@ public class GazetteerKeywordMatcherTest {
         
     }
     
-    @Test
-    public void isThreadSafe() {
-        final GazetteerKeywordMatcher matcher = new GazetteerKeywordMatcher(
-                ImmutableList.of("Foostraße", "Kuhkamp", "Katzenstraße"), 
-                GazetteerEntryTypes.STREET);
-        final ConcurrentLinkedQueue<Throwable> exceptionQueue = new ConcurrentLinkedQueue<>();
-        
-        Runnable matchingTask1 = new Runnable() {
-            
-            @Override
-            public void run() {
-                
-                try {
-                    ImmutableSet<String> matches = matcher.call("In der Foostraße gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine");
-                    assertTrue(matches.contains("Foostraße"));
-                    assertTrue(matches.contains("Kuhkamp"));
-                    assertFalse(matches.contains("Katzenstraße"));
-                } catch (Throwable error) {
-                	error.printStackTrace();
-                    exceptionQueue.add(error);
-                }
-            }
-        };
-        
-        Runnable matchingTask2 = new Runnable() {
-            
-            @Override
-            public void run() {
-                try {
-                    ImmutableSet<String> matches = matcher.call("Die Straßennamedn Op de Wisch und Op'n Hesel kommen aus dem Plattdeutschen");
-                    assertTrue(matches.isEmpty());
-                } catch (Throwable error) {
-                	error.printStackTrace();
-                    exceptionQueue.add(error);
-                }
-                
-            }
-        };
-        
-        ExecutorService executorService = new ThreadPoolExecutor(2, 4, 10, TimeUnit.SECONDS, new LinkedBlockingQueue<Runnable>());
-        
-        Random r = new Random();
-        for (int i = 0; i < 1000; i++) { 
-            if (r.nextBoolean()) {
-                executorService.submit(matchingTask1);
-            } else {
-                executorService.submit(matchingTask2);
-            }
-        }
-        
-        assertTrue("Queue contains " + exceptionQueue.size() + " exceptions", exceptionQueue.isEmpty());
-    }
+    
    
 
 }

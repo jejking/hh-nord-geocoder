@@ -19,6 +19,7 @@
 package com.jejking.hh.nord.app;
 
 import static com.jejking.hh.nord.AbstractNeoImporter.setupSchema;
+import static com.jejking.hh.nord.AbstractNeoImporter.registerShutdownHook;
 
 import java.io.IOException;
 import java.util.List;
@@ -83,7 +84,7 @@ public class CreateGazetteer {
         System.out.println("Done. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
     }
 
-    private static void writeBuildingsAndPointsOfInterest(GeometryFactory geometryFactory, GraphDatabaseService graph) {
+    public static void writeBuildingsAndPointsOfInterest(GeometryFactory geometryFactory, GraphDatabaseService graph) {
         RxBuildingAndPOICollectionBuilder builder = new RxBuildingAndPOICollectionBuilder(geometryFactory);
         try {
             List<PointOfInterest> pois = builder
@@ -97,12 +98,12 @@ public class CreateGazetteer {
         }
     }
 
-    private static void mapStreetsToAdminPolygons(GraphDatabaseService graph) {
+    public static void mapStreetsToAdminPolygons(GraphDatabaseService graph) {
         StreetToAdminPolygonMapper streetToAdminPolygonMapper = new StreetToAdminPolygonMapper();
         streetToAdminPolygonMapper.mapStreetsToPolygons(graph);
     }
 
-    private static void writeStreets(GeometryFactory geometryFactory, GraphDatabaseService graph) {
+    public static void writeStreets(GeometryFactory geometryFactory, GraphDatabaseService graph) {
         RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(geometryFactory);
         try {
             Map<String, Geometry> streets = builder
@@ -116,7 +117,7 @@ public class CreateGazetteer {
         }
     }
 
-    private static void writeHamburgPolygons(GraphDatabaseService graph) {
+    public static void writeHamburgPolygons(GraphDatabaseService graph) {
         HamburgRawTreeBuilder hamburgRawTreeBuilder = new HamburgRawTreeBuilder();
         AdminAreaTreeNode<String> hamburgNodes = hamburgRawTreeBuilder.buildRawTree();
 
@@ -129,14 +130,6 @@ public class CreateGazetteer {
 
     
 
-    private static void registerShutdownHook(final GraphDatabaseService graphDb) {
-        Runtime.getRuntime().addShutdownHook(new Thread() {
-
-            @Override
-            public void run() {
-                graphDb.shutdown();
-            }
-        });
-    }
+   
 
 }

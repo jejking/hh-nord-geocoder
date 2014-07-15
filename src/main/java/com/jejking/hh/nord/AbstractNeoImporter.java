@@ -115,5 +115,15 @@ public abstract class AbstractNeoImporter<T> {
             tx.success();
         }
     }
+    
+    public static void registerShutdownHook(final GraphDatabaseService graphDb) {
+        Runtime.getRuntime().addShutdownHook(new Thread() {
+
+            @Override
+            public void run() {
+                graphDb.shutdown();
+            }
+        });
+    }
 
 }

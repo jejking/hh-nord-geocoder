@@ -22,7 +22,6 @@ package com.jejking.hh.nord.gazetteer.osm;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NUMBERED_DISTRICT;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;
 import static com.jejking.hh.nord.gazetteer.GazetteerNames.ADMINISTRATIVE_LAYER;
-import static com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes.CONTAINED_IN;
 import static com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes.CONTAINS;
 
 import java.util.List;
@@ -81,8 +80,6 @@ public class StreetToAdminPolygonMapper {
                 for (Node numberedDistrict : numberedDistrictNodes) {
                     
                     numberedDistrict.createRelationshipTo(streetNode, CONTAINS);
-                    streetNode.createRelationshipTo(numberedDistrict, CONTAINED_IN);
-                    
                 }
                 
             }

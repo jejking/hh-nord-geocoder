@@ -107,13 +107,11 @@ public class PointOfInterestToNeoImporterTest {
                                                     .iterator()) {
                 Node school = iterator.next();
                 
-                Relationship containedIn = school.getRelationships(GazetteerRelationshipTypes.CONTAINED_IN, Direction.OUTGOING).iterator().next();
-                Node lerchenfeld = containedIn.getEndNode();
+                Relationship contains = school.getRelationships(GazetteerRelationshipTypes.CONTAINS, Direction.INCOMING).iterator().next();
+                Node lerchenfeld = contains.getStartNode();
                 assertTrue(lerchenfeld.hasLabel(DynamicLabel.label(GazetteerEntryTypes.STREET)));
                 assertEquals("Lerchenfeld", lerchenfeld.getProperty(NAME));
-                assertEquals("10", containedIn.getProperty(GazetteerNames.HOUSE_NUMBER));
                 
-                Relationship contains = school.getRelationships(GazetteerRelationshipTypes.CONTAINS, Direction.INCOMING).iterator().next();
                 assertEquals(lerchenfeld, contains.getOtherNode(school));
                 assertEquals("10", contains.getProperty(GazetteerNames.HOUSE_NUMBER));
                 

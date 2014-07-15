@@ -124,7 +124,6 @@ public class HamburgPolygonTreeToNeoImporterTest {
             int stadtTeilCount = 0;
             while (boroughNodes.hasNext()) {
                 Node boroughNode = boroughNodes.next();
-                assertTrue(boroughNode.hasRelationship(Direction.INCOMING, GazetteerRelationshipTypes.CONTAINED_IN)); // from HH
                 Iterator<Relationship> boroughRels = boroughNode.getRelationships(Direction.OUTGOING, GazetteerRelationshipTypes.CONTAINS).iterator();
                 while (boroughRels.hasNext()) {
                     boroughRels.next();
@@ -146,9 +145,6 @@ public class HamburgPolygonTreeToNeoImporterTest {
             Iterator<Node> boroughNodes = result.columnAs("u");
             
             Node uhlenhorst = boroughNodes.next();
-            // is uhlenhorst contained in Nord?
-            Node nord1 = uhlenhorst.getSingleRelationship(GazetteerRelationshipTypes.CONTAINED_IN, Direction.OUTGOING).getEndNode();
-            assertEquals("Hamburg-Nord", nord1.getProperty(NAME));
             
             // does Hamburg-Nord contain uhlenhorst?
             Node nord2 = uhlenhorst.getSingleRelationship(GazetteerRelationshipTypes.CONTAINS, Direction.INCOMING).getStartNode();

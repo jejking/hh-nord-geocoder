@@ -84,8 +84,6 @@ public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<AdminAr
     
     private void createRelationships(Node neoParent, Node neoChildNode) {
         neoParent.createRelationshipTo(neoChildNode, CONTAINS);
-        neoChildNode.createRelationshipTo(neoParent, CONTAINED_IN);
-        
     }
 
     private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> fullText, AdminAreaTreeNode<Polygon> node) {

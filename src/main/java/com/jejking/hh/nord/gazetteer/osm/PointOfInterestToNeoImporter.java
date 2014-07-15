@@ -105,11 +105,9 @@ public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<Point
             	if (iterator.hasNext()) {
             		Node streetNode = iterator.next();
             		if (streetNode != null) {
-                        Relationship contained = neoNode.createRelationshipTo(streetNode, GazetteerRelationshipTypes.CONTAINED_IN);
                         Relationship contains = streetNode.createRelationshipTo(neoNode, GazetteerRelationshipTypes.CONTAINS);
                         
                         if (poi.getHouseNumber().isPresent()) {
-                            contained.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
                             contains.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
                         }
                     }

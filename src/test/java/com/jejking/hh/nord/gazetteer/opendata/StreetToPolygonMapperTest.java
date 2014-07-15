@@ -77,11 +77,10 @@ public class StreetToPolygonMapperTest {
             
             printNode(peterStr);
             
-            assertTrue(peterStr.hasRelationship(Direction.OUTGOING, GazetteerRelationshipTypes.CONTAINED_IN));
             assertTrue(peterStr.hasRelationship(Direction.INCOMING, GazetteerRelationshipTypes.CONTAINS));
             
-            Node node106 = peterStr.getRelationships(Direction.OUTGOING, GazetteerRelationshipTypes.CONTAINED_IN)
-                       .iterator().next().getEndNode();
+            Node node106 = peterStr.getRelationships(Direction.INCOMING, GazetteerRelationshipTypes.CONTAINS)
+                       .iterator().next().getStartNode();
             assertEquals("106", node106.getProperty(GazetteerNames.NAME));
             
             boolean found106ContainsRelForPeterstr = nodeContainsStreet(node106, "Peterstraße");
@@ -101,18 +100,18 @@ public class StreetToPolygonMapperTest {
             boolean containedIn415 = false;
             boolean containedIn416 = false;
             
-            Iterator<Relationship> sRels = schwanenwik.getRelationships(Direction.OUTGOING, GazetteerRelationshipTypes.CONTAINED_IN).iterator();
+            Iterator<Relationship> sRels = schwanenwik.getRelationships(Direction.INCOMING, GazetteerRelationshipTypes.CONTAINS).iterator();
             while (sRels.hasNext()) {
                 Relationship rel = sRels.next(); {
-                    String endNodeName = (String) rel.getEndNode().getProperty(GazetteerNames.NAME);
-                    switch (endNodeName) {
+                    String startNodeName = (String) rel.getStartNode().getProperty(GazetteerNames.NAME);
+                    switch (startNodeName) {
                         case "415" : containedIn415 = true; break;
                         case "416" : containedIn416 = true; break;
-                        default : fail("Contained in " + endNodeName + ", which is wrong");
+                        default : fail("Contained in " + startNodeName + ", which is wrong");
                     }
                 }
-                Node endNode = rel.getEndNode();
-                assertTrue(nodeContainsStreet(endNode, "Schwanenwik"));
+                Node startNode = rel.getStartNode();
+                assertTrue(nodeContainsStreet(startNode, "Schwanenwik"));
             }
             
             assertTrue(containedIn415);

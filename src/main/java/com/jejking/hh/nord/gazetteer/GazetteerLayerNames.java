@@ -19,24 +19,15 @@
  */
 package com.jejking.hh.nord.gazetteer;
 
-
 /**
- * Constants for property names and the like.
- * 
+ * Names of spatial layers for use in the Gazetteer.
  * @author jejking
  *
  */
-public interface GazetteerNames {
+public interface GazetteerLayerNames {
 
-    public static final String NAME = "NAME";
-    public static final String TYPE = "TYPE";
-    
     public static final String ADMINISTRATIVE_LAYER = "ADMINISTRATIVE_LAYER";
     public static final String STREET_LAYER = "STREET_LAYER";
     public static final String POI_LAYER = "POI_LAYER";
-    
-    public static final String GAZETTEER_FULLTEXT = "GAZETTEER_FULLTEXT";
-    
-    public static final String HOUSE_NUMBER = "HOUSE_NUMBER";
-   
+	
 }

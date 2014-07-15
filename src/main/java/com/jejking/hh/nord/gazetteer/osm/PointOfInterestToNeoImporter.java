@@ -19,11 +19,10 @@
 package com.jejking.hh.nord.gazetteer.osm;
 
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.POINT_OF_INTEREST;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.GAZETTEER_FULLTEXT;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.HOUSE_NUMBER;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.NAME;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.POI_LAYER;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.TYPE;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.HOUSE_NUMBER;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.POI_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 
 import java.util.List;
 

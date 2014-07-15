@@ -19,6 +19,12 @@
 package com.jejking.hh.nord.gazetteer.opendata;
 
 
+import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NUMBERED_DISTRICT;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.ADMINISTRATIVE_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NUMBER;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
+import static com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes.CONTAINS;
 
 import org.neo4j.gis.spatial.EditableLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseRecord;
@@ -31,10 +37,6 @@ import org.neo4j.graphdb.index.Index;
 
 import com.jejking.hh.nord.AbstractNeoImporter;
 import com.vividsolutions.jts.geom.Polygon;
-
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.*;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.*;
-import static com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes.*;
 
 /**
  * Class to insert hierarchy of {@link GazetteerEntry} instances
@@ -87,12 +89,14 @@ public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<AdminAr
     }
 
     private Node addNamedNodeToLayer(EditableLayer layer, Index<Node> fullText, AdminAreaTreeNode<Polygon> node) {
-        SpatialDatabaseRecord record = layer.add(node.getContent(), new String[]{NAME}, new Object[]{node.getName()});
+    	
+    	String key = node.getType().equals(NUMBERED_DISTRICT) ? NUMBER : NAME;
+    	
+        SpatialDatabaseRecord record = layer.add(node.getContent(), new String[]{key}, new Object[]{node.getName()});
         Node neoNode = record.getGeomNode();
         neoNode.addLabel(DynamicLabel.label(node.getType()));
-        neoNode.addLabel(DynamicLabel.label(ADMIN_AREA));
-        
-        fullText.add(neoNode, NAME, node.getName());
+       
+        fullText.add(neoNode, key, node.getName());
         fullText.add(neoNode, TYPE, node.getType());
         
         return neoNode;

@@ -18,9 +18,9 @@
  */
 package com.jejking.hh.nord.gazetteer.osm;
 
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.GAZETTEER_FULLTEXT;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.NAME;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.TYPE;
+import static com.jejking.hh.nord.AbstractNeoImporter.GAZETTEER_FULLTEXT;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -38,7 +38,7 @@ import org.neo4j.graphdb.index.Index;
 
 import com.jejking.hh.nord.TestUtil;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
-import com.jejking.hh.nord.gazetteer.GazetteerNames;
+import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
 import com.jejking.hh.nord.gazetteer.osm.PointOfInterestToNeoImporter;
 
@@ -113,7 +113,7 @@ public class PointOfInterestToNeoImporterTest {
                 assertEquals("Lerchenfeld", lerchenfeld.getProperty(NAME));
                 
                 assertEquals(lerchenfeld, contains.getOtherNode(school));
-                assertEquals("10", contains.getProperty(GazetteerNames.HOUSE_NUMBER));
+                assertEquals("10", contains.getProperty(GazetteerPropertyNames.HOUSE_NUMBER));
                 
             }
         }

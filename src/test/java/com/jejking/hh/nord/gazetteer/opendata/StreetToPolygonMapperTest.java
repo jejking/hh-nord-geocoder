@@ -37,7 +37,7 @@ import org.neo4j.graphdb.Transaction;
 
 import com.jejking.hh.nord.TestUtil;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
-import com.jejking.hh.nord.gazetteer.GazetteerNames;
+import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
 import com.jejking.hh.nord.gazetteer.osm.StreetToAdminPolygonMapper;
 
@@ -81,7 +81,7 @@ public class StreetToPolygonMapperTest {
             
             Node node106 = peterStr.getRelationships(Direction.INCOMING, GazetteerRelationshipTypes.CONTAINS)
                        .iterator().next().getStartNode();
-            assertEquals("106", node106.getProperty(GazetteerNames.NAME));
+            assertEquals("106", node106.getProperty(GazetteerPropertyNames.NUMBER));
             
             boolean found106ContainsRelForPeterstr = nodeContainsStreet(node106, "Peterstraße");
             
@@ -103,7 +103,7 @@ public class StreetToPolygonMapperTest {
             Iterator<Relationship> sRels = schwanenwik.getRelationships(Direction.INCOMING, GazetteerRelationshipTypes.CONTAINS).iterator();
             while (sRels.hasNext()) {
                 Relationship rel = sRels.next(); {
-                    String startNodeName = (String) rel.getStartNode().getProperty(GazetteerNames.NAME);
+                    String startNodeName = (String) rel.getStartNode().getProperty(GazetteerPropertyNames.NUMBER);
                     switch (startNodeName) {
                         case "415" : containedIn415 = true; break;
                         case "416" : containedIn416 = true; break;
@@ -130,7 +130,7 @@ public class StreetToPolygonMapperTest {
                                                                 .iterator();
         while (nodeContainsRelIterator.hasNext()) {
             Relationship rel = nodeContainsRelIterator.next();
-            if (rel.getEndNode().getProperty(GazetteerNames.NAME).equals(streetName)) {
+            if (rel.getEndNode().getProperty(GazetteerPropertyNames.NAME).equals(streetName)) {
                 foundStreetInNodeRelationships = true;
                 break;
             }
@@ -144,7 +144,7 @@ public class StreetToPolygonMapperTest {
         ResourceIterable<Node> streetIterable = 
                 graphDatabaseService.findNodesByLabelAndProperty(
                                         DynamicLabel.label(GazetteerEntryTypes.STREET), 
-                                        GazetteerNames.NAME,
+                                        GazetteerPropertyNames.NAME,
                                         streetName);
         
         Node streetNode = streetIterable.iterator().next();

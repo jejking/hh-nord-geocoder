@@ -19,12 +19,11 @@
  */
 package com.jejking.hh.nord;
 
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.ADMIN_AREA;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.BOROUGH;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NAMED_AREA;
+import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NUMBERED_DISTRICT;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.POINT_OF_INTEREST;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.GAZETTEER_FULLTEXT;
 
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.neo4j.gis.spatial.EditableLayer;
@@ -38,7 +37,7 @@ import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.helpers.collection.MapUtil;
 
-import com.jejking.hh.nord.gazetteer.GazetteerNames;
+import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 
 /**
  * Abstract class with some shared functionality.
@@ -48,6 +47,8 @@ import com.jejking.hh.nord.gazetteer.GazetteerNames;
  */
 public abstract class AbstractNeoImporter<T> {
 
+	 public static final String GAZETTEER_FULLTEXT = "GAZETTEER_FULLTEXT";
+	
     /**
      * Writes the data to the graph database.
      * 
@@ -82,26 +83,27 @@ public abstract class AbstractNeoImporter<T> {
             Schema schema = graph.schema();
             schema
                 .constraintFor(DynamicLabel.label(BOROUGH))
-                .assertPropertyIsUnique(GazetteerNames.NAME)
+                .assertPropertyIsUnique(GazetteerPropertyNames.NAME)
                 .create();
             
             schema
                 .constraintFor(DynamicLabel.label(NAMED_AREA))
-                .assertPropertyIsUnique(GazetteerNames.NAME)
+                .assertPropertyIsUnique(GazetteerPropertyNames.NAME)
                 .create();
             
             schema
-                .constraintFor(DynamicLabel.label(STREET))
-                .assertPropertyIsUnique(GazetteerNames.NAME)
-                .create();
+            	.constraintFor(DynamicLabel.label(NUMBERED_DISTRICT))
+            	.assertPropertyIsUnique(GazetteerPropertyNames.NUMBER)
+            	.create();
             
-            schema.indexFor(DynamicLabel.label(ADMIN_AREA))
-                .on(GazetteerNames.NAME)
+            schema
+                .constraintFor(DynamicLabel.label(STREET))
+                .assertPropertyIsUnique(GazetteerPropertyNames.NAME)
                 .create();
             
             schema
                 .indexFor(DynamicLabel.label(POINT_OF_INTEREST))
-                .on(GazetteerNames.NAME)
+                .on(GazetteerPropertyNames.NAME)
                 .create();
             
             IndexManager indexManager = graph.index();

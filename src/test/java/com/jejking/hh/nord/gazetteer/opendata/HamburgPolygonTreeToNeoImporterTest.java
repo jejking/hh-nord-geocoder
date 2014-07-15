@@ -20,10 +20,11 @@ package com.jejking.hh.nord.gazetteer.opendata;
 
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.CITY;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NAMED_AREA;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.ADMINISTRATIVE_LAYER;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.GAZETTEER_FULLTEXT;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.NAME;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.TYPE;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.ADMINISTRATIVE_LAYER;
+import static com.jejking.hh.nord.AbstractNeoImporter.GAZETTEER_FULLTEXT;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NUMBER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -52,7 +53,6 @@ import org.neo4j.graphdb.index.IndexHits;
 
 import com.jejking.hh.nord.GeographicFunctions;
 import com.jejking.hh.nord.TestUtil;
-import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Point;
@@ -94,12 +94,10 @@ public class HamburgPolygonTreeToNeoImporterTest {
             
             try (ResourceIterator<Node> iterator = graph
                                                     .findNodesByLabelAndProperty(
-                                                            DynamicLabel.label(GazetteerEntryTypes.ADMIN_AREA),
+                                                            DynamicLabel.label(CITY),
                                                             NAME, "Hamburg")
                                                     .iterator()) {
                 Node hh = iterator.next();
-                
-                assertTrue(hh.hasLabel(DynamicLabel.label(CITY)));
                 
                 int countRels = 0;
                 Iterator<Relationship> hhRels = hh.getRelationships(Direction.OUTGOING, GazetteerRelationshipTypes.CONTAINS).iterator();
@@ -159,10 +157,10 @@ public class HamburgPolygonTreeToNeoImporterTest {
             while (uhlenhorstRels.hasNext()) {
                 Node ortsTeil = uhlenhorstRels.next().getEndNode();
                 uhlenhorstRelCount++;
-                if (ortsTeil.getProperty(NAME).equals("414")) {
+                if (ortsTeil.getProperty(NUMBER).equals("414")) {
                     found414 = true;
                 }
-                if (ortsTeil.getProperty(NAME).equals("415")) {
+                if (ortsTeil.getProperty(NUMBER).equals("415")) {
                     found415 = true;
                 }
             }
@@ -192,11 +190,15 @@ public class HamburgPolygonTreeToNeoImporterTest {
             						.startIntersectWindowSearch(administrative, env)
             						.toNodeList();
             for (Node node : nodes) {
-                switch ((String) node.getProperty(NAME)) {
-                	case "415" : found415 = true; break;
+                switch ((String) node.getProperty(NAME, "")) {
                 	case "Uhlenhorst" : foundUhlenhorst = true; break;
                 	case "Hamburg-Nord" : foundHamburgNord = true; break;
                 	case "Hamburg" : foundHamburg = true; break;
+                }
+                if (node.hasProperty(NUMBER)) {
+                	if (node.getProperty(NUMBER).equals("415")) {
+                		found415 = true;
+                	}
                 }
             }
             tx.success();

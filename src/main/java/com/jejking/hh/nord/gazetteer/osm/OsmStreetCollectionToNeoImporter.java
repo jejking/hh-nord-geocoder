@@ -19,10 +19,9 @@
 package com.jejking.hh.nord.gazetteer.osm;
 
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.GAZETTEER_FULLTEXT;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.NAME;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.STREET_LAYER;
-import static com.jejking.hh.nord.gazetteer.GazetteerNames.TYPE;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.STREET_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 
 
 import java.util.Map;

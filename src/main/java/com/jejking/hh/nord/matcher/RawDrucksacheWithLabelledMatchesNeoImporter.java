@@ -44,7 +44,7 @@ import com.google.common.base.Optional;
 import com.jejking.hh.nord.AbstractNeoImporter;
 import com.jejking.hh.nord.drucksachen.DrucksachenPropertyKeys;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
-import com.jejking.hh.nord.gazetteer.GazetteerNames;
+import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
 
 import rx.functions.Action1;
@@ -108,7 +108,7 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
     }
 
     private void createRelationship(Label neoLabel, Node drucksachenNode, String match, String relationshipProperty) {
-        ResourceIterable<Node> targetResourceIterable = graph.findNodesByLabelAndProperty(neoLabel, GazetteerNames.NAME, match);
+        ResourceIterable<Node> targetResourceIterable = graph.findNodesByLabelAndProperty(neoLabel, GazetteerPropertyNames.NAME, match);
         for (Node targetNode : targetResourceIterable) {
             Relationship rel = null; 
             Optional<Relationship> existingRelationship = getRelationship(drucksachenNode, targetNode);

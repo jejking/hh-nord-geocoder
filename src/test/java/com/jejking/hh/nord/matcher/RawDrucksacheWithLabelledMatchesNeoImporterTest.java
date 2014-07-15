@@ -41,7 +41,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 import com.jejking.hh.nord.drucksachen.DrucksacheNames;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
-import com.jejking.hh.nord.gazetteer.GazetteerNames;
+import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
 import com.jejking.hh.nord.matcher.Matches;
 import com.jejking.hh.nord.matcher.RawDrucksacheWithLabelledMatches;
@@ -192,7 +192,7 @@ public class RawDrucksacheWithLabelledMatchesNeoImporterTest {
     private void createGazetteerNode(String label, String name) {
         try(Transaction tx = this.graph.beginTx()) {
             Node node = this.graph.createNode(DynamicLabel.label(label));
-            node.setProperty(GazetteerNames.NAME, name);
+            node.setProperty(GazetteerPropertyNames.NAME, name);
             tx.success();
         }
         

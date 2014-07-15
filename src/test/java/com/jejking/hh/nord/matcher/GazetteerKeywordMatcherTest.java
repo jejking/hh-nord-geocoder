@@ -155,6 +155,7 @@ public class GazetteerKeywordMatcherTest {
                     assertTrue(matches.contains("Kuhkamp"));
                     assertFalse(matches.contains("Katzenstraße"));
                 } catch (Throwable error) {
+                	error.printStackTrace();
                     exceptionQueue.add(error);
                 }
             }
@@ -168,6 +169,7 @@ public class GazetteerKeywordMatcherTest {
                     ImmutableSet<String> matches = matcher.call("Die Straßennamedn Op de Wisch und Op'n Hesel kommen aus dem Plattdeutschen");
                     assertTrue(matches.isEmpty());
                 } catch (Throwable error) {
+                	error.printStackTrace();
                     exceptionQueue.add(error);
                 }
                 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.opendata;
+package com.jejking.hh.nord.gazetteer.osm;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -48,7 +48,7 @@ import com.jejking.hh.nord.gazetteer.osm.StreetToAdminPolygonMapper;
  * @author jejking
  *
  */
-public class StreetToPolygonMapperTest {
+public class StreetToAdminPolygonMapperTest {
 
     private static GraphDatabaseService graphDatabaseService;
     

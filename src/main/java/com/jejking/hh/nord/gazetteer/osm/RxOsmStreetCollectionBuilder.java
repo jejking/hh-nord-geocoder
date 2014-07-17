@@ -20,16 +20,14 @@ package com.jejking.hh.nord.gazetteer.osm;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
-
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
-import java.util.regex.Pattern;
-
 import rx.Observable;
 import rx.functions.Action1;
 import rx.functions.Func1;
 
+import com.google.common.collect.ImmutableSet;
 import com.jejking.osm.OsmNode;
 import com.jejking.osm.OsmWay;
 import com.jejking.osm.RxOsmParser;
@@ -48,10 +46,24 @@ public class RxOsmStreetCollectionBuilder {
 
 	private static final String HIGHWAY = "highway";
 	private static final String NAME = "name";
+	private static final String PUBLIC_TRANSPORT = "public_transport"; 
 	
 	private final Map<Long, Point> osmPoints = new HashMap<>();
 	private final Map<String, Geometry> osmNamedStreets = new HashMap<>();
 	private final GeometryFactory geometryFactory;
+	
+	private static final ImmutableSet<String> acceptableHighwayTypes = ImmutableSet.of(
+																			"motorway",
+																			"trunk",
+																			"primary",
+																			"secondary",
+																			"tertiary",
+																			"unclassified",
+																			"residential",
+																			"service",
+																			"road",
+																			"pedestrian");
+	private static final ImmutableSet<String> streetsToFilter = ImmutableSet.of("Plan", "Galerie");
 	
 	/**
 	 * Constructor.
@@ -86,25 +98,22 @@ public class RxOsmStreetCollectionBuilder {
 
 			@Override
 			public Boolean call(OsmWay way) {
-				return way.getProperties().containsKey(HIGHWAY) && way.getProperties().containsKey(NAME);
+				return way.getProperties().containsKey(HIGHWAY) && way.getProperties().containsKey(NAME)
+						&& acceptableHighwayTypes.contains(way.getProperties().get(HIGHWAY));
 			}
 		})
 		.filter(new Func1<OsmWay, Boolean>() {
-            
-		    // matches digits only. Used to exclude some stray bus stops 
-		    Pattern pattern = Pattern.compile("(\\d)+");
-            
-		    @Override
-            public Boolean call(OsmWay way) {
-                return !pattern.matcher(way.getProperties().get(NAME)).matches();
-            }
-        })
+			// Excludes "highways" that are also things like platforms, bus stops, etc.
+			@Override
+			public Boolean call(OsmWay way) {
+				return !way.getProperties().containsKey(PUBLIC_TRANSPORT);
+			}
+		})
         .filter(new Func1<OsmWay, Boolean>() {
-            // work around to exclude the street Plan (which is in Mitte)
-            // and which is easy to confuse with the noun "Plan", as in cunning plan.
+            // work around to exclude streets with common names
             @Override
             public Boolean call(OsmWay way) {
-                return !way.getProperties().get(NAME).equals("Plan");
+                return !streetsToFilter.contains(way.getProperties().get(NAME));
             }
         })
 		.subscribe(new Action1<OsmWay>() {

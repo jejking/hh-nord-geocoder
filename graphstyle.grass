@@ -97,3 +97,13 @@ node.NUMBERED_DISTRICT {
   font-size: 8px;
 }
 
+node.STREET {
+  color: #FF6C7C;
+  border-color: #EB5D6C;
+  text-color-internal: #FFFFFF;
+  diameter: 60px;
+  border-width: 2px;
+  caption: '{NAME}';
+  font-size: 6px;
+}
+

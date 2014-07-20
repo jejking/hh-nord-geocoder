@@ -93,7 +93,7 @@ public class RxPointOfInterestCollectionBuilder {
     }
 
     private static final IsOsmFeaturePointOfInterest isInterestingOsmFeaturePredicate = new IsOsmFeaturePointOfInterest();
-	private static final OsmComponentLabeller osmComponentLabeller = new OsmComponentLabeller();
+	private static final OsmComponentPointOfInterestLabeller osmComponentLabeller = new OsmComponentPointOfInterestLabeller();
 	
 	
 	private final GeometryFactory geometryFactory;

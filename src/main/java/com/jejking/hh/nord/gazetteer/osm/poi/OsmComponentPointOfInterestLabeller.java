@@ -19,7 +19,6 @@
 package com.jejking.hh.nord.gazetteer.osm.poi;
 
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.amenity;
-import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.building;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.cinema;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.emergency;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.firestation;
@@ -51,16 +50,13 @@ import rx.functions.Func1;
  * @author jejking
  *
  */
-class OsmComponentLabeller implements Func1<OsmComponent, ImmutableSet<String>> {
+class OsmComponentPointOfInterestLabeller implements Func1<OsmComponent, ImmutableSet<String>> {
 
 
     @Override
     public ImmutableSet<String> call(OsmComponent osmComponent) {
             ImmutableSet.Builder<String> setBuilder = ImmutableSet.builder();
             Map<String, String> props = osmComponent.getProperties();
-            if (props.containsKey(building)) {
-                setBuilder.add(GazetteerEntryTypes.BUILDING);
-            }
             if (props.containsKey(amenity)) {
                 String value = props.get(amenity);
                 switch (value) {

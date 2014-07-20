@@ -29,18 +29,18 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 import com.jejking.hh.nord.gazetteer.osm.DummyOsmComponent;
-import com.jejking.hh.nord.gazetteer.osm.poi.OsmComponentLabeller;
+import com.jejking.hh.nord.gazetteer.osm.poi.OsmComponentPointOfInterestLabeller;
 import com.jejking.osm.OsmMetadataHolder;
 
 /**
- * Tests for {@link OsmComponentLabeller}.
+ * Tests for {@link OsmComponentPointOfInterestLabeller}.
  * 
  * @author jejking
  *
  */
-public class OsmComponentLabellerTest {
+public class OsmComponentPointOfInterestLabellerTest {
 
-    private static final OsmComponentLabeller LABELLER = new OsmComponentLabeller();
+    private static final OsmComponentPointOfInterestLabeller LABELLER = new OsmComponentPointOfInterestLabeller();
     
     private static final OsmMetadataHolder DUMMY_METADATA = new OsmMetadataHolder(
             1L, 
@@ -56,11 +56,11 @@ public class OsmComponentLabellerTest {
     
     
     @Test
-    public void buildingsLabelled() {
+    public void buildingsNotLabelled() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(building, "yes");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.BUILDING));
+        assertFalse(LABELLER.call(c1).contains(GazetteerEntryTypes.BUILDING));
     }
     
     @Test

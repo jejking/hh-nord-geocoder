@@ -79,7 +79,7 @@ public class DrucksachenGazetteerKeywordMatcherFactoryTest {
         assertTrue(streetMatches.getMatchesInHeader().contains("Uhlenhorster Weg"));
         assertTrue(streetMatches.getMatchesInBody().contains("Mundsburger Damm"));
         
-        DrucksachenGazetteerKeywordMatcher poiMatcher = matcherMap.get(GazetteerEntryTypes.POINT_OF_INTEREST);
+        DrucksachenGazetteerKeywordMatcher poiMatcher = matcherMap.get(GazetteerEntryTypes.SCHOOL);
         Matches poiMatches = poiMatcher.call(drucksache);
         assertTrue(poiMatches.getMatchesInHeader().isEmpty());
         assertTrue(poiMatches.getMatchesInBody().contains("Gymnasium Lerchenfeld"));

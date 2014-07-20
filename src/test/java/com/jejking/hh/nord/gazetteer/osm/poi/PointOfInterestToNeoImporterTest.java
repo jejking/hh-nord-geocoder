@@ -21,6 +21,7 @@ package com.jejking.hh.nord.gazetteer.osm.poi;
 import static com.jejking.hh.nord.AbstractNeoImporter.GAZETTEER_FULLTEXT;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.HOUSE_NUMBER;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -111,9 +112,10 @@ public class PointOfInterestToNeoImporterTest {
                 Node lerchenfeld = contains.getStartNode();
                 assertTrue(lerchenfeld.hasLabel(DynamicLabel.label(GazetteerEntryTypes.STREET)));
                 assertEquals("Lerchenfeld", lerchenfeld.getProperty(NAME));
+                assertEquals("10", school.getProperty(HOUSE_NUMBER));
                 
                 assertEquals(lerchenfeld, contains.getOtherNode(school));
-                assertEquals("10", contains.getProperty(GazetteerPropertyNames.HOUSE_NUMBER));
+                
                 
             }
         }

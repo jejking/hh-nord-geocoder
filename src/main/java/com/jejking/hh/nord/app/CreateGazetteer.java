@@ -77,14 +77,14 @@ public class CreateGazetteer {
         mapStreetsToAdminPolygons(graph);
         System.out.println("Linked streets to polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
-        writeBuildingsAndPointsOfInterest(geometryFactory, graph);
-        System.out.println("Wrote buildings and points of interest. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+        writePointsOfInterest(geometryFactory, graph);
+        System.out.println("Wrote points of interest. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
         graph.shutdown();
         System.out.println("Done. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
     }
 
-    public static void writeBuildingsAndPointsOfInterest(GeometryFactory geometryFactory, GraphDatabaseService graph) {
+    public static void writePointsOfInterest(GeometryFactory geometryFactory, GraphDatabaseService graph) {
         RxPointOfInterestCollectionBuilder builder = new RxPointOfInterestCollectionBuilder(geometryFactory);
         try {
             List<PointOfInterest> pois = builder

@@ -51,7 +51,17 @@ public class DrucksachenGazetteerKeywordMatcherFactory {
         ImmutableList<String> labels = ImmutableList.of(
                                         GazetteerEntryTypes.NAMED_AREA,
                                         GazetteerEntryTypes.STREET,
-                                        GazetteerEntryTypes.POINT_OF_INTEREST);
+                                        GazetteerEntryTypes.SCHOOL,
+                                        GazetteerEntryTypes.HOSPITAL,
+                                        GazetteerEntryTypes.CINEMA,
+                                        GazetteerEntryTypes.EMERGENCY_SERVICES,
+                                        GazetteerEntryTypes.LIBRARY,
+                                        GazetteerEntryTypes.PARK,
+                                        GazetteerEntryTypes.PLACE_OF_WORSHIP,
+                                        GazetteerEntryTypes.PUBLIC_BUILDING,
+                                        GazetteerEntryTypes.THEATRE,
+                                        GazetteerEntryTypes.TRANSPORT_STOP,
+                                        GazetteerEntryTypes.UNIVERSITY);
         
         try(Transaction tx = graph.beginTx()) {
             ExecutionEngine executionEngine = new ExecutionEngine(graph);

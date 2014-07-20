@@ -59,16 +59,19 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsPublicTransportStationsAndStops() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(publicTransport, station);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
         
         ImmutableMap.Builder<String, String> builder2 = ImmutableMap.builder();
         builder2.put(publicTransport, stopPosition);
+        builder2.put(name, "foo");
         DummyOsmComponent c2 = buildTestObject(builder2.build());
         assertTrue(PREDICATE.call(c2));
         
         ImmutableMap.Builder<String, String> builder3 = ImmutableMap.builder();
         builder3.put(publicTransport, "foo");
+        builder3.put(name, "foo");
         DummyOsmComponent c3 = buildTestObject(builder3.build());
         assertFalse(PREDICATE.call(c3));
     }
@@ -77,6 +80,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsRailwayStations() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(railway, station);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
 
@@ -90,6 +94,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsPlacesOfWorship() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, placeOfWorship);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
         
@@ -99,6 +104,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsSchools() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, school);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }
@@ -107,6 +113,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsUniversities() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, university);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }
@@ -117,11 +124,13 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsEmergencyServices() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(emergency, "Rettung");
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
         
         ImmutableMap.Builder<String, String> builder2 = ImmutableMap.builder();
         builder2.put(emergency, "Feuerwache");
+        builder2.put(name, "foo");
         DummyOsmComponent c2 = buildTestObject(builder2.build());
         assertTrue(PREDICATE.call(c2));
     }
@@ -130,6 +139,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsFireStations() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, firestation);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }
@@ -138,6 +148,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsPoliceStations() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, police);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }
@@ -146,6 +157,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsPublicAdministrationBuildings() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, publicBuilding);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }
@@ -154,6 +166,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsTheatres() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, theatre);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }
@@ -230,6 +243,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsCinemas() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, cinema);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }
@@ -238,6 +252,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsLibraries() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, library);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }
@@ -246,6 +261,7 @@ public class IsOsmFeaturePointOfInterestTest {
     public void filterRetainsHospital() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, hospital);
+        builder1.put(name, "foo");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
         assertTrue(PREDICATE.call(c1));
     }

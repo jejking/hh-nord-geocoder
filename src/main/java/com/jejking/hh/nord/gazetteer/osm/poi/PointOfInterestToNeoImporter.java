@@ -18,11 +18,11 @@
  */
 package com.jejking.hh.nord.gazetteer.osm.poi;
 
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.POINT_OF_INTEREST;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.HOUSE_NUMBER;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
 import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.POI_LAYER;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
+import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.POINT_OF_INTEREST;
 
 import java.util.List;
 
@@ -32,7 +32,6 @@ import org.neo4j.gis.spatial.SpatialDatabaseService;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
-import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
 import org.neo4j.graphdb.index.Index;
@@ -104,11 +103,7 @@ public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<Point
             	if (iterator.hasNext()) {
             		Node streetNode = iterator.next();
             		if (streetNode != null) {
-                        Relationship contains = streetNode.createRelationshipTo(neoNode, GazetteerRelationshipTypes.CONTAINS);
-                        
-                        if (poi.getHouseNumber().isPresent()) {
-                            contains.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
-                        }
+                        streetNode.createRelationshipTo(neoNode, GazetteerRelationshipTypes.CONTAINS);
                     }
             	} else {
             		System.err.println("No result for street " + poi.getStreet().get());
@@ -135,20 +130,18 @@ public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<Point
         for (String label : poi.getLabels()) {
             neoNode.addLabel(DynamicLabel.label(label));
         }
-        if (poi.getName().isPresent()) {
-            neoNode.addLabel(DynamicLabel.label(POINT_OF_INTEREST));
-        }
     }
 
     private SpatialDatabaseRecord createSpatialDatabaseRecord(PointOfInterest poi, EditableLayer poiLayer) {
-        SpatialDatabaseRecord record;
+        SpatialDatabaseRecord record = poiLayer.add(poi.getPoint());
+        Node node = record.getGeomNode();
         if (poi.getName().isPresent()) {
-            record = poiLayer
-                    .add(poi.getPoint(), 
-                            new String[]{NAME}, new Object[]{poi.getName().get()});
-        } else {
-            record = poiLayer.add(poi.getPoint());
+            node.setProperty(NAME, poi.getName().get());
         }
+        if (poi.getHouseNumber().isPresent()) {
+            node.setProperty(HOUSE_NUMBER, poi.getHouseNumber().get());
+        }
+        
         return record;
     }
 

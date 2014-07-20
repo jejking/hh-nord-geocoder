@@ -122,7 +122,10 @@ public class RxPointOfInterestCollectionBuilderTest {
         OsmNode topLeft = new OsmNode(DUMMY_METADATA, empty, geometryFactory.createPoint(new Coordinate(0, 2)));
         
         OsmWay way = new OsmWay(DUMMY_METADATA, 
-                                ImmutableMap.of(houseNumber, "22", "building", "yes"), 
+                                ImmutableMap.of(houseNumber, "22", 
+                                                "building", "yes", 
+                                                "name", "foo",
+                                                "amenity", "hospital"), 
                                 ImmutableList.of(1L, 2L, 3L, 4L, 1L));
         
         Map<Long, Point> osmPoints = ImmutableMap.of(1L, bottomLeft.getPoint(), 
@@ -136,7 +139,7 @@ public class RxPointOfInterestCollectionBuilderTest {
         PointOfInterest poi = poiListBuilder.build().get(0);
         assertFalse(poi.getStreet().isPresent());
         assertEquals("22", poi.getHouseNumber().get());
-        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.BUILDING));
+        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.HOSPITAL));
         
         // centroid is 1,1 : intersection of diagonals.
         assertEquals(geometryFactory.createPoint(new Coordinate(1, 1)), poi.getPoint());
@@ -155,6 +158,7 @@ public class RxPointOfInterestCollectionBuilderTest {
                                                 ImmutableMap.of(houseNumber, "22",
                                                                 "building", "yes",
                                                                 "amenity", "school",
+                                                                "name", "foo",
                                                                 type, multipolygon),
                                                 ImmutableList.of(way1, way2, way3));
         

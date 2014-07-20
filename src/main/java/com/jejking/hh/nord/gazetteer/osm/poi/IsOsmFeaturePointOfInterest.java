@@ -41,25 +41,19 @@ final class IsOsmFeaturePointOfInterest implements Func1<OsmComponent, Boolean> 
      * Extracted to facilitate testing.
      */
     
-    static final ImmutableMap<String, ImmutableSet<String>> interestingTags;
-    
     static final ImmutableMap<String, ImmutableSet<String>> interestingTagsWithNameOnly;
     
     static {
         ImmutableSet<String> emptyStringSet = ImmutableSet.of(); // signifies all values acceptable
-        ImmutableMap.Builder<String, ImmutableSet<String>> interestingTagsBuilder = ImmutableMap.builder();
-        interestingTagsBuilder
-            .put(publicTransport, ImmutableSet.of(station, stopPosition))
-            .put(railway, ImmutableSet.of(station))
-            .put(amenity, ImmutableSet.of(placeOfWorship, school, university, police, firestation, theatre, cinema, library, hospital, publicBuilding))
-            .put(emergency, emptyStringSet);
-        interestingTags = interestingTagsBuilder.build();
-        
         ImmutableMap.Builder<String, ImmutableSet<String>> interestingTagsWithNameOnlyBuilder = ImmutableMap.builder();
         interestingTagsWithNameOnlyBuilder
             .put(leisure, ImmutableSet.of(park))
             .put(natural, ImmutableSet.of(water))
-            .put(waterway, ImmutableSet.of(canal, river));
+            .put(waterway, ImmutableSet.of(canal, river))
+            .put(publicTransport, ImmutableSet.of(station, stopPosition))
+            .put(railway, ImmutableSet.of(station))
+            .put(amenity, ImmutableSet.of(placeOfWorship, school, university, police, firestation, theatre, cinema, library, hospital, publicBuilding))
+            .put(emergency, emptyStringSet);
         interestingTagsWithNameOnly = interestingTagsWithNameOnlyBuilder.build();
         
     }
@@ -67,18 +61,7 @@ final class IsOsmFeaturePointOfInterest implements Func1<OsmComponent, Boolean> 
     @Override
     public Boolean call(OsmComponent component) {
     	ImmutableMap<String, String> props = component.getProperties();
-    	for (String interestingTag : IsOsmFeaturePointOfInterest.interestingTags.keySet()) {
-    		// all values are ok if we attached empty set to allowed values
-    		if (props.containsKey(interestingTag) && IsOsmFeaturePointOfInterest.interestingTags.get(interestingTag).isEmpty()) {
-    			return Boolean.TRUE;
-    		}
-    		// retain if an interesting tag and value is one we are interested in
-    		if (props.containsKey(interestingTag) 
-    				&& hasInterestingValue(IsOsmFeaturePointOfInterest.interestingTags,  props, interestingTag)) {
-    			return Boolean.TRUE;
-    		}
-    	}
-    	for (String tagInterestingIfNamed : interestingTagsWithNameOnly.keySet()) {
+   	for (String tagInterestingIfNamed : interestingTagsWithNameOnly.keySet()) {
     		if (props.containsKey(tagInterestingIfNamed)
     				&& hasInterestingValue(interestingTagsWithNameOnly, props,tagInterestingIfNamed)
     				&& props.containsKey(name)) {
@@ -92,6 +75,7 @@ final class IsOsmFeaturePointOfInterest implements Func1<OsmComponent, Boolean> 
     private boolean hasInterestingValue(ImmutableMap<String, ImmutableSet<String>> map,
     		Map<String, String> props,
     		String tagInterestingIfNamed) {
-    	return map.get(tagInterestingIfNamed).contains(props.get(tagInterestingIfNamed));
+    	return map.get(tagInterestingIfNamed).isEmpty() || 
+    	        map.get(tagInterestingIfNamed).contains(props.get(tagInterestingIfNamed));
     }
 }

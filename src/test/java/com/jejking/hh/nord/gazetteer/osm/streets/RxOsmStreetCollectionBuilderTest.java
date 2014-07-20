@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.streets;
 
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
@@ -27,7 +27,7 @@ import java.util.Map;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.junit.Test;
 
-import com.jejking.hh.nord.gazetteer.osm.RxOsmStreetCollectionBuilder;
+import com.jejking.hh.nord.gazetteer.osm.streets.RxOsmStreetCollectionBuilder;
 import com.vividsolutions.jts.geom.Geometry;
 
 /**

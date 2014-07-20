@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.poi;
 
 
 

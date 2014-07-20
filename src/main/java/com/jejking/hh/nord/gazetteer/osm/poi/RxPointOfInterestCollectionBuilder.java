@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.poi;
 
 
 import static com.google.common.base.Preconditions.checkNotNull;
@@ -39,6 +39,8 @@ import rx.functions.Func1;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableList.Builder;
+import com.jejking.hh.nord.gazetteer.osm.RelationWaysToPolygon;
+import com.jejking.hh.nord.gazetteer.osm.WayNdsToLineString;
 import com.jejking.osm.OsmComponent;
 import com.jejking.osm.OsmNode;
 import com.jejking.osm.OsmRelation;
@@ -56,9 +58,29 @@ import com.vividsolutions.jts.geom.Polygon;
  * @author jejking
  *
  */
-public class RxBuildingAndPOICollectionBuilder {
+public class RxPointOfInterestCollectionBuilder {
 	
-	private static final class FilterWaterwaysPredicate implements Func1<OsmComponent, Boolean> {
+	private static final class PointOfInterestBuilder<C extends OsmComponent> implements Func1<C, PointOfInterest> {
+
+	    private final Func1<C, Point> func;
+	    
+	    public PointOfInterestBuilder(Func1<C, Point> func) {
+	        this.func = func;
+	    }
+	    
+        @Override
+        public PointOfInterest call(C osmComponent) {
+            PointOfInterest poi = new PointOfInterest(
+                    osmComponentLabeller.call(osmComponent), 
+                    func.call(osmComponent), 
+                    Optional.fromNullable(osmComponent.getProperties().get(houseNumber)), 
+                    Optional.fromNullable(osmComponent.getProperties().get(street)), 
+                    Optional.fromNullable(osmComponent.getProperties().get(name)));
+            return poi;
+        }
+    }
+
+    private static final class FilterWaterwaysPredicate implements Func1<OsmComponent, Boolean> {
 
         @Override
         public Boolean call(OsmComponent osmComponent) {
@@ -70,7 +92,7 @@ public class RxBuildingAndPOICollectionBuilder {
         }
     }
 
-    private static final IsInterestingOsmFeaturePredicate isInterestingOsmFeaturePredicate = new IsInterestingOsmFeaturePredicate();
+    private static final IsOsmFeaturePointOfInterest isInterestingOsmFeaturePredicate = new IsOsmFeaturePointOfInterest();
 	private static final OsmComponentLabeller osmComponentLabeller = new OsmComponentLabeller();
 	
 	
@@ -82,7 +104,7 @@ public class RxBuildingAndPOICollectionBuilder {
 	 * @param geometryFactory a geometry factory, may not be <code>null</code>
 	 * @throws NullPointerException if geometry factory <code>null</code>
 	 */
-	public RxBuildingAndPOICollectionBuilder(GeometryFactory geometryFactory) {
+	public RxPointOfInterestCollectionBuilder(GeometryFactory geometryFactory) {
 		this.geometryFactory = checkNotNull(geometryFactory);
 	}
 	
@@ -134,18 +156,20 @@ public class RxBuildingAndPOICollectionBuilder {
 			.map(new Func1<OsmRelation, Optional<PointOfInterest>>() {
 
 				final RelationWaysToPolygon relationWaysToPolygon = new RelationWaysToPolygon(geometryFactory, osmLineStrings);
-				
 				@Override
 				public Optional<PointOfInterest> call(OsmRelation osmRelation) {
 
-					Optional<Polygon> polygon = relationWaysToPolygon.call(osmRelation);
+					final Optional<Polygon> polygon = relationWaysToPolygon.call(osmRelation);
+					final PointOfInterestBuilder<OsmRelation> builder = new PointOfInterestBuilder<>(new Func1<OsmRelation, Point>() {
+
+	                    @Override
+	                    public Point call(OsmRelation osmRelation) {
+	                        return polygon.get().getCentroid();
+	                    }
+	                    
+	                });
 					if (polygon.isPresent()) {
-						PointOfInterest poi = new PointOfInterest(
-								osmComponentLabeller.call(osmRelation), 
-								polygon.get().getCentroid(), 
-								Optional.fromNullable(osmRelation.getProperties().get(houseNumber)), 
-	                            Optional.fromNullable(osmRelation.getProperties().get(street)), 
-	                            Optional.fromNullable(osmRelation.getProperties().get(name)));
+						PointOfInterest poi = builder.call(osmRelation);
 						return Optional.of(poi);
 					} else {
 						return Optional.absent();
@@ -176,20 +200,14 @@ public class RxBuildingAndPOICollectionBuilder {
         wayObservable
             .filter(isInterestingOsmFeaturePredicate)
             .filter(new FilterWaterwaysPredicate())
-            .map(new Func1<OsmWay, PointOfInterest>() {
+            .map(new PointOfInterestBuilder<OsmWay>(new Func1<OsmWay, Point>() {
 
                 @Override
-                public PointOfInterest call(OsmWay osmWay) {
-                    PointOfInterest poi = new PointOfInterest(
-                            osmComponentLabeller.call(osmWay), 
-                            wayNdsToLineString.call(osmWay.getNdRefs()).getCentroid(),
-                            Optional.fromNullable(osmWay.getProperties().get(houseNumber)), 
-                            Optional.fromNullable(osmWay.getProperties().get(street)), 
-                            Optional.fromNullable(osmWay.getProperties().get(name)));
-                    return poi;
+                public Point call(OsmWay osmWay) {
+                    return wayNdsToLineString.call(osmWay.getNdRefs()).getCentroid();
                 }
                 
-            })
+            }))
             .subscribe(new Action1<PointOfInterest>() { // add them to our list of points of interest
 
                 @Override
@@ -206,21 +224,14 @@ public class RxBuildingAndPOICollectionBuilder {
 		nodeObservable
 		    .filter(isInterestingOsmFeaturePredicate)
 		    .filter(new FilterWaterwaysPredicate())
-		    .map(new Func1<OsmNode, PointOfInterest>() { // map remaining set to points of interest
+		    .map(new PointOfInterestBuilder<OsmNode>(new Func1<OsmNode, Point>() {
 
                 @Override
-                public PointOfInterest call(OsmNode osmNode) {
-                    PointOfInterest poi = new PointOfInterest(
-                                            osmComponentLabeller.call(osmNode), 
-                                            osmNode.getPoint(), 
-                                            Optional.fromNullable(osmNode.getProperties().get(houseNumber)), 
-                                            Optional.fromNullable(osmNode.getProperties().get(street)), 
-                                            Optional.fromNullable(osmNode.getProperties().get(name)));
-                    return poi;
+                public Point call(OsmNode node) {
+                    return node.getPoint();
                 }
-
-               
-            })
+		        
+		    }))
             .subscribe(new Action1<PointOfInterest>() { // add them to our list of points of interest
 
                 @Override

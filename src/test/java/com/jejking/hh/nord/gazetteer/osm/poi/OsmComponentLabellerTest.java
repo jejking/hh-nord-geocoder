@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.poi;
 
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.*;
 import static org.junit.Assert.assertFalse;
@@ -28,7 +28,8 @@ import org.junit.Test;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
-import com.jejking.hh.nord.gazetteer.osm.OsmComponentLabeller;
+import com.jejking.hh.nord.gazetteer.osm.DummyOsmComponent;
+import com.jejking.hh.nord.gazetteer.osm.poi.OsmComponentLabeller;
 import com.jejking.osm.OsmMetadataHolder;
 
 /**

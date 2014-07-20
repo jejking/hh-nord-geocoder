@@ -17,7 +17,7 @@
  *
  *    
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.streets;
 
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NUMBERED_DISTRICT;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;

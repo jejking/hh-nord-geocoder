@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.streets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -39,7 +39,7 @@ import com.jejking.hh.nord.TestUtil;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
-import com.jejking.hh.nord.gazetteer.osm.StreetToAdminPolygonMapper;
+import com.jejking.hh.nord.gazetteer.osm.streets.StreetToAdminPolygonMapper;
 
 /**
  * Tests mapping of streets to administrative polygons of

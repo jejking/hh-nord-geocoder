@@ -29,7 +29,6 @@ import org.junit.Test;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.jejking.hh.nord.gazetteer.osm.RelationWaysToPolygon;
 import com.jejking.osm.OsmMetadataHolder;
 import com.jejking.osm.OsmRelation;
 import com.jejking.osm.OsmRelation.Member;
@@ -72,7 +71,7 @@ public class RelationWaysToPolygonTest {
         this.relationWaysToPolygon = new RelationWaysToPolygon(geometryFactory, osmLineStrings);
     }
     
-    static Map<Long, LineString> buildOsmLineStrings() {
+    public static Map<Long, LineString> buildOsmLineStrings() {
         Map<Long, LineString> lineStrings = new HashMap<>();
         
         lineStrings.put(1L, geometryFactory.createLineString(coordinates1()));

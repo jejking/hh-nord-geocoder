@@ -49,7 +49,7 @@ import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.type;
  * @author jejking
  *
  */
-class RelationWaysToPolygon implements Func1<OsmRelation, Optional<Polygon>> {
+public class RelationWaysToPolygon implements Func1<OsmRelation, Optional<Polygon>> {
 
 	private final GeometryFactory geometryFactory;
     private final Map<Long, LineString> osmLineStrings;

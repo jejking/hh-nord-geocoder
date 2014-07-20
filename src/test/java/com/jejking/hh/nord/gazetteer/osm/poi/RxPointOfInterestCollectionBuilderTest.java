@@ -16,13 +16,14 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.poi;
 
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.houseNumber;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.inner;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.multipolygon;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.outer;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.type;
+import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.name;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -42,8 +43,9 @@ import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Iterables;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
-import com.jejking.hh.nord.gazetteer.osm.PointOfInterest;
-import com.jejking.hh.nord.gazetteer.osm.RxBuildingAndPOICollectionBuilder;
+import com.jejking.hh.nord.gazetteer.osm.RelationWaysToPolygonTest;
+import com.jejking.hh.nord.gazetteer.osm.poi.PointOfInterest;
+import com.jejking.hh.nord.gazetteer.osm.poi.RxPointOfInterestCollectionBuilder;
 import com.jejking.osm.OsmMetadataHolder;
 import com.jejking.osm.OsmNode;
 import com.jejking.osm.OsmRelation;
@@ -55,12 +57,12 @@ import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Point;
 
 /**
- * Tests for {@link RxBuildingAndPOICollectionBuilder}.
+ * Tests for {@link RxPointOfInterestCollectionBuilder}.
  * 
  * @author jejking
  *
  */
-public class RxBuildingAndPOICollectionBuilderTest {
+public class RxPointOfInterestCollectionBuilderTest {
 
     private static final OsmMetadataHolder DUMMY_METADATA = new OsmMetadataHolder(
             1L, 
@@ -81,17 +83,17 @@ public class RxBuildingAndPOICollectionBuilderTest {
         return new OsmNode(DUMMY_METADATA, props, dummyPoint);
     }
     
-    private RxBuildingAndPOICollectionBuilder builder;
+    private RxPointOfInterestCollectionBuilder builder;
     
     @Before
     public void init() {
-        this.builder = new RxBuildingAndPOICollectionBuilder(geometryFactory);
+        this.builder = new RxPointOfInterestCollectionBuilder(geometryFactory);
     }
     
 
     @Test
     public void poisBuiltFromNodes() {
-        OsmNode retain = buildTestOsmNode(ImmutableMap.of(houseNumber, "22", "building", "yes"));
+        OsmNode retain = buildTestOsmNode(ImmutableMap.of(name, "foo", "amenity", "theatre"));
         OsmNode remove = buildTestOsmNode(ImmutableMap.of("foo", "bar"));
         Observable<OsmNode> nodeObservable = Observable.from(retain, remove);
         
@@ -106,8 +108,7 @@ public class RxBuildingAndPOICollectionBuilderTest {
         PointOfInterest poi = poiList.get(0);
         
         assertFalse(poi.getStreet().isPresent());
-        assertEquals("22", poi.getHouseNumber().get());
-        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.BUILDING));
+        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.THEATRE));
     }
 
     @Test
@@ -153,6 +154,7 @@ public class RxBuildingAndPOICollectionBuilderTest {
         OsmRelation relation = new OsmRelation(DUMMY_METADATA, 
                                                 ImmutableMap.of(houseNumber, "22",
                                                                 "building", "yes",
+                                                                "amenity", "school",
                                                                 type, multipolygon),
                                                 ImmutableList.of(way1, way2, way3));
         
@@ -165,7 +167,7 @@ public class RxBuildingAndPOICollectionBuilderTest {
         PointOfInterest poi = poiListBuilder.build().get(0);
         assertFalse(poi.getStreet().isPresent());
         assertEquals("22", poi.getHouseNumber().get());
-        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.BUILDING));
+        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.SCHOOL));
         
         assertEquals(geometryFactory.createPoint(new Coordinate(4.5, 3.5)), poi.getPoint());
         
@@ -174,40 +176,7 @@ public class RxBuildingAndPOICollectionBuilderTest {
     @Test
     public void canReadUhlenhorst() {
         
-        ImmutableList<PointOfInterest> pois = builder.pointsOfInterestFromStream(RxBuildingAndPOICollectionBuilder.class.getResourceAsStream("/uhlenhorst-direct-export.osm"));
-        
-        // test for some arbitrary points of interest....
-        
-        // a node, Mundsburger Damm 12, lat="53.5646073" lon="10.0187863"
-        PointOfInterest md12 = Iterables.find(pois, new Predicate<PointOfInterest>() {
-            @Override
-            public boolean apply(PointOfInterest input) {
-                if (input.getHouseNumber().isPresent() && input.getHouseNumber().get().equals("12")) {
-                    if (input.getStreet().isPresent() && input.getStreet().get().equals("Mundsburger Damm")) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-        assertEquals(md12.getPoint().getCoordinate().x, 10.01878, 0.001);
-        assertEquals(md12.getPoint().getCoordinate().y, 53.5646, 0.001);
-        
-        // a way, uhlenhorster weg 4, ca 53.568621, 10.017030 according to Google Maps
-        PointOfInterest uw4 = Iterables.find(pois, new Predicate<PointOfInterest>() {
-            @Override
-            public boolean apply(PointOfInterest input) {
-                if (input.getHouseNumber().isPresent() && input.getHouseNumber().get().equals("4")) {
-                    if (input.getStreet().isPresent() && input.getStreet().get().equals("Uhlenhorster Weg")) {
-                        return true;
-                    }
-                }
-                return false;
-            }
-        });
-        assertEquals(uw4.getPoint().getCoordinate().x, 10.01703, 0.001);
-        assertEquals(uw4.getPoint().getCoordinate().y, 53.5686, 0.001);
-        
+        ImmutableList<PointOfInterest> pois = builder.pointsOfInterestFromStream(RxPointOfInterestCollectionBuilder.class.getResourceAsStream("/uhlenhorst-direct-export.osm"));
         
         PointOfInterest lerchenfeldGymnasium = Iterables.find(pois, new Predicate<PointOfInterest>() {
             @Override
@@ -221,6 +190,9 @@ public class RxBuildingAndPOICollectionBuilderTest {
         assertTrue(lerchenfeldGymnasium.getLabels().contains(GazetteerEntryTypes.SCHOOL));        
         assertEquals("Lerchenfeld", lerchenfeldGymnasium.getStreet().get());
         assertEquals("10", lerchenfeldGymnasium.getHouseNumber().get());
+        
+        assertEquals(lerchenfeldGymnasium.getPoint().getX(), 10.03019, 0.00001);
+        assertEquals(lerchenfeldGymnasium.getPoint().getY(), 53.56902, 0.00001);
     }
 
 }

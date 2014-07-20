@@ -29,7 +29,7 @@ import com.jejking.osm.OsmMetadata;
  * @author jejking
  *
  */
-class DummyOsmComponent extends OsmComponent {
+public class DummyOsmComponent extends OsmComponent {
 
     /**
      * Constructor.

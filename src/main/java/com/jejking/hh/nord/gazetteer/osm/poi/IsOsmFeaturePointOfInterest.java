@@ -15,7 +15,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.poi;
 
 
 import java.util.Map;
@@ -35,7 +35,7 @@ import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.*;
  * @author jejking
  *
  */
-final class IsInterestingOsmFeaturePredicate implements Func1<OsmComponent, Boolean> {
+final class IsOsmFeaturePointOfInterest implements Func1<OsmComponent, Boolean> {
 
     /*
      * Extracted to facilitate testing.
@@ -67,14 +67,14 @@ final class IsInterestingOsmFeaturePredicate implements Func1<OsmComponent, Bool
     @Override
     public Boolean call(OsmComponent component) {
     	ImmutableMap<String, String> props = component.getProperties();
-    	for (String interestingTag : IsInterestingOsmFeaturePredicate.interestingTags.keySet()) {
+    	for (String interestingTag : IsOsmFeaturePointOfInterest.interestingTags.keySet()) {
     		// all values are ok if we attached empty set to allowed values
-    		if (props.containsKey(interestingTag) && IsInterestingOsmFeaturePredicate.interestingTags.get(interestingTag).isEmpty()) {
+    		if (props.containsKey(interestingTag) && IsOsmFeaturePointOfInterest.interestingTags.get(interestingTag).isEmpty()) {
     			return Boolean.TRUE;
     		}
     		// retain if an interesting tag and value is one we are interested in
     		if (props.containsKey(interestingTag) 
-    				&& hasInterestingValue(IsInterestingOsmFeaturePredicate.interestingTags,  props, interestingTag)) {
+    				&& hasInterestingValue(IsOsmFeaturePointOfInterest.interestingTags,  props, interestingTag)) {
     			return Boolean.TRUE;
     		}
     	}
@@ -84,10 +84,6 @@ final class IsInterestingOsmFeaturePredicate implements Func1<OsmComponent, Bool
     				&& props.containsKey(name)) {
     			return Boolean.TRUE;
     		}
-    	}
-    	
-    	if (props.containsKey(building) && props.containsKey(houseNumber)) {
-    	    return Boolean.TRUE;
     	}
     	
     	return Boolean.FALSE;

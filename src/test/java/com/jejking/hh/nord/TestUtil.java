@@ -33,11 +33,11 @@ import com.jejking.hh.nord.gazetteer.opendata.AdminAreaTreeNode;
 import com.jejking.hh.nord.gazetteer.opendata.AdminAreaTreeNodeTransformer;
 import com.jejking.hh.nord.gazetteer.opendata.HamburgPolygonTreeToNeoImporter;
 import com.jejking.hh.nord.gazetteer.opendata.HamburgRawTreeBuilder;
-import com.jejking.hh.nord.gazetteer.osm.OsmStreetCollectionToNeoImporter;
-import com.jejking.hh.nord.gazetteer.osm.PointOfInterest;
-import com.jejking.hh.nord.gazetteer.osm.PointOfInterestToNeoImporter;
-import com.jejking.hh.nord.gazetteer.osm.RxBuildingAndPOICollectionBuilder;
-import com.jejking.hh.nord.gazetteer.osm.RxOsmStreetCollectionBuilder;
+import com.jejking.hh.nord.gazetteer.osm.poi.PointOfInterest;
+import com.jejking.hh.nord.gazetteer.osm.poi.PointOfInterestToNeoImporter;
+import com.jejking.hh.nord.gazetteer.osm.poi.RxPointOfInterestCollectionBuilder;
+import com.jejking.hh.nord.gazetteer.osm.streets.OsmStreetCollectionToNeoImporter;
+import com.jejking.hh.nord.gazetteer.osm.streets.RxOsmStreetCollectionBuilder;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -102,7 +102,7 @@ public class TestUtil {
     
     
     public static void writeUhlenhorstPoisToGraph(GraphDatabaseService graph) {
-        RxBuildingAndPOICollectionBuilder builder = new RxBuildingAndPOICollectionBuilder(JTSFactoryFinder.getGeometryFactory());
+        RxPointOfInterestCollectionBuilder builder = new RxPointOfInterestCollectionBuilder(JTSFactoryFinder.getGeometryFactory());
         List<PointOfInterest> pois = builder
                                         .pointsOfInterestFromStream( TestUtil.class.getResourceAsStream("/uhlenhorst-direct-export.osm"));
         

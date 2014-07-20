@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.poi;
 
 
 import org.joda.time.DateTime;
@@ -24,7 +24,8 @@ import org.junit.Test;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableMap;
-import com.jejking.hh.nord.gazetteer.osm.IsInterestingOsmFeaturePredicate;
+import com.jejking.hh.nord.gazetteer.osm.DummyOsmComponent;
+import com.jejking.hh.nord.gazetteer.osm.poi.IsOsmFeaturePointOfInterest;
 import com.jejking.osm.OsmMetadataHolder;
 
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.*;
@@ -32,14 +33,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 /**
- * Tests for {@link IsInterestingOsmFeaturePredicate}.
+ * Tests for {@link IsOsmFeaturePointOfInterest}.
  * 
  * @author jejking
  * 
  */
-public class IsInterestingOsmFeaturePredicateTest {
+public class IsOsmFeaturePointOfInterestTest {
 
-    private static final IsInterestingOsmFeaturePredicate PREDICATE = new IsInterestingOsmFeaturePredicate();
+    private static final IsOsmFeaturePointOfInterest PREDICATE = new IsOsmFeaturePointOfInterest();
     
     private static final OsmMetadataHolder DUMMY_METADATA = new OsmMetadataHolder(
                                                                     1L, 
@@ -251,12 +252,12 @@ public class IsInterestingOsmFeaturePredicateTest {
     
     
     @Test
-    public void filterRetainsBuildingNodesWithHouseNumbers() {
+    public void filterDoesNotRetainsBuildingNodesWithHouseNumbers() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(houseNumber, "34");
         builder1.put("building", "yes");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(PREDICATE.call(c1));
+        assertFalse(PREDICATE.call(c1));
         
     }
 

@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.gazetteer.osm;
+package com.jejking.hh.nord.gazetteer.osm.streets;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -28,6 +28,7 @@ import rx.functions.Action1;
 import rx.functions.Func1;
 
 import com.google.common.collect.ImmutableSet;
+import com.jejking.hh.nord.gazetteer.osm.WayNdsToLineString;
 import com.jejking.osm.OsmNode;
 import com.jejking.osm.OsmWay;
 import com.jejking.osm.RxOsmParser;

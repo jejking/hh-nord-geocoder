@@ -40,7 +40,7 @@ import com.vividsolutions.jts.geom.Point;
  * @author jejking
  *
  */
-class WayNdsToLineString implements Func1<List<Long>, Geometry> {
+public class WayNdsToLineString implements Func1<List<Long>, Geometry> {
 
     private final GeometryFactory geometryFactory;
     private final Map<Long, Point> knownOsmPoints;

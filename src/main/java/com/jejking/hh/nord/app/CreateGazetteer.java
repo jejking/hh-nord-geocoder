@@ -36,12 +36,12 @@ import com.jejking.hh.nord.gazetteer.opendata.AdminAreaTreeNodeTransformer;
 import com.jejking.hh.nord.gazetteer.opendata.HamburgPolygonTreeToNeoImporter;
 import com.jejking.hh.nord.gazetteer.opendata.HamburgRawTreeBuilder;
 import com.jejking.hh.nord.gazetteer.opendata.AdminAreaTreeNode;
-import com.jejking.hh.nord.gazetteer.osm.OsmStreetCollectionToNeoImporter;
-import com.jejking.hh.nord.gazetteer.osm.PointOfInterest;
-import com.jejking.hh.nord.gazetteer.osm.PointOfInterestToNeoImporter;
-import com.jejking.hh.nord.gazetteer.osm.RxBuildingAndPOICollectionBuilder;
-import com.jejking.hh.nord.gazetteer.osm.RxOsmStreetCollectionBuilder;
-import com.jejking.hh.nord.gazetteer.osm.StreetToAdminPolygonMapper;
+import com.jejking.hh.nord.gazetteer.osm.poi.PointOfInterest;
+import com.jejking.hh.nord.gazetteer.osm.poi.PointOfInterestToNeoImporter;
+import com.jejking.hh.nord.gazetteer.osm.poi.RxPointOfInterestCollectionBuilder;
+import com.jejking.hh.nord.gazetteer.osm.streets.OsmStreetCollectionToNeoImporter;
+import com.jejking.hh.nord.gazetteer.osm.streets.RxOsmStreetCollectionBuilder;
+import com.jejking.hh.nord.gazetteer.osm.streets.StreetToAdminPolygonMapper;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.Polygon;
@@ -85,7 +85,7 @@ public class CreateGazetteer {
     }
 
     public static void writeBuildingsAndPointsOfInterest(GeometryFactory geometryFactory, GraphDatabaseService graph) {
-        RxBuildingAndPOICollectionBuilder builder = new RxBuildingAndPOICollectionBuilder(geometryFactory);
+        RxPointOfInterestCollectionBuilder builder = new RxPointOfInterestCollectionBuilder(geometryFactory);
         try {
             List<PointOfInterest> pois = builder
                     .pointsOfInterestFromStream(new BZip2CompressorInputStream(

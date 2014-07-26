@@ -20,12 +20,15 @@ package com.jejking.hh.nord.matcher;
 
 
 import java.util.Iterator;
+import java.util.List;
 
 import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Transaction;
 
-import com.google.common.collect.ImmutableList;
+import rx.Observable;
+import rx.functions.Action1;
+
 import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 
@@ -44,42 +47,53 @@ public class DrucksachenGazetteerKeywordMatcherFactory {
      * @param graph
      * @return
      */
-    public ImmutableMap<String, DrucksachenGazetteerKeywordMatcher> createKeywordMatchersFromGazetteer(GraphDatabaseService graph) {
+    public ImmutableMap<String, DrucksachenGazetteerKeywordMatcher> createKeywordMatchersFromGazetteer(GraphDatabaseService graph, Iterable<String> labels) {
         
-        ImmutableMap.Builder<String, DrucksachenGazetteerKeywordMatcher> mapBuilder = ImmutableMap.builder(); 
-        
-        ImmutableList<String> labels = ImmutableList.of(
-                                        GazetteerEntryTypes.NAMED_AREA,
-                                        GazetteerEntryTypes.STREET,
-                                        GazetteerEntryTypes.SCHOOL,
-                                        GazetteerEntryTypes.HOSPITAL,
-                                        GazetteerEntryTypes.CINEMA,
-                                        GazetteerEntryTypes.EMERGENCY_SERVICES,
-                                        GazetteerEntryTypes.LIBRARY,
-                                        GazetteerEntryTypes.PARK,
-                                        GazetteerEntryTypes.PLACE_OF_WORSHIP,
-                                        GazetteerEntryTypes.PUBLIC_BUILDING,
-                                        GazetteerEntryTypes.THEATRE,
-                                        GazetteerEntryTypes.TRANSPORT_STOP,
-                                        GazetteerEntryTypes.UNIVERSITY);
+        final ImmutableMap.Builder<String, DrucksachenGazetteerKeywordMatcher> mapBuilder = ImmutableMap.builder(); 
         
         try(Transaction tx = graph.beginTx()) {
             ExecutionEngine executionEngine = new ExecutionEngine(graph);
             
             
-            for (String label : labels) {
-                String query = "match (n:" + label + ") where n.NAME IS NOT NULL return n.NAME";
-                Iterator<String> nameIterator = executionEngine.execute(query).columnAs("n.NAME");
-                DrucksachenGazetteerKeywordMatcher matcher = new DrucksachenGazetteerKeywordMatcher(
-                                                                ImmutableList.copyOf(nameIterator), label);
-                mapBuilder.put(label, matcher);
+            for (final String label : labels) {
+                buildMatcherForLabel(mapBuilder, executionEngine, label);
             }
         }
-        
-        
-        
         return mapBuilder.build();
     }
 
+
+    private void buildMatcherForLabel(
+            final ImmutableMap.Builder<String, DrucksachenGazetteerKeywordMatcher> mapBuilder,
+            ExecutionEngine executionEngine, final String label) {
+        String query = "match (n:" + label + ") where n.NAME IS NOT NULL return distinct n.NAME";
+        // this line needed so compiler can figure out the type of the iterator...
+        Iterator<String> nameIterator = executionEngine.execute(query).columnAs("n.NAME");
+        
+        Observable.from(toIterable(nameIterator))
+            .flatMap(new MorphologicalExpander(label))
+            .toList()
+            .subscribe(new Action1<List<String>>() {
+
+                @Override
+                public void call(List<String> morphologicallyExpandedList) {
+                    DrucksachenGazetteerKeywordMatcher matcher = new DrucksachenGazetteerKeywordMatcher(
+                            morphologicallyExpandedList, label);
+                    mapBuilder.put(label, matcher);
+                }
+            });
+    }
+
+    
+    public static <T> Iterable<T> toIterable(final Iterator<T> iterator) {
+        return new Iterable<T>() {
+
+            @Override
+            public Iterator<T> iterator() {
+                return iterator;
+            }
+            
+        };
+    }
 
 }

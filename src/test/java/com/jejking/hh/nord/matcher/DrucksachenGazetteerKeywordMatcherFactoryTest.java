@@ -16,52 +16,74 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.drucksachen;
-
-import static com.jejking.hh.nord.TestUtil.*;
-import static org.junit.Assert.*;
+package com.jejking.hh.nord.matcher;
 
 import java.net.MalformedURLException;
 import java.net.URL;
-
+import java.util.Map;
 
 import org.joda.time.DateTimeConstants;
 import org.joda.time.LocalDate;
-import org.junit.Before;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.neo4j.graphdb.GraphDatabaseService;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.jejking.hh.nord.TestUtil;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
-import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcher;
-import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcherFactory;
-import com.jejking.hh.nord.matcher.Matches;
+
+import static org.junit.Assert.*;
 
 /**
- * Simple test of {@link DrucksachenGazetteerKeywordMatcherFactory}.
+ * Tests for {@link DrucksachenGazetteerKeywordMatcherFactory}.
  * 
  * @author jejking
  *
  */
 public class DrucksachenGazetteerKeywordMatcherFactoryTest {
 
-    private GraphDatabaseService graph;
+    private static GraphDatabaseService graph;
     
-    @Before
-    public void init() {
-        this.graph = createTestDatabase();
-        writeHamburgPolygonsToGraph(graph);
-        writeUhlenhorstOsmStreetsToGraph(graph);
-        writeUhlenhorstPoisToGraph(graph);
+    @BeforeClass
+    public static void init() {
+        graph = TestUtil.createTestDatabase();
+        TestUtil.writeHamburgPolygonsToGraph(graph);
+        TestUtil.writeUhlenhorstOsmStreetsToGraph(graph);
+        TestUtil.writeUhlenhorstPoisToGraph(graph);
+        
     }
     
     @Test
+    public void matcherCreatedForEachLabelSupplied() {
+        DrucksachenGazetteerKeywordMatcherFactory factory = new DrucksachenGazetteerKeywordMatcherFactory();
+        Map<String, DrucksachenGazetteerKeywordMatcher> matchers = factory
+                                                                    .createKeywordMatchersFromGazetteer(graph, 
+                                                                            ImmutableList.of(GazetteerEntryTypes.STREET,
+                                                                                             GazetteerEntryTypes.SCHOOL));
+        
+        assertEquals(2, matchers.size());
+        assertTrue(matchers.containsKey(GazetteerEntryTypes.STREET));
+        assertTrue(matchers.containsKey(GazetteerEntryTypes.SCHOOL));
+        
+        assertTrue(matchers.get(GazetteerEntryTypes.STREET).getGazetteerKeywordMatcher().getKeywordSet().contains("Mundsburger Damm"));
+        assertTrue(matchers.get(GazetteerEntryTypes.STREET).getGazetteerKeywordMatcher().getKeywordSet().contains("Mundsburger Damms"));
+        assertTrue(matchers.get(GazetteerEntryTypes.STREET).getGazetteerKeywordMatcher().getKeywordSet().contains("Mundsburger Dammes"));
+        assertTrue(matchers.get(GazetteerEntryTypes.SCHOOL).getGazetteerKeywordMatcher().getKeywordSet().contains("Gymnasium Lerchenfeld"));
+    }
+
+    @Test
     public void runsThrough() {
         DrucksachenGazetteerKeywordMatcherFactory factory = new DrucksachenGazetteerKeywordMatcherFactory();
-        ImmutableMap<String, DrucksachenGazetteerKeywordMatcher> matcherMap = factory.createKeywordMatchersFromGazetteer(graph);
+        ImmutableMap<String, DrucksachenGazetteerKeywordMatcher> matcherMap = factory.createKeywordMatchersFromGazetteer(graph, ImmutableList.of(
+                GazetteerEntryTypes.NAMED_AREA,
+                GazetteerEntryTypes.STREET,
+                GazetteerEntryTypes.SCHOOL,
+                GazetteerEntryTypes.HOSPITAL,
+                GazetteerEntryTypes.CINEMA,
+                GazetteerEntryTypes.UNIVERSITY));
         
         RawDrucksache drucksache = makeTestDrucksache();
         

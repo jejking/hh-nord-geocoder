@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.app;
+package com.jejking.hh.nord.matcher;
 
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE_ID;
@@ -38,9 +38,6 @@ import com.jejking.hh.nord.AbstractNeoImporter;
 import com.jejking.hh.nord.drucksachen.DrucksacheDateEnhancer;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
 import com.jejking.hh.nord.drucksachen.RawDrucksachenLabeller;
-import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcher;
-import com.jejking.hh.nord.matcher.GazetteerKeywordMatcher;
-import com.jejking.hh.nord.matcher.RawDrucksacheWithLabelledMatchesNeoImporter;
 
 import rx.Observable;
 import rx.functions.Func1;

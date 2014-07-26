@@ -20,6 +20,7 @@ package com.jejking.hh.nord.matcher;
 
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -43,11 +44,11 @@ public class GazetteerKeywordMatcherTest {
                                             ImmutableList.of("Foostraße", "Kuhkamp", "Katzenstraße", "Foostraße"), 
                                             GazetteerEntryTypes.STREET);
         
-        ImmutableMap<String, Integer> matches = matcher.call("In der Foostraße gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine");
+        ImmutableMap<String, Integer> matches = matcher.call("In der Foostraße gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine. Die Foostraße ist entsprechend beliebt");
         assertTrue(matches.containsKey("Foostraße"));
-        assertTrue(matches.get("Foostraße").equals(2));
+        assertEquals(2, matches.get("Foostraße").intValue());
         assertTrue(matches.containsKey("Kuhkamp"));
-        assertTrue(matches.get("Kuhkamp").equals(1));
+        assertEquals(1, matches.get("Kuhkamp").intValue());
         assertFalse(matches.containsKey("Katzenstraße"));
     }
     

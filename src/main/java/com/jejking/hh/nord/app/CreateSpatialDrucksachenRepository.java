@@ -26,10 +26,13 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import com.google.common.base.Stopwatch;
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
+import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcher;
 import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcherFactory;
+import com.jejking.hh.nord.matcher.ImportAndMatch;
 
 
 /**
@@ -59,7 +62,15 @@ public class CreateSpatialDrucksachenRepository {
         System.out.println("Started graph database after " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
         
         DrucksachenGazetteerKeywordMatcherFactory matcherFactory = new DrucksachenGazetteerKeywordMatcherFactory();
-        ImmutableMap<String, DrucksachenGazetteerKeywordMatcher> matchersMap = matcherFactory.createKeywordMatchersFromGazetteer(graph);
+        ImmutableMap<String, DrucksachenGazetteerKeywordMatcher> matchersMap = matcherFactory
+                                                                                    .createKeywordMatchersFromGazetteer(graph, ImmutableList.of(
+                                                                                        GazetteerEntryTypes.NAMED_AREA,
+                                                                                        GazetteerEntryTypes.STREET,
+                                                                                        GazetteerEntryTypes.SCHOOL,
+                                                                                        GazetteerEntryTypes.HOSPITAL,
+                                                                                        GazetteerEntryTypes.CINEMA,
+                                                                                        GazetteerEntryTypes.UNIVERSITY));
+
         
         ImportAndMatch importer = new ImportAndMatch(matchersMap);
         System.out.println("Initialised matchers after " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");

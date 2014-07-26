@@ -29,6 +29,7 @@ import org.ahocorasick.trie.Trie;
 import rx.functions.Func1;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 
 /**
  * Function, that given a set of keywords to look for (in our case a list of street names,
@@ -40,8 +41,9 @@ import com.google.common.collect.ImmutableMap;
  * @author jejking
  *
  */
-public class GazetteerKeywordMatcher implements Func1<String, ImmutableMap<String, Integer>> {
+public final class GazetteerKeywordMatcher implements Func1<String, ImmutableMap<String, Integer>> {
 
+    private final ImmutableSet<String> keywordSet;
     private final Trie ahoCorasickTrie;
     private final String entryType;
     
@@ -53,8 +55,9 @@ public class GazetteerKeywordMatcher implements Func1<String, ImmutableMap<Strin
      */
     public GazetteerKeywordMatcher(Iterable<String> keyWords, String entryType) {
         
+        this.keywordSet = ImmutableSet.copyOf(checkNotNull(keyWords));
         this.ahoCorasickTrie = new Trie().onlyWholeWords().removeOverlaps();
-        for (String keyWord : checkNotNull(keyWords)) {
+        for (String keyWord : keywordSet) {
             this.ahoCorasickTrie.addKeyword(keyWord);
         }
         
@@ -85,6 +88,9 @@ public class GazetteerKeywordMatcher implements Func1<String, ImmutableMap<Strin
     public String getEntryType() {
         return entryType;
     }
-
+    
+    public ImmutableSet<String> getKeywordSet() {
+        return keywordSet;
+    }
 
 }

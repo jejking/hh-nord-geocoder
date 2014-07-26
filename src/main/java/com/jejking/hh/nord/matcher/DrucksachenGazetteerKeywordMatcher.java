@@ -57,6 +57,14 @@ public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, 
         ImmutableMap<String, Integer> matchesInHeader = this.gazetteerKeywordMatcher.call(extractTitle(rawDrucksache));
         return new Matches(matchesInBody, matchesInHeader);
     }
+    
+    /**
+     * Gets wrapped matcher.
+     * @return matcher
+     */
+    public GazetteerKeywordMatcher getGazetteerKeywordMatcher() {
+        return gazetteerKeywordMatcher;
+    }
 
 
     static String filterAuthorityNames(String concatenatedContent) {

@@ -22,6 +22,7 @@ package com.jejking.hh.nord.matcher;
 import rx.functions.Func1;
 
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.ImmutableSet;
 import com.jejking.hh.nord.drucksachen.DrucksachenPropertyKeys;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
 
@@ -35,6 +36,13 @@ import com.jejking.hh.nord.drucksachen.RawDrucksache;
  */
 public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, Matches> {
 
+    public static final ImmutableSet<String> authorityNamesToFilter = ImmutableSet.of("Freie und Hansestadt Hamburg",
+                                                                                      "Bezirksversammlung Hamburg-Nord",
+                                                                                      "Bezirksamt Hamburg-Nord",
+                                                                                      "Regionalausschuss Barmbek-Uhlenhorst-Hohenfelde-Dulsberg",
+                                                                                      "Regionalausschuss Eppendorf-Winterhude",
+                                                                                      "Regionalausschuss Langenhorn-Fuhlsbüttel-Alsterdorf-Groß Borstel"); 
+    
     private final GazetteerKeywordMatcher gazetteerKeywordMatcher;
     
     public DrucksachenGazetteerKeywordMatcher(Iterable<String> keyWords, String entryType) {
@@ -45,13 +53,22 @@ public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, 
     @Override
     public Matches call(RawDrucksache rawDrucksache) {
        
-        ImmutableMap<String, Integer> matchesInBody = this.gazetteerKeywordMatcher.call(concatenateContent(rawDrucksache));
+        ImmutableMap<String, Integer> matchesInBody = this.gazetteerKeywordMatcher.call(filterAuthorityNames(concatenateContent(rawDrucksache)));
         ImmutableMap<String, Integer> matchesInHeader = this.gazetteerKeywordMatcher.call(extractTitle(rawDrucksache));
         return new Matches(matchesInBody, matchesInHeader);
     }
 
 
-    private String extractTitle(RawDrucksache rawDrucksache) {
+    static String filterAuthorityNames(String concatenatedContent) {
+        String filtered = concatenatedContent;
+        for (String toFilter : authorityNamesToFilter) {
+            filtered = filtered.replace(toFilter, "");
+        }
+        return filtered;
+    }
+
+
+    String extractTitle(RawDrucksache rawDrucksache) {
         if (rawDrucksache.getExtractedProperties().containsKey(DrucksachenPropertyKeys.BETREFF)) {
             return rawDrucksache.getExtractedProperties().get(DrucksachenPropertyKeys.BETREFF);
         } else {
@@ -60,7 +77,7 @@ public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, 
     }
 
 
-    private String concatenateContent(RawDrucksache rawDrucksache) {
+    String concatenateContent(RawDrucksache rawDrucksache) {
         StringBuilder stringBuilder = new StringBuilder();
         for (String content : rawDrucksache.getExtractedContent()) {
             stringBuilder.append(content);

@@ -19,11 +19,11 @@
  */
 package com.jejking.hh.nord.matcher;
 
-import com.google.common.collect.ImmutableSet;
+import rx.functions.Func1;
+
+import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.drucksachen.DrucksachenPropertyKeys;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
-
-import rx.functions.Func1;
 
 /**
  * Function that matches a {@link RawDrucksache} to a pair containing the input item (for
@@ -45,23 +45,30 @@ public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, 
     @Override
     public Matches call(RawDrucksache rawDrucksache) {
        
-        ImmutableSet.Builder<String> matchesInBodyBuilder = ImmutableSet.builder();
-        for (String text : rawDrucksache.getExtractedContent()) {
-            matchesInBodyBuilder.addAll(this.gazetteerKeywordMatcher.call(text));
-        }
-        
-        ImmutableSet<String> matchesInHeader = matchHeader(rawDrucksache);
-        
-        return new Matches(matchesInBodyBuilder.build(), matchesInHeader);
+        ImmutableMap<String, Integer> matchesInBody = this.gazetteerKeywordMatcher.call(concatenateContent(rawDrucksache));
+        ImmutableMap<String, Integer> matchesInHeader = this.gazetteerKeywordMatcher.call(extractTitle(rawDrucksache));
+        return new Matches(matchesInBody, matchesInHeader);
     }
 
 
-    private ImmutableSet<String> matchHeader(RawDrucksache rawDrucksache) {
+    private String extractTitle(RawDrucksache rawDrucksache) {
         if (rawDrucksache.getExtractedProperties().containsKey(DrucksachenPropertyKeys.BETREFF)) {
-            return this.gazetteerKeywordMatcher.call(rawDrucksache.getExtractedProperties().get(DrucksachenPropertyKeys.BETREFF));
+            return rawDrucksache.getExtractedProperties().get(DrucksachenPropertyKeys.BETREFF);
         } else {
-            return ImmutableSet.of();
+            return "";
         }
     }
+
+
+    private String concatenateContent(RawDrucksache rawDrucksache) {
+        StringBuilder stringBuilder = new StringBuilder();
+        for (String content : rawDrucksache.getExtractedContent()) {
+            stringBuilder.append(content);
+            stringBuilder.append(" ");
+        }
+        return stringBuilder.toString();
+    }
+
+
 
 }

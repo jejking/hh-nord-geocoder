@@ -39,7 +39,6 @@ import org.neo4j.graphdb.index.Index;
 
 import com.jejking.hh.nord.TestUtil;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
-import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
 import com.jejking.hh.nord.gazetteer.osm.poi.PointOfInterestToNeoImporter;
 

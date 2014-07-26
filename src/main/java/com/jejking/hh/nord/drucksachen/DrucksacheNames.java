@@ -34,8 +34,7 @@ public interface DrucksacheNames {
     public static final String DATE = "DATE";
     public static final String HEADER = "HEADER";
     
-    public static final String REF_LOCATION = "REF_LOCATION";
-    public static final String IN_HEADER = "IN_HEADER";
-    public static final String IN_BODY = "IN_BODY";
+    public static final String REFS_HEADER = "REFS_HEADER";
+    public static final String REFS_BODY = "REFS_BODY";
     
 }

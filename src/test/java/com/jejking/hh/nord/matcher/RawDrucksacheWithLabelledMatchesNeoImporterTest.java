@@ -38,7 +38,6 @@ import org.neo4j.test.TestGraphDatabaseFactory;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.collect.ImmutableSet;
 import com.jejking.hh.nord.drucksachen.DrucksacheNames;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
 import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
@@ -108,13 +107,16 @@ public class RawDrucksacheWithLabelledMatchesNeoImporterTest {
             relCount++;
             if (rel.getEndNode().hasLabel(DynamicLabel.label("foo"))) {
                 // has both
-                assertTrue(rel.hasProperty(DrucksacheNames.IN_HEADER));
-                assertTrue(rel.hasProperty(DrucksacheNames.IN_BODY));
+                assertTrue(rel.hasProperty(DrucksacheNames.REFS_HEADER));
+                assertEquals(33, rel.getProperty(DrucksacheNames.REFS_HEADER));
+                assertTrue(rel.hasProperty(DrucksacheNames.REFS_BODY));
+                assertEquals(66, rel.getProperty(DrucksacheNames.REFS_BODY));
             }
             if (rel.getEndNode().hasLabel(DynamicLabel.label("bar"))) {
                 // only in body
-                assertFalse(rel.hasProperty(DrucksacheNames.IN_HEADER));
-                assertTrue(rel.hasProperty(DrucksacheNames.IN_BODY));
+                assertFalse(rel.hasProperty(DrucksacheNames.REFS_HEADER));
+                assertTrue(rel.hasProperty(DrucksacheNames.REFS_BODY));
+                assertEquals(66, rel.getProperty(DrucksacheNames.REFS_BODY));
             }
         }
         
@@ -162,11 +164,11 @@ public class RawDrucksacheWithLabelledMatchesNeoImporterTest {
                                         ImmutableList.of("c", "d")); // not relevant at this stage
             
             ImmutableMap.Builder<String, Matches> matchesMapBuilder = ImmutableMap.builder();
-            ImmutableSet<String> emptySet = ImmutableSet.of();
+            ImmutableMap<String, Integer> emptyMap = ImmutableMap.of();
             // fu of type "foo" referred to in header and body. We want *one* relationship with two properties.
-            matchesMapBuilder.put("foo", new Matches(ImmutableSet.of("fu"), ImmutableSet.of("fu")));
+            matchesMapBuilder.put("foo", new Matches(ImmutableMap.of("fu", 66), ImmutableMap.of("fu", 33)));
             // pub, cocktail of type "bar" referred to in body, No header matches
-            matchesMapBuilder.put("bar", new Matches(ImmutableSet.of("pub", "cocktail"), emptySet));
+            matchesMapBuilder.put("bar", new Matches(ImmutableMap.of("pub", 66, "cocktail", 66), emptyMap));
             
             
             this.rawDrucksacheWithLabelledMatches = new RawDrucksacheWithLabelledMatches(original,

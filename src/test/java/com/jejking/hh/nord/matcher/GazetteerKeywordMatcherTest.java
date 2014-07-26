@@ -26,7 +26,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import org.junit.Test;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 
 /**
@@ -40,13 +40,15 @@ public class GazetteerKeywordMatcherTest {
     @Test
     public void findsSingleWordNames() {
         GazetteerKeywordMatcher matcher = new GazetteerKeywordMatcher(
-                                            ImmutableList.of("Foostraße", "Kuhkamp", "Katzenstraße"), 
+                                            ImmutableList.of("Foostraße", "Kuhkamp", "Katzenstraße", "Foostraße"), 
                                             GazetteerEntryTypes.STREET);
         
-        ImmutableSet<String> matches = matcher.call("In der Foostraße gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine");
-        assertTrue(matches.contains("Foostraße"));
-        assertTrue(matches.contains("Kuhkamp"));
-        assertFalse(matches.contains("Katzenstraße"));
+        ImmutableMap<String, Integer> matches = matcher.call("In der Foostraße gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine");
+        assertTrue(matches.containsKey("Foostraße"));
+        assertTrue(matches.get("Foostraße").equals(2));
+        assertTrue(matches.containsKey("Kuhkamp"));
+        assertTrue(matches.get("Kuhkamp").equals(1));
+        assertFalse(matches.containsKey("Katzenstraße"));
     }
     
     @Test
@@ -55,10 +57,10 @@ public class GazetteerKeywordMatcherTest {
                 ImmutableList.of("Mundsburger Damm", "Winterhuder Weg", "Winterhuder Marktplatz"), 
                 GazetteerEntryTypes.STREET);
 
-        ImmutableSet<String> matches = matcher.call("Am Mundsburger Damm passierte ein Unfall. Der Winterhuder Weg blieb unfallfrei.");
-        assertTrue(matches.contains("Mundsburger Damm"));
-        assertTrue(matches.contains("Winterhuder Weg"));
-        assertFalse(matches.contains("Winterhuder Marktplatz"));
+        ImmutableMap<String, Integer> matches = matcher.call("Am Mundsburger Damm passierte ein Unfall. Der Winterhuder Weg blieb unfallfrei.");
+        assertTrue(matches.containsKey("Mundsburger Damm"));
+        assertTrue(matches.containsKey("Winterhuder Weg"));
+        assertFalse(matches.containsKey("Winterhuder Marktplatz"));
     }
     
     @Test
@@ -68,10 +70,10 @@ public class GazetteerKeywordMatcherTest {
                 ImmutableList.of("Op de Wisch", "Op de Elg", "Op'n Hesel"), 
                 GazetteerEntryTypes.STREET);
         
-        ImmutableSet<String> matches = matcher.call("Die Straßennamedn Op de Wisch und Op'n Hesel kommen aus dem Plattdeutschen");
-        assertTrue(matches.contains("Op de Wisch"));
-        assertTrue(matches.contains("Op'n Hesel"));
-        assertFalse(matches.contains("Op de Elg"));
+        ImmutableMap<String, Integer> matches = matcher.call("Die Straßennamedn Op de Wisch und Op'n Hesel kommen aus dem Plattdeutschen");
+        assertTrue(matches.containsKey("Op de Wisch"));
+        assertTrue(matches.containsKey("Op'n Hesel"));
+        assertFalse(matches.containsKey("Op de Elg"));
     }
     
     @Test
@@ -80,10 +82,10 @@ public class GazetteerKeywordMatcherTest {
                 ImmutableList.of("Mundsburg", "Winterhuder Weg", "Winterhuder Marktplatz"), 
                 GazetteerEntryTypes.STREET);
 
-        ImmutableSet<String> matches = matcher.call("An der Mundsburger Brücke gibt es eine Bushaltestelle. Es gibt auch welche am Winterhuder Weg.");
-        assertFalse(matches.contains("Mundsburg"));
-        assertTrue(matches.contains("Winterhuder Weg"));
-        assertFalse(matches.contains("Winterhuder Marktplatz"));
+        ImmutableMap<String, Integer> matches = matcher.call("An der Mundsburger Brücke gibt es eine Bushaltestelle. Es gibt auch welche am Winterhuder Weg.");
+        assertFalse(matches.containsKey("Mundsburg"));
+        assertTrue(matches.containsKey("Winterhuder Weg"));
+        assertFalse(matches.containsKey("Winterhuder Marktplatz"));
     }
     
     @Test
@@ -92,10 +94,10 @@ public class GazetteerKeywordMatcherTest {
                 ImmutableList.of("Foostraße", "Kuhkamp", "Katzenstraße"), 
                 GazetteerEntryTypes.STREET);
 
-        ImmutableSet<String> matches = matcher.call("In der Foostrasse gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine");
-        assertFalse(matches.contains("Foostraße"));
-        assertTrue(matches.contains("Kuhkamp"));
-        assertFalse(matches.contains("Katzenstraße"));
+        ImmutableMap<String, Integer>matches = matcher.call("In der Foostrasse gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine");
+        assertFalse(matches.containsKey("Foostraße"));
+        assertTrue(matches.containsKey("Kuhkamp"));
+        assertFalse(matches.containsKey("Katzenstraße"));
     }
     
     @Test
@@ -112,10 +114,12 @@ public class GazetteerKeywordMatcherTest {
             public void run() {
                 
                 try {
-                    ImmutableSet<String> matches = matcher.call("In der Foostraße gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine");
-                    assertTrue(matches.contains("Foostraße"));
-                    assertTrue(matches.contains("Kuhkamp"));
-                    assertFalse(matches.contains("Katzenstraße"));
+                    ImmutableMap<String, Integer> matches = matcher.call("In der Foostraße gibt es eine Bar. Am Kuhkamp dagegen, gibt es keine. Die Foostraße ist richtig schön.");
+                    assertTrue(matches.containsKey("Foostraße"));
+                    assertTrue(matches.get("Foostraße").equals(2));
+                    assertTrue(matches.containsKey("Kuhkamp"));
+                    assertTrue(matches.get("Kuhkamp").equals(1));
+                    assertFalse(matches.containsKey("Katzenstraße"));
                 } catch (Throwable error) {
                     exceptionQueue.add(error);
                 }

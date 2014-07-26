@@ -70,19 +70,19 @@ public class DrucksachenGazetteerKeywordMatcherFactoryTest {
         Matches adminAreaMatches = namedAreaMatcher.call(drucksache);
         // expect to find in body, Hohenfelde and Uhlenhorst
         assertTrue(adminAreaMatches.getMatchesInHeader().isEmpty());
-        assertTrue(adminAreaMatches.getMatchesInBody().contains("Hohenfelde"));
-        assertTrue(adminAreaMatches.getMatchesInBody().contains("Uhlenhorst"));
+        assertTrue(adminAreaMatches.getMatchesInBody().containsKey("Hohenfelde"));
+        assertTrue(adminAreaMatches.getMatchesInBody().containsKey("Uhlenhorst"));
         
         
         DrucksachenGazetteerKeywordMatcher streetMatcher = matcherMap.get(GazetteerEntryTypes.STREET);
         Matches streetMatches = streetMatcher.call(drucksache);
-        assertTrue(streetMatches.getMatchesInHeader().contains("Uhlenhorster Weg"));
-        assertTrue(streetMatches.getMatchesInBody().contains("Mundsburger Damm"));
+        assertTrue(streetMatches.getMatchesInHeader().containsKey("Uhlenhorster Weg"));
+        assertTrue(streetMatches.getMatchesInBody().containsKey("Mundsburger Damm"));
         
         DrucksachenGazetteerKeywordMatcher poiMatcher = matcherMap.get(GazetteerEntryTypes.SCHOOL);
         Matches poiMatches = poiMatcher.call(drucksache);
         assertTrue(poiMatches.getMatchesInHeader().isEmpty());
-        assertTrue(poiMatches.getMatchesInBody().contains("Gymnasium Lerchenfeld"));
+        assertTrue(poiMatches.getMatchesInBody().containsKey("Gymnasium Lerchenfeld"));
     }
 
     private RawDrucksache makeTestDrucksache() {

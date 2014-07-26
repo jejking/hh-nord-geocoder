@@ -23,8 +23,8 @@ import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DATE;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE_ID;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.HEADER;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.IN_BODY;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.IN_HEADER;
+import static com.jejking.hh.nord.drucksachen.DrucksacheNames.REFS_BODY;
+import static com.jejking.hh.nord.drucksachen.DrucksacheNames.REFS_HEADER;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.ORIGINAL_URL;
 
 import java.util.Map;
@@ -72,12 +72,10 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
     
     @Override
     public void writeToNeo(RawDrucksacheWithLabelledMatches rawDrucksacheWithLabelledMatches, GraphDatabaseService graph) {
+        
         try (Transaction tx = graph.beginTx()) {
-            
             Node drucksachenNode = createDrucksacheNode(rawDrucksacheWithLabelledMatches, graph);
-            
             createRelationshipsToGazetteer(rawDrucksacheWithLabelledMatches, drucksachenNode, graph);
-            
             tx.success();
         }
         
@@ -95,20 +93,23 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
             Label neoLabel =  DynamicLabel.label(labelText);
             
             // matches in header...
-            for (String headerMatch : matches.getMatchesInHeader()) {
-                createRelationship(neoLabel, drucksachenNode, headerMatch, IN_HEADER);
+            for (String headerMatch : matches.getMatchesInHeader().keySet()) {
+                createRelationship(neoLabel, drucksachenNode, headerMatch, matches.getMatchesInHeader().get(headerMatch), REFS_HEADER);
             }
             
             // matches in body...
-            for (String bodyMatch : matches.getMatchesInBody()) {
-                createRelationship(neoLabel, drucksachenNode, bodyMatch, IN_BODY);
+            for (String bodyMatch : matches.getMatchesInBody().keySet()) {
+                createRelationship(neoLabel, drucksachenNode, bodyMatch, matches.getMatchesInBody().get(bodyMatch), REFS_BODY);
             }
         }
         
     }
 
-    private void createRelationship(Label neoLabel, Node drucksachenNode, String match, String relationshipProperty) {
+    private void createRelationship(Label neoLabel, Node drucksachenNode, String match, Integer matchCount, String relationshipProperty) {
+        
+        // find all matches of appropriate type in the neo4j database. Exact match
         ResourceIterable<Node> targetResourceIterable = graph.findNodesByLabelAndProperty(neoLabel, GazetteerPropertyNames.NAME, match);
+        
         for (Node targetNode : targetResourceIterable) {
             Relationship rel = null; 
             Optional<Relationship> existingRelationship = getRelationship(drucksachenNode, targetNode);
@@ -117,7 +118,7 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
             } else {
                 rel = drucksachenNode.createRelationshipTo(targetNode, GazetteerRelationshipTypes.REFERS_TO);
             }
-            rel.setProperty(relationshipProperty, Boolean.TRUE);
+            rel.setProperty(relationshipProperty, matchCount);
         }
         
     }

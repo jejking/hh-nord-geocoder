@@ -74,14 +74,14 @@ public class RawDrucksachenLabellerTest {
         
         Matches fooMatches = matchesMap.get("foo");
         assertNotNull(fooMatches);
-        assertTrue(fooMatches.getMatchesInHeader().contains("foo"));
+        assertTrue(fooMatches.getMatchesInHeader().containsKey("foo"));
         assertEquals(1, fooMatches.getMatchesInHeader().size());
-        assertTrue(fooMatches.getMatchesInBody().contains("fu"));
+        assertTrue(fooMatches.getMatchesInBody().containsKey("fu"));
         assertEquals(1, fooMatches.getMatchesInBody().size());
         
         Matches barMatches = matchesMap.get("bar");
         assertTrue(barMatches.getMatchesInHeader().isEmpty());
-        assertTrue(barMatches.getMatchesInBody().contains("pub"));
+        assertTrue(barMatches.getMatchesInBody().containsKey("pub"));
         assertEquals(1, barMatches.getMatchesInBody().size());
     }
 

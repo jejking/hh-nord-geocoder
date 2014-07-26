@@ -21,13 +21,14 @@ package com.jejking.hh.nord.matcher;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import java.util.Collection;
+import java.util.HashMap;
 
 import org.ahocorasick.trie.Emit;
 import org.ahocorasick.trie.Trie;
 
 import rx.functions.Func1;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 
 /**
  * Function, that given a set of keywords to look for (in our case a list of street names,
@@ -39,7 +40,7 @@ import com.google.common.collect.ImmutableSet;
  * @author jejking
  *
  */
-public class GazetteerKeywordMatcher implements Func1<String, ImmutableSet<String>> {
+public class GazetteerKeywordMatcher implements Func1<String, ImmutableMap<String, Integer>> {
 
     private final Trie ahoCorasickTrie;
     private final String entryType;
@@ -63,18 +64,21 @@ public class GazetteerKeywordMatcher implements Func1<String, ImmutableSet<Strin
     
     
     @Override
-    public ImmutableSet<String> call(String textToMatchAgainst) {
+    public ImmutableMap<String, Integer> call(String textToMatchAgainst) {
         
-        ImmutableSet.Builder<String> builder = ImmutableSet.builder();
-        
+        HashMap<String, Integer> tempMap = new HashMap<>();
+
         Collection<Emit> emittedMatches = this.ahoCorasickTrie.parseText(textToMatchAgainst);
         
         for (Emit emittedMatch : emittedMatches) {
-            builder.add(emittedMatch.getKeyword());
+            String keyword = emittedMatch.getKeyword();
+            if (tempMap.containsKey(keyword)) {
+                tempMap.put(keyword, tempMap.get(keyword) + 1);
+            } else {
+                tempMap.put(keyword, Integer.valueOf(1));
+            }
         }
-        
-        
-        return builder.build();
+        return ImmutableMap.copyOf(tempMap);
     }
     
     

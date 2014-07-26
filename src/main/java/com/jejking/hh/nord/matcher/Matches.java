@@ -18,7 +18,7 @@
  */
 package com.jejking.hh.nord.matcher;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.collect.ImmutableMap;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -30,27 +30,27 @@ import static com.google.common.base.Preconditions.checkNotNull;
  */
 public final class Matches {
 
-    private final ImmutableSet<String> matchesInBody;
-    private final ImmutableSet<String> matchesInHeader;
+    private final ImmutableMap<String, Integer> matchesInBody;
+    private final ImmutableMap<String, Integer> matchesInHeader;
     
     /**
      * Constructor.
-     * @param matchesInBody set of string matches in body, may be empty, never <code>null</code>
-     * @param matchesInHeader set of string matches in header, may be empty, never <code>null</code>
+     * @param matchesInBody map of string matches and occurrence counts in body, may be empty, never <code>null</code>
+     * @param matchesInHeader map of string matches and occurrence counts in header, may be empty, never <code>null</code>
      */
-    public Matches(ImmutableSet<String> matchesInBody, ImmutableSet<String> matchesInHeader) {
+    public Matches(ImmutableMap<String, Integer> matchesInBody, ImmutableMap<String, Integer> matchesInHeader) {
         super();
         this.matchesInBody = checkNotNull(matchesInBody);
         this.matchesInHeader = checkNotNull(matchesInHeader);
     }
 
     
-    public ImmutableSet<String> getMatchesInBody() {
+    public ImmutableMap<String, Integer> getMatchesInBody() {
         return matchesInBody;
     }
     
     
-    public ImmutableSet<String> getMatchesInHeader() {
+    public ImmutableMap<String, Integer> getMatchesInHeader() {
         return matchesInHeader;
     }
     

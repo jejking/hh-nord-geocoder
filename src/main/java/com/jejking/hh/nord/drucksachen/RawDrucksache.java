@@ -118,10 +118,7 @@ public final class RawDrucksache implements Serializable {
         return extractedContent;
     }
     
-    
-    
-
-    
+      
     /**
      * @return the date
      */

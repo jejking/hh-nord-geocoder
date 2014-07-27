@@ -35,12 +35,6 @@ node.PLACE_OF_WORSHIP {
   text-color-internal: #FFFFFF;
 }
 
-node.BUILDING {
-  color: #FCC940;
-  border-color: #F3BA25;
-  text-color-internal: #000000;
-}
-
 node.EMERGENCY_SERVICES {
   color: #4356C0;
   border-color: #3445A2;
@@ -105,5 +99,15 @@ node.STREET {
   border-width: 2px;
   caption: '{NAME}';
   font-size: 6px;
+}
+
+node.DRUCKSACHE {
+  color: #30B6AF;
+  border-color: #46A39E;
+  text-color-internal: #FFFFFF;
+  diameter: 40px;
+  border-width: 2px;
+  caption: '{DRUCKSACHE_ID}';
+  font-size: 10px;
 }
 

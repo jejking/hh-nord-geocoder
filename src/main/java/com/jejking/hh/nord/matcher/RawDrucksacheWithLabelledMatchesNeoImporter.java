@@ -118,7 +118,7 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
         } else {
             System.out.println("Falling back to regular expression for match " + match);
             ExecutionEngine engine = new ExecutionEngine(graph);
-            String truncatedMatch = match.substring(0, 2);
+            String truncatedMatch = match.substring(0, match.length() - 2);
             String query = "match (n:" + neoLabel.name() + ") where n.NAME =~ \"" + truncatedMatch + ".*\" return n";
             
             ResourceIterator<Node> nodesFromRegEx = engine.execute(query).columnAs("n");

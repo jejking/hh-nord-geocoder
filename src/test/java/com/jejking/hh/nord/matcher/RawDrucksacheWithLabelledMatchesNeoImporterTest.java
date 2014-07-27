@@ -192,6 +192,7 @@ public class RawDrucksacheWithLabelledMatchesNeoImporterTest {
         createGazetteerNode("bar", "pub");
         createGazetteerNode("bar", "cocktail");
         createGazetteerNode("foo", "wibble");
+        createGazetteerNode("bar", "cockfighting");
     }
 
     private void createGazetteerNode(String label, String name) {

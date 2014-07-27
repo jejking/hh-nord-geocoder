@@ -109,7 +109,4 @@ public final class MorphologicalExpander implements Func1<String, Observable<Str
         return Observable.from(observableList);
     }
 
-
-    
-
 }

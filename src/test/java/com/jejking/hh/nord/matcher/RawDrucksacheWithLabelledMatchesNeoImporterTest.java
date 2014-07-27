@@ -33,11 +33,13 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.Index;
 import org.neo4j.test.TestGraphDatabaseFactory;
 
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.jejking.hh.nord.AbstractNeoImporter;
 import com.jejking.hh.nord.drucksachen.DrucksacheNames;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
 import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
@@ -46,6 +48,7 @@ import com.jejking.hh.nord.matcher.Matches;
 import com.jejking.hh.nord.matcher.RawDrucksacheWithLabelledMatches;
 import com.jejking.hh.nord.matcher.RawDrucksacheWithLabelledMatchesNeoImporter;
 
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 import static org.junit.Assert.*;
 
 /**
@@ -168,7 +171,7 @@ public class RawDrucksacheWithLabelledMatchesNeoImporterTest {
             // fu of type "foo" referred to in header and body. We want *one* relationship with two properties.
             matchesMapBuilder.put("foo", new Matches(ImmutableMap.of("fu", 66), ImmutableMap.of("fu", 33)));
             // pub, cocktail of type "bar" referred to in body, No header matches
-            matchesMapBuilder.put("bar", new Matches(ImmutableMap.of("pub", 66, "cocktail", 66), emptyMap));
+            matchesMapBuilder.put("bar", new Matches(ImmutableMap.of("pubs", 66, "cocktailes", 66), emptyMap));
             
             
             this.rawDrucksacheWithLabelledMatches = new RawDrucksacheWithLabelledMatches(original,
@@ -193,8 +196,13 @@ public class RawDrucksacheWithLabelledMatchesNeoImporterTest {
 
     private void createGazetteerNode(String label, String name) {
         try(Transaction tx = this.graph.beginTx()) {
+            Index<Node> fullText = graph.index().forNodes(AbstractNeoImporter.GAZETTEER_FULLTEXT);
             Node node = this.graph.createNode(DynamicLabel.label(label));
             node.setProperty(GazetteerPropertyNames.NAME, name);
+            
+            fullText.add(node, GazetteerPropertyNames.NAME, name);
+            fullText.add(node, TYPE, label);
+            
             tx.success();
         }
         

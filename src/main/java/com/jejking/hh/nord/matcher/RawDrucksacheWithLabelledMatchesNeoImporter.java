@@ -26,6 +26,8 @@ import static com.jejking.hh.nord.drucksachen.DrucksacheNames.HEADER;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.REFS_BODY;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.REFS_HEADER;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.ORIGINAL_URL;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
+import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 
 import java.util.Map;
 
@@ -39,6 +41,7 @@ import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
 import org.neo4j.graphdb.Transaction;
+import org.neo4j.graphdb.index.Index;
 
 import com.google.common.base.Optional;
 import com.jejking.hh.nord.AbstractNeoImporter;
@@ -108,8 +111,25 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
     private void createRelationship(Label neoLabel, Node drucksachenNode, String match, Integer matchCount, String relationshipProperty) {
         
         // find all matches of appropriate type in the neo4j database. Exact match
-        ResourceIterable<Node> targetResourceIterable = graph.findNodesByLabelAndProperty(neoLabel, GazetteerPropertyNames.NAME, match);
+        ResourceIterable<Node> nodesFromExactMatch = graph.findNodesByLabelAndProperty(neoLabel, GazetteerPropertyNames.NAME, match);
         
+        if (nodesFromExactMatch.iterator().hasNext()) {
+            createRelationshipsForNodes(drucksachenNode, matchCount, relationshipProperty, nodesFromExactMatch);    
+        } else {
+            System.out.println("Falling back to full text for match " + match);
+            Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
+            // we truncate here as the morphological expansion *adds* suffixes, so take them off..
+            String truncatedMatch = match.substring(0, match.length() - 2);
+            ResourceIterable<Node> nodesFromFullTextSearch = fullText.query(NAME + ":" + truncatedMatch + "* AND " + TYPE + ":" + neoLabel.name());
+            createRelationshipsForNodes(drucksachenNode, matchCount, relationshipProperty, nodesFromFullTextSearch);   
+        }
+        
+        
+        
+    }
+
+    private void createRelationshipsForNodes(Node drucksachenNode, Integer matchCount, String relationshipProperty,
+            ResourceIterable<Node> targetResourceIterable) {
         for (Node targetNode : targetResourceIterable) {
             Relationship rel = null; 
             Optional<Relationship> existingRelationship = getRelationship(drucksachenNode, targetNode);
@@ -120,7 +140,6 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
             }
             rel.setProperty(relationshipProperty, matchCount);
         }
-        
     }
 
     private Optional<Relationship> getRelationship(Node drucksachenNode, Node targetNode) {

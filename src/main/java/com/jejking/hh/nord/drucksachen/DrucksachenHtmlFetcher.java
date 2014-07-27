@@ -100,7 +100,6 @@ public class DrucksachenHtmlFetcher {
                                 }
                                 
                             } catch (IOException e) {
-                                // TODO Auto-generated catch block
                                 e.printStackTrace();
                             }
                             
@@ -141,7 +140,6 @@ public class DrucksachenHtmlFetcher {
                 System.out.println("Executor service shutdown, but not all tasks completed.");
             }
         } catch (InterruptedException e) {
-            // TODO Auto-generated catch block
             e.printStackTrace();
         }
 		

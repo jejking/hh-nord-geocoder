@@ -34,7 +34,6 @@ import com.google.common.base.Function;
 
 import static com.google.common.io.Resources.getResource;
 import static com.google.common.io.Resources.readLines;
-import static com.google.common.collect.ImmutableList.copyOf;
 
 /**
  * Class that adds some naive declensions to input strings so that the 

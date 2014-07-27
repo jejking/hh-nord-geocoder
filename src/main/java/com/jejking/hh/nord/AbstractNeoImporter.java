@@ -29,9 +29,16 @@ import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.CINEMA;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.THEATRE;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.UNIVERSITY;
 
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.ADMINISTRATIVE_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.STREET_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.POI_LAYER;
+
+import java.util.Map;
+
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.neo4j.gis.spatial.EditableLayer;
 import org.neo4j.gis.spatial.SpatialDatabaseService;
+import org.neo4j.gis.spatial.indexprovider.SpatialIndexProvider;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.Node;
@@ -86,37 +93,62 @@ public abstract class AbstractNeoImporter<T> {
      // we want an additional index on adminstrative area - name
         try (Transaction tx = graph.beginTx()) {
             Schema schema = graph.schema();
-            schema
-                .constraintFor(DynamicLabel.label(BOROUGH))
-                .assertPropertyIsUnique(GazetteerPropertyNames.NAME)
-                .create();
-            
-            schema
-                .constraintFor(DynamicLabel.label(NAMED_AREA))
-                .assertPropertyIsUnique(GazetteerPropertyNames.NAME)
-                .create();
-            
-            schema
-            	.constraintFor(DynamicLabel.label(NUMBERED_DISTRICT))
-            	.assertPropertyIsUnique(GazetteerPropertyNames.NUMBER)
-            	.create();
-            
-            
-            for (String label : ImmutableList.of(STREET, SCHOOL, HOSPITAL, CINEMA, THEATRE, UNIVERSITY)) {
-                schema
-                    .indexFor(DynamicLabel.label(label))
-                    .on(GazetteerPropertyNames.NAME)
-                    .create();
-            }
-            
-            
             IndexManager indexManager = graph.index();
-            @SuppressWarnings("unused")
-            Index<Node> fullText = indexManager.forNodes(GAZETTEER_FULLTEXT,
-                                MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
-                                                  "type", "fulltext"));
             
+            createUniqueIndexes(schema);
+            createPointOfInterestIndexes(schema);
+            createFullTextIndex(indexManager);
             tx.success();
+        }
+        // a second transaction needed as the layer creation changes data,
+        // and this cannot be done in the same transaction as a schema change
+        try (Transaction tx = graph.beginTx()) {
+            IndexManager indexManager = graph.index();
+            createSpatialLayersAndIndexes(graph, indexManager);
+        }
+    }
+
+    private static void createFullTextIndex(IndexManager indexManager) {
+        @SuppressWarnings("unused")
+        Index<Node> fullText = indexManager.forNodes(GAZETTEER_FULLTEXT,
+                            MapUtil.stringMap(IndexManager.PROVIDER, "lucene",
+                                              "type", "fulltext"));
+    }
+
+    private static void createPointOfInterestIndexes(Schema schema) {
+        for (String label : ImmutableList.of(STREET, SCHOOL, HOSPITAL, CINEMA, THEATRE, UNIVERSITY)) {
+            schema
+                .indexFor(DynamicLabel.label(label))
+                .on(GazetteerPropertyNames.NAME)
+                .create();
+        }
+    }
+
+    private static void createUniqueIndexes(Schema schema) {
+        schema
+            .constraintFor(DynamicLabel.label(BOROUGH))
+            .assertPropertyIsUnique(GazetteerPropertyNames.NAME)
+            .create();
+        
+        schema
+            .constraintFor(DynamicLabel.label(NAMED_AREA))
+            .assertPropertyIsUnique(GazetteerPropertyNames.NAME)
+            .create();
+        
+        schema
+        	.constraintFor(DynamicLabel.label(NUMBERED_DISTRICT))
+        	.assertPropertyIsUnique(GazetteerPropertyNames.NUMBER)
+        	.create();
+    }
+
+    private static void createSpatialLayersAndIndexes(GraphDatabaseService graph, IndexManager indexManager) {
+        SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
+        Map<String, String> config = SpatialIndexProvider.SIMPLE_WKB_CONFIG;
+        
+        for (String spatialLayer : ImmutableList.of(ADMINISTRATIVE_LAYER, STREET_LAYER, POI_LAYER)) {
+            EditableLayer editableLayer = (EditableLayer) spatialDatabaseService.createWKBLayer(spatialLayer);
+            editableLayer.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
+            indexManager.forNodes(spatialLayer, config);
         }
     }
     

@@ -60,7 +60,7 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class RxPointOfInterestCollectionBuilder {
 	
-	private static final class PointOfInterestBuilder<C extends OsmComponent> implements Func1<C, PointOfInterest> {
+	private static final class PointOfInterestBuilder<C extends OsmComponent> implements Func1<C, Optional<PointOfInterest>> {
 
 	    private final Func1<C, Point> func;
 	    
@@ -69,14 +69,19 @@ public class RxPointOfInterestCollectionBuilder {
 	    }
 	    
         @Override
-        public PointOfInterest call(C osmComponent) {
-            PointOfInterest poi = new PointOfInterest(
-                    osmComponentLabeller.call(osmComponent), 
-                    func.call(osmComponent), 
-                    Optional.fromNullable(osmComponent.getProperties().get(houseNumber)), 
-                    Optional.fromNullable(osmComponent.getProperties().get(street)), 
-                    Optional.fromNullable(osmComponent.getProperties().get(name)));
-            return poi;
+        public Optional<PointOfInterest> call(C osmComponent) {
+            Optional<String> optionalLabel =  osmComponentLabeller.call(osmComponent);
+            if (optionalLabel.isPresent()) {
+                return Optional.of(new PointOfInterest(
+                                    optionalLabel.get(), 
+                                    func.call(osmComponent), 
+                                    Optional.fromNullable(osmComponent.getProperties().get(houseNumber)), 
+                                    Optional.fromNullable(osmComponent.getProperties().get(street)), 
+                                    Optional.fromNullable(osmComponent.getProperties().get(name))));
+            } else {
+                return Optional.absent();
+            }
+            
         }
     }
 
@@ -91,6 +96,7 @@ public class RxPointOfInterestCollectionBuilder {
             return Boolean.TRUE;
         }
     }
+    
 
     private static final IsOsmFeaturePointOfInterest isInterestingOsmFeaturePredicate = new IsOsmFeaturePointOfInterest();
 	private static final OsmComponentPointOfInterestLabeller osmComponentLabeller = new OsmComponentPointOfInterestLabeller();
@@ -169,8 +175,7 @@ public class RxPointOfInterestCollectionBuilder {
 	                    
 	                });
 					if (polygon.isPresent()) {
-						PointOfInterest poi = builder.call(osmRelation);
-						return Optional.of(poi);
+						return builder.call(osmRelation);
 					} else {
 						return Optional.absent();
 					}
@@ -208,11 +213,14 @@ public class RxPointOfInterestCollectionBuilder {
                 }
                 
             }))
-            .subscribe(new Action1<PointOfInterest>() { // add them to our list of points of interest
+            .subscribe(new Action1<Optional<PointOfInterest>>() { // add them to our list of points of interest
 
                 @Override
-                public void call(PointOfInterest poi) {
-                    poiListBuilder.add(poi);
+                public void call(Optional<PointOfInterest> poi) {
+                    if (poi.isPresent()) {
+                        poiListBuilder.add(poi.get());    
+                    }
+                    
                 }
             });
         
@@ -232,11 +240,14 @@ public class RxPointOfInterestCollectionBuilder {
                 }
 		        
 		    }))
-            .subscribe(new Action1<PointOfInterest>() { // add them to our list of points of interest
+            .subscribe(new Action1<Optional<PointOfInterest>>() { // add them to our list of points of interest
 
                 @Override
-                public void call(PointOfInterest poi) {
-                    poiListBuilder.add(poi);
+                public void call(Optional<PointOfInterest> poi) {
+                    if (poi.isPresent()) {
+                        poiListBuilder.add(poi.get());    
+                    }
+                    
                 }
             });
     }

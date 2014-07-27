@@ -22,8 +22,12 @@ package com.jejking.hh.nord;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.BOROUGH;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NAMED_AREA;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NUMBERED_DISTRICT;
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.POINT_OF_INTEREST;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;
+import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.SCHOOL;
+import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.HOSPITAL;
+import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.CINEMA;
+import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.THEATRE;
+import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.UNIVERSITY;
 
 import org.geotools.referencing.crs.DefaultGeographicCRS;
 import org.neo4j.gis.spatial.EditableLayer;
@@ -37,6 +41,7 @@ import org.neo4j.graphdb.index.IndexManager;
 import org.neo4j.graphdb.schema.Schema;
 import org.neo4j.helpers.collection.MapUtil;
 
+import com.google.common.collect.ImmutableList;
 import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 
 /**
@@ -96,15 +101,14 @@ public abstract class AbstractNeoImporter<T> {
             	.assertPropertyIsUnique(GazetteerPropertyNames.NUMBER)
             	.create();
             
-            schema
-                .constraintFor(DynamicLabel.label(STREET))
-                .assertPropertyIsUnique(GazetteerPropertyNames.NAME)
-                .create();
             
-            schema
-                .indexFor(DynamicLabel.label(POINT_OF_INTEREST))
-                .on(GazetteerPropertyNames.NAME)
-                .create();
+            for (String label : ImmutableList.of(STREET, SCHOOL, HOSPITAL, CINEMA, THEATRE, UNIVERSITY)) {
+                schema
+                    .indexFor(DynamicLabel.label(label))
+                    .on(GazetteerPropertyNames.NAME)
+                    .create();
+            }
+            
             
             IndexManager indexManager = graph.index();
             @SuppressWarnings("unused")

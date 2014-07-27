@@ -42,8 +42,6 @@ public interface GazetteerEntryTypes {
     
     public static final String BUILDING = "BUILDING";
     
-    public static final String POINT_OF_INTEREST = "POINT_OF_INTEREST";
-
     public static final String TRANSPORT_STOP = "TRANSPORT_STOP";
     public static final String PLACE_OF_WORSHIP = "PLACE_OF_WORSHIP";
     public static final String SCHOOL = "SCHOOL";

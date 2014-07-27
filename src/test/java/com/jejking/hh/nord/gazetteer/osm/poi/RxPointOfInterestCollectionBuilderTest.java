@@ -26,7 +26,6 @@ import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.type;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.name;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.Map;
 
@@ -108,7 +107,7 @@ public class RxPointOfInterestCollectionBuilderTest {
         PointOfInterest poi = poiList.get(0);
         
         assertFalse(poi.getStreet().isPresent());
-        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.THEATRE));
+        assertEquals(GazetteerEntryTypes.THEATRE, poi.getLabel());
     }
 
     @Test
@@ -139,7 +138,7 @@ public class RxPointOfInterestCollectionBuilderTest {
         PointOfInterest poi = poiListBuilder.build().get(0);
         assertFalse(poi.getStreet().isPresent());
         assertEquals("22", poi.getHouseNumber().get());
-        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.HOSPITAL));
+        assertEquals(GazetteerEntryTypes.HOSPITAL, poi.getLabel());
         
         // centroid is 1,1 : intersection of diagonals.
         assertEquals(geometryFactory.createPoint(new Coordinate(1, 1)), poi.getPoint());
@@ -171,7 +170,7 @@ public class RxPointOfInterestCollectionBuilderTest {
         PointOfInterest poi = poiListBuilder.build().get(0);
         assertFalse(poi.getStreet().isPresent());
         assertEquals("22", poi.getHouseNumber().get());
-        assertTrue(poi.getLabels().contains(GazetteerEntryTypes.SCHOOL));
+        assertEquals(GazetteerEntryTypes.SCHOOL, poi.getLabel());
         
         assertEquals(geometryFactory.createPoint(new Coordinate(4.5, 3.5)), poi.getPoint());
         
@@ -191,7 +190,7 @@ public class RxPointOfInterestCollectionBuilderTest {
                 return false;
             }
         });
-        assertTrue(lerchenfeldGymnasium.getLabels().contains(GazetteerEntryTypes.SCHOOL));        
+        assertEquals(GazetteerEntryTypes.SCHOOL, lerchenfeldGymnasium.getLabel());        
         assertEquals("Lerchenfeld", lerchenfeldGymnasium.getStreet().get());
         assertEquals("10", lerchenfeldGymnasium.getHouseNumber().get());
         

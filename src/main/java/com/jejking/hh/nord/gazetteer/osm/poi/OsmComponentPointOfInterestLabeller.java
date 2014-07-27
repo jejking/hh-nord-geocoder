@@ -20,7 +20,6 @@ package com.jejking.hh.nord.gazetteer.osm.poi;
 
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.amenity;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.cinema;
-import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.emergency;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.firestation;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.hospital;
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.leisure;
@@ -37,55 +36,50 @@ import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.university;
 
 import java.util.Map;
 
-import com.google.common.collect.ImmutableSet;
+import com.google.common.base.Optional;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 import com.jejking.osm.OsmComponent;
 
 import rx.functions.Func1;
 
 /**
- * Function to map an {@link OsmComponent} via its properties to a set of labels
- * from {@link GazetteerEntryTypes} for use in Neo4j.
+ * Function to map an {@link OsmComponent} via its properties a label to be used
+ * in Neo4j. As it is possible that no suitable label is found, an optional type
+ * is returned.
  * 
  * @author jejking
  *
  */
-class OsmComponentPointOfInterestLabeller implements Func1<OsmComponent, ImmutableSet<String>> {
+class OsmComponentPointOfInterestLabeller implements Func1<OsmComponent, Optional<String>> {
 
 
     @Override
-    public ImmutableSet<String> call(OsmComponent osmComponent) {
-            ImmutableSet.Builder<String> setBuilder = ImmutableSet.builder();
+    public Optional<String> call(OsmComponent osmComponent) {
             Map<String, String> props = osmComponent.getProperties();
             if (props.containsKey(amenity)) {
                 String value = props.get(amenity);
                 switch (value) {
-                    case cinema : setBuilder.add(GazetteerEntryTypes.CINEMA); break;
-                    case hospital : setBuilder.add(GazetteerEntryTypes.HOSPITAL); break;
-                    case police : setBuilder.add(GazetteerEntryTypes.EMERGENCY_SERVICES); break;
-                    case firestation : setBuilder.add(GazetteerEntryTypes.EMERGENCY_SERVICES); break;
-                    case library: setBuilder.add(GazetteerEntryTypes.LIBRARY); break;
-                    case school : setBuilder.add(GazetteerEntryTypes.SCHOOL); break;
-                    case theatre : setBuilder.add(GazetteerEntryTypes.THEATRE); break;
-                    case university : setBuilder.add(GazetteerEntryTypes.UNIVERSITY); break;
-                    case placeOfWorship : setBuilder.add(GazetteerEntryTypes.PLACE_OF_WORSHIP); break;
-                    case publicBuilding : setBuilder.add(GazetteerEntryTypes.PUBLIC_BUILDING); break;
+                    case cinema : return Optional.of(GazetteerEntryTypes.CINEMA);
+                    case hospital : return Optional.of(GazetteerEntryTypes.HOSPITAL);
+                    case police : return Optional.of(GazetteerEntryTypes.EMERGENCY_SERVICES);
+                    case firestation : return Optional.of(GazetteerEntryTypes.EMERGENCY_SERVICES);
+                    case library: return Optional.of(GazetteerEntryTypes.LIBRARY);
+                    case school : return Optional.of(GazetteerEntryTypes.SCHOOL);
+                    case theatre : return Optional.of(GazetteerEntryTypes.THEATRE);
+                    case university : return Optional.of(GazetteerEntryTypes.UNIVERSITY);
+                    case placeOfWorship : return Optional.of(GazetteerEntryTypes.PLACE_OF_WORSHIP);
+                    case publicBuilding : return Optional.of(GazetteerEntryTypes.PUBLIC_BUILDING);
                     default: ; // nothing
                 }
             }
-    
-            if (props.containsKey(emergency)) {
-                setBuilder.add(GazetteerEntryTypes.EMERGENCY_SERVICES);
-            }
-            
             if (props.containsKey(leisure) && props.get(leisure).equals(park)) {
-                setBuilder.add(GazetteerEntryTypes.PARK);
+                return Optional.of(GazetteerEntryTypes.PARK);
             }
 
             if (props.containsKey(publicTransport) || props.containsKey(railway)) {
-                setBuilder.add(GazetteerEntryTypes.TRANSPORT_STOP);
+                return Optional.of(GazetteerEntryTypes.TRANSPORT_STOP);
             }
-            return setBuilder.build();
+            return Optional.absent();
         }
     
 

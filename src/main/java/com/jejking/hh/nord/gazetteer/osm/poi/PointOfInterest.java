@@ -18,10 +18,7 @@
  */
 package com.jejking.hh.nord.gazetteer.osm.poi;
 
-
-
 import com.google.common.base.Optional;
-import com.google.common.collect.ImmutableSet;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 import com.vividsolutions.jts.geom.Point;
 
@@ -37,7 +34,7 @@ import static com.google.common.base.Preconditions.checkArgument;
  */
 public final class PointOfInterest {
 
-	private final ImmutableSet<String> labels;
+	private final String label;
 	private final Point point;
 	
 	private final Optional<String> houseNumber;
@@ -47,7 +44,7 @@ public final class PointOfInterest {
 	/**
 	 * Constructor.
 	 * 
-	 * @param labels set of labels, preferably drawn from {@link GazetteerEntryTypes}. May not be <code>null</code> or empty.
+	 * @param label drawn from {@link GazetteerEntryTypes}. May not be <code>null</code> or empty.
 	 * @param point geometry representing the point of interest. If drawn from a way or relation, then the centroid. May not be <code>null</code>.
 	 * @param houseNumber optional house number, may not be <code>null</code>.
 	 * @param street optional street name, may not be <code>null</code>
@@ -55,13 +52,13 @@ public final class PointOfInterest {
 	 * @throws NullPointerException if any parameter is <code>null</code>
 	 * @throws IllegalArgumentException if label set is empty
 	 */
-	public PointOfInterest(ImmutableSet<String> labels, Point point,
+	public PointOfInterest(String label, Point point,
 			Optional<String> houseNumber, Optional<String> street,
 			Optional<String> name) {
 		super();
 		
-		this.labels = checkNotNull(labels);
-		checkArgument(!labels.isEmpty());
+		this.label = checkNotNull(label);
+		checkArgument(!label.trim().isEmpty());
 		
 		this.point = checkNotNull(point);
 		this.houseNumber = checkNotNull(houseNumber);
@@ -69,9 +66,10 @@ public final class PointOfInterest {
 		this.name = checkNotNull(name);
 	}
 
-	public ImmutableSet<String> getLabels() {
-		return labels;
-	}
+	
+    public String getLabel() {
+        return label;
+    }
 
 	public Point getPoint() {
 		return point;
@@ -91,7 +89,7 @@ public final class PointOfInterest {
 
 	@Override
 	public String toString() {
-		return "PointOfInterest [labels=" + labels + ", point=" + point
+		return "PointOfInterest [label=" + label + ", point=" + point
 				+ ", houseNumber=" + houseNumber + ", street=" + street
 				+ ", name=" + name + "]";
 	}

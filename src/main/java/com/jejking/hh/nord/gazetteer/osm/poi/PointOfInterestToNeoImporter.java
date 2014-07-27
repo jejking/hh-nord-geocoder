@@ -22,7 +22,6 @@ import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.HOUSE_NUMBER;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
 import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.POI_LAYER;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
-import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.POINT_OF_INTEREST;
 
 import java.util.List;
 
@@ -121,15 +120,13 @@ public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<Point
     private void doFullTextIndexing(PointOfInterest poi, Node neoNode, Index<Node> fullText) {
         if (poi.getName().isPresent()) {
             fullText.add(neoNode, NAME, poi.getName().get());
-            fullText.add(neoNode, TYPE, POINT_OF_INTEREST);
+            fullText.add(neoNode, TYPE, poi.getLabel());
         }
         
     }
 
     private void labelNode(PointOfInterest poi, Node neoNode) {
-        for (String label : poi.getLabels()) {
-            neoNode.addLabel(DynamicLabel.label(label));
-        }
+        neoNode.addLabel(DynamicLabel.label(poi.getLabel()));
     }
 
     private SpatialDatabaseRecord createSpatialDatabaseRecord(PointOfInterest poi, EditableLayer poiLayer) {

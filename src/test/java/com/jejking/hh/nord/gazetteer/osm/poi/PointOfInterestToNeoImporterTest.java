@@ -85,7 +85,7 @@ public class PointOfInterestToNeoImporterTest {
             
             int schoolCount = 0;
             boolean foundGymnasiumLerchenfeld = false;
-            for (Node school : fullText.query(NAME + ":Gymnasium* AND " + TYPE + ":" + GazetteerEntryTypes.POINT_OF_INTEREST)) {
+            for (Node school : fullText.query(NAME + ":Gymnasium* AND " + TYPE + ":" + GazetteerEntryTypes.SCHOOL)) {
                 if (school.getProperty(NAME).equals("Gymnasium Lerchenfeld")) {
                     foundGymnasiumLerchenfeld = true;
                 }

@@ -20,7 +20,7 @@ package com.jejking.hh.nord.gazetteer.osm.poi;
 
 import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.*;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
 
 import org.joda.time.DateTime;
 import org.junit.Test;
@@ -60,7 +60,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(building, "yes");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertFalse(LABELLER.call(c1).contains(GazetteerEntryTypes.BUILDING));
+        assertFalse(LABELLER.call(c1).isPresent());
     }
     
     @Test
@@ -68,7 +68,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, cinema);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.CINEMA));
+        assertEquals(GazetteerEntryTypes.CINEMA, LABELLER.call(c1).get());
     }
     
     @Test
@@ -76,7 +76,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, firestation);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.EMERGENCY_SERVICES));
+        assertEquals(GazetteerEntryTypes.EMERGENCY_SERVICES, LABELLER.call(c1).get());
     }
     
     @Test
@@ -84,7 +84,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, police);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.EMERGENCY_SERVICES));
+        assertEquals(GazetteerEntryTypes.EMERGENCY_SERVICES, LABELLER.call(c1).get());
     }
     
     @Test
@@ -92,7 +92,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, library);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.LIBRARY));
+        assertEquals(GazetteerEntryTypes.LIBRARY, LABELLER.call(c1).get());
     }
     
     @Test
@@ -100,7 +100,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, hospital);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.HOSPITAL));
+        assertEquals(GazetteerEntryTypes.HOSPITAL, LABELLER.call(c1).get());
     }
     
     
@@ -109,7 +109,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, school);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.SCHOOL));
+        assertEquals(GazetteerEntryTypes.SCHOOL, LABELLER.call(c1).get());
     }
     
     @Test
@@ -117,7 +117,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, university);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.UNIVERSITY)); 
+        assertEquals(GazetteerEntryTypes.UNIVERSITY, LABELLER.call(c1).get()); 
     }
     
     @Test
@@ -125,16 +125,16 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(amenity, placeOfWorship);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.PLACE_OF_WORSHIP));
+        assertEquals(GazetteerEntryTypes.PLACE_OF_WORSHIP, LABELLER.call(c1).get());
     }
     
     
     @Test
-    public void emergencyServicesLabelled() {
+    public void arbitraryEmergencyNotLabelled() {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(emergency, "Rettung");
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.EMERGENCY_SERVICES));
+        assertFalse(LABELLER.call(c1).isPresent());
     }
     
     @Test
@@ -142,12 +142,12 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(leisure, park);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.PARK));
+        assertEquals(GazetteerEntryTypes.PARK, LABELLER.call(c1).get());
         
         ImmutableMap.Builder<String, String> builder2 = ImmutableMap.builder();
         builder2.put(leisure, "Schimmbad");
         DummyOsmComponent c2 = buildTestObject(builder2.build());
-        assertFalse(LABELLER.call(c2).contains(GazetteerEntryTypes.PARK));
+        assertFalse(LABELLER.call(c2).isPresent());
     }
     
     @Test
@@ -155,7 +155,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(publicTransport, station);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.TRANSPORT_STOP));
+        assertEquals(GazetteerEntryTypes.TRANSPORT_STOP, LABELLER.call(c1).get());
     }
     
     @Test
@@ -163,7 +163,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(publicTransport, stopPosition);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.TRANSPORT_STOP));
+        assertEquals(GazetteerEntryTypes.TRANSPORT_STOP, LABELLER.call(c1).get());
     }
     
     @Test
@@ -171,7 +171,7 @@ public class OsmComponentPointOfInterestLabellerTest {
         ImmutableMap.Builder<String, String> builder1 = ImmutableMap.builder();
         builder1.put(railway, station);
         DummyOsmComponent c1 = buildTestObject(builder1.build());
-        assertTrue(LABELLER.call(c1).contains(GazetteerEntryTypes.TRANSPORT_STOP));
+        assertEquals(GazetteerEntryTypes.TRANSPORT_STOP, LABELLER.call(c1).get());
     }
 
 }

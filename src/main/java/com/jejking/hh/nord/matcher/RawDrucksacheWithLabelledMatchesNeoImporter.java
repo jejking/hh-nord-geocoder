@@ -19,20 +19,20 @@
 
 package com.jejking.hh.nord.matcher;
 
+import static com.jejking.hh.nord.IteratorUtils.toIterable;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DATE;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE_ID;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.HEADER;
+import static com.jejking.hh.nord.drucksachen.DrucksacheNames.ORIGINAL_URL;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.REFS_BODY;
 import static com.jejking.hh.nord.drucksachen.DrucksacheNames.REFS_HEADER;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.ORIGINAL_URL;
-import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
-import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 
 import java.util.Map;
 
 import org.joda.time.format.DateTimeFormat;
 import org.joda.time.format.DateTimeFormatter;
+import org.neo4j.cypher.javacompat.ExecutionEngine;
 import org.neo4j.graphdb.Direction;
 import org.neo4j.graphdb.DynamicLabel;
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -40,8 +40,10 @@ import org.neo4j.graphdb.Label;
 import org.neo4j.graphdb.Node;
 import org.neo4j.graphdb.Relationship;
 import org.neo4j.graphdb.ResourceIterable;
+import org.neo4j.graphdb.ResourceIterator;
 import org.neo4j.graphdb.Transaction;
-import org.neo4j.graphdb.index.Index;
+
+import rx.functions.Action1;
 
 import com.google.common.base.Optional;
 import com.jejking.hh.nord.AbstractNeoImporter;
@@ -49,8 +51,6 @@ import com.jejking.hh.nord.drucksachen.DrucksachenPropertyKeys;
 import com.jejking.hh.nord.drucksachen.RawDrucksache;
 import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
-
-import rx.functions.Action1;
 
 /**
  * Class to import a {@link RawDrucksacheWithLabelledMatches} into Neo4j. The assumption is that
@@ -116,12 +116,13 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
         if (nodesFromExactMatch.iterator().hasNext()) {
             createRelationshipsForNodes(drucksachenNode, matchCount, relationshipProperty, nodesFromExactMatch);    
         } else {
-            System.out.println("Falling back to full text for match " + match);
-            Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
-            // we truncate here as the morphological expansion *adds* suffixes, so take them off..
-            String truncatedMatch = match.substring(0, match.length() - 2);
-            ResourceIterable<Node> nodesFromFullTextSearch = fullText.query(NAME + ":" + truncatedMatch + "* AND " + TYPE + ":" + neoLabel.name());
-            createRelationshipsForNodes(drucksachenNode, matchCount, relationshipProperty, nodesFromFullTextSearch);   
+            System.out.println("Falling back to regular expression for match " + match);
+            ExecutionEngine engine = new ExecutionEngine(graph);
+            String truncatedMatch = match.substring(0, 2);
+            String query = "match (n:" + neoLabel.name() + ") where n.NAME =~ \"" + truncatedMatch + ".*\" return n";
+            
+            ResourceIterator<Node> nodesFromRegEx = engine.execute(query).columnAs("n");
+            createRelationshipsForNodes(drucksachenNode, matchCount, relationshipProperty, toIterable(nodesFromRegEx));   
         }
         
         
@@ -129,7 +130,7 @@ public final class RawDrucksacheWithLabelledMatchesNeoImporter extends AbstractN
     }
 
     private void createRelationshipsForNodes(Node drucksachenNode, Integer matchCount, String relationshipProperty,
-            ResourceIterable<Node> targetResourceIterable) {
+            Iterable<Node> targetResourceIterable) {
         for (Node targetNode : targetResourceIterable) {
             Relationship rel = null; 
             Optional<Relationship> existingRelationship = getRelationship(drucksachenNode, targetNode);

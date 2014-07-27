@@ -30,6 +30,7 @@ import rx.Observable;
 import rx.functions.Action1;
 
 import com.google.common.collect.ImmutableMap;
+import com.jejking.hh.nord.IteratorUtils;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 
 /**
@@ -70,7 +71,7 @@ public class DrucksachenGazetteerKeywordMatcherFactory {
         // this line needed so compiler can figure out the type of the iterator...
         Iterator<String> nameIterator = executionEngine.execute(query).columnAs("n.NAME");
         
-        Observable.from(toIterable(nameIterator))
+        Observable.from(IteratorUtils.toIterable(nameIterator))
             .flatMap(new MorphologicalExpander(label))
             .toList()
             .subscribe(new Action1<List<String>>() {
@@ -82,18 +83,6 @@ public class DrucksachenGazetteerKeywordMatcherFactory {
                     mapBuilder.put(label, matcher);
                 }
             });
-    }
-
-    
-    public static <T> Iterable<T> toIterable(final Iterator<T> iterator) {
-        return new Iterable<T>() {
-
-            @Override
-            public Iterator<T> iterator() {
-                return iterator;
-            }
-            
-        };
     }
 
 }

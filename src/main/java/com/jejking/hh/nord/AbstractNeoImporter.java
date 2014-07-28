@@ -29,9 +29,7 @@ import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.CINEMA;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.THEATRE;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.UNIVERSITY;
 
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.ADMINISTRATIVE_LAYER;
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.STREET_LAYER;
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.POI_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.GEO;
 
 import java.util.Map;
 
@@ -104,7 +102,7 @@ public abstract class AbstractNeoImporter<T> {
         // and this cannot be done in the same transaction as a schema change
         try (Transaction tx = graph.beginTx()) {
             IndexManager indexManager = graph.index();
-            createSpatialLayersAndIndexes(graph, indexManager);
+            createSpatialLayerAndIndex(graph, indexManager);
         }
     }
 
@@ -141,15 +139,14 @@ public abstract class AbstractNeoImporter<T> {
         	.create();
     }
 
-    private static void createSpatialLayersAndIndexes(GraphDatabaseService graph, IndexManager indexManager) {
+    private static void createSpatialLayerAndIndex(GraphDatabaseService graph, IndexManager indexManager) {
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         Map<String, String> config = SpatialIndexProvider.SIMPLE_WKB_CONFIG;
         
-        for (String spatialLayer : ImmutableList.of(ADMINISTRATIVE_LAYER, STREET_LAYER, POI_LAYER)) {
-            EditableLayer editableLayer = (EditableLayer) spatialDatabaseService.createWKBLayer(spatialLayer);
-            editableLayer.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
-            indexManager.forNodes(spatialLayer, config);
-        }
+        EditableLayer editableLayer = (EditableLayer) spatialDatabaseService.createWKBLayer(GEO);
+        editableLayer.setCoordinateReferenceSystem(DefaultGeographicCRS.WGS84);
+        indexManager.forNodes(GEO, config);
+    
     }
     
     public static void registerShutdownHook(final GraphDatabaseService graphDb) {

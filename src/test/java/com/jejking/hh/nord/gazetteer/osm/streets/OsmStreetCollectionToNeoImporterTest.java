@@ -21,7 +21,7 @@ package com.jejking.hh.nord.gazetteer.osm.streets;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;
 import static com.jejking.hh.nord.AbstractNeoImporter.GAZETTEER_FULLTEXT;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.STREET_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.GEO;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
@@ -125,7 +125,7 @@ public class OsmStreetCollectionToNeoImporterTest {
     
     @Test
     public void spatialQuery() {
-        Layer streets = spatialDatabaseService.getLayer(STREET_LAYER);
+        Layer streets = spatialDatabaseService.getLayer(GEO);
         // bus stop Mundsburger Brücke stadtauswärts (37, 172)
         Point point = new Point(new CoordinateSequence2D(10.0206119, 53.5660032), streets.getGeometryFactory());
         

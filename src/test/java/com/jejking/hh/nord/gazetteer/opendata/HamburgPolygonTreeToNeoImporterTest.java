@@ -20,7 +20,7 @@ package com.jejking.hh.nord.gazetteer.opendata;
 
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.CITY;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NAMED_AREA;
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.ADMINISTRATIVE_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.GEO;
 import static com.jejking.hh.nord.AbstractNeoImporter.GAZETTEER_FULLTEXT;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
@@ -173,7 +173,7 @@ public class HamburgPolygonTreeToNeoImporterTest {
     @Test
     public void spatialQueryOneHundredMetresOfLiteraturHausHamburg() {
         // Literaturhaus is at 53.568118, 10.016442 according to Google Maps
-        Layer administrative = spatialDatabaseService.getLayer(ADMINISTRATIVE_LAYER);
+        Layer administrative = spatialDatabaseService.getLayer(GEO);
         
         Point point = new Point(new CoordinateSequence2D(10.016442, 53.568118), administrative.getGeometryFactory());
         

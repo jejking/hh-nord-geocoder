@@ -20,7 +20,7 @@ package com.jejking.hh.nord.gazetteer.osm.poi;
 
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.HOUSE_NUMBER;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.POI_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.GEO;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 
 import java.util.List;
@@ -54,7 +54,7 @@ public class PointOfInterestToNeoImporter extends AbstractNeoImporter<List<Point
         int i = 0;
         for (PointOfInterest poi : pois) {
             try (Transaction tx = graph.beginTx()) {
-                EditableLayer poiLayer = getEditableLayer(spatialDatabaseService, POI_LAYER);
+                EditableLayer poiLayer = getEditableLayer(spatialDatabaseService, GEO);
                 Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
                 
                 addPoi(poi, poiLayer, fullText);

@@ -21,7 +21,7 @@ package com.jejking.hh.nord.gazetteer.osm.streets;
 
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NUMBERED_DISTRICT;
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.ADMINISTRATIVE_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.GEO;
 import static com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes.CONTAINS;
 
 import java.util.List;
@@ -61,7 +61,7 @@ public class StreetToAdminPolygonMapper {
         
         try (Transaction tx = graph.beginTx()) {
             SpatialDatabaseService spatial = new SpatialDatabaseService(graph);
-            Layer adminLayer = spatial.getLayer(ADMINISTRATIVE_LAYER);
+            Layer adminLayer = spatial.getLayer(GEO);
             
             GeometryEncoder encoder = new WKBGeometryEncoder();
             encoder.init(adminLayer);

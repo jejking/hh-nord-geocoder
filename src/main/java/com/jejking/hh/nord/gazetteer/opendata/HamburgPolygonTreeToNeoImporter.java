@@ -20,7 +20,7 @@ package com.jejking.hh.nord.gazetteer.opendata;
 
 
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.NUMBERED_DISTRICT;
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.ADMINISTRATIVE_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.GEO;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NUMBER;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
@@ -57,7 +57,7 @@ public class HamburgPolygonTreeToNeoImporter extends AbstractNeoImporter<AdminAr
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         
         try (Transaction tx = graph.beginTx()) {
-            EditableLayer administrative = getEditableLayer(spatialDatabaseService, ADMINISTRATIVE_LAYER);
+            EditableLayer administrative = getEditableLayer(spatialDatabaseService, GEO);
             Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
             addAdministrativeNode(administrative, fullText, null, root);
             tx.success();

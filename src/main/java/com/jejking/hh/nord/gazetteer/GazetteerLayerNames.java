@@ -26,8 +26,6 @@ package com.jejking.hh.nord.gazetteer;
  */
 public interface GazetteerLayerNames {
 
-    public static final String ADMINISTRATIVE_LAYER = "ADMINISTRATIVE_LAYER";
-    public static final String STREET_LAYER = "STREET_LAYER";
-    public static final String POI_LAYER = "POI_LAYER";
+    public static final String GEO = "GEO";
 	
 }

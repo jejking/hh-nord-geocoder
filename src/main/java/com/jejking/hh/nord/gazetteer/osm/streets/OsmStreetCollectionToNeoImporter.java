@@ -20,7 +20,7 @@ package com.jejking.hh.nord.gazetteer.osm.streets;
 
 import static com.jejking.hh.nord.gazetteer.GazetteerEntryTypes.STREET;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.NAME;
-import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.STREET_LAYER;
+import static com.jejking.hh.nord.gazetteer.GazetteerLayerNames.GEO;
 import static com.jejking.hh.nord.gazetteer.GazetteerPropertyNames.TYPE;
 
 
@@ -54,7 +54,7 @@ public class OsmStreetCollectionToNeoImporter extends AbstractNeoImporter<Map<St
         SpatialDatabaseService spatialDatabaseService = new SpatialDatabaseService(graph);
         
         try (Transaction tx = graph.beginTx()) {
-            EditableLayer streetLayer = getEditableLayer(spatialDatabaseService, STREET_LAYER);
+            EditableLayer streetLayer = getEditableLayer(spatialDatabaseService, GEO);
             Index<Node> fullText = graph.index().forNodes(GAZETTEER_FULLTEXT);
             
             for (Entry<String, Geometry> entry : streets.entrySet()) {

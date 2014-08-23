@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.drucksachen;
+package com.jejking.hh.nord.corpus;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

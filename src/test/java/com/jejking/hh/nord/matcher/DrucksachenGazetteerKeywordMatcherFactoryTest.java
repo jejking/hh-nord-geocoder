@@ -32,7 +32,7 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.TestUtil;
-import com.jejking.hh.nord.drucksachen.RawDrucksache;
+import com.jejking.hh.nord.corpus.RawDrucksache;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 
 import static org.junit.Assert.*;

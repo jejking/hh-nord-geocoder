@@ -17,7 +17,7 @@
  *
  *    
  */
-package com.jejking.hh.nord.drucksachen;
+package com.jejking.hh.nord.corpus;
 
 import java.io.Serializable;
 import java.net.URL;

@@ -17,7 +17,7 @@
  *
  *    
  */
-package com.jejking.hh.nord.drucksachen;
+package com.jejking.hh.nord.corpus;
 
 import java.net.URL;
 import java.nio.file.Paths;

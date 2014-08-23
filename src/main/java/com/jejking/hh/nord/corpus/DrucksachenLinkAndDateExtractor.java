@@ -1,4 +1,4 @@
-package com.jejking.hh.nord.drucksachen;
+package com.jejking.hh.nord.corpus;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 

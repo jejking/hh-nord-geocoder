@@ -28,7 +28,7 @@ import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 import com.google.common.base.Stopwatch;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.jejking.hh.nord.drucksachen.RawDrucksache;
+import com.jejking.hh.nord.corpus.RawDrucksache;
 import com.jejking.hh.nord.gazetteer.GazetteerEntryTypes;
 import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcher;
 import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcherFactory;

@@ -15,25 +15,26 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
- *    
  */
-package com.jejking.hh.nord.drucksachen;
+package com.jejking.hh.nord.corpus;
+
 
 /**
- * Frequently occurring keys for properties of {@link RawDrucksache}.
+ * Names for Neo4j properties for {@link RawDrucksache} representations
+ * in the graph.
  * 
  * @author jejking
  *
  */
-public interface DrucksachenPropertyKeys {
+public interface DrucksacheNames {
 
-    public static final String BETREFF = "Betreff"; // what's it all about
-    public static final String STATUS = "Status";
-    public static final String VERFASSER = "Verfasser"; // who wrote it
-    public static final String ART = "Drucksache-Art"; // type
-    public static final String FEDERFUEHREND = "Federführend"; // coordinating department
-    public static final String BERATUNGSFOLGE = "Beratungsfolge"; // list of meetings where document discussed
-    public static final String AKTENZEICHEND = "Aktenzeichen"; // file identifer
-    public static final String ANLAGEN = "Anlagen"; // attachments
+    public static final String DRUCKSACHE = "DRUCKSACHE";
+    public static final String DRUCKSACHE_ID = "DRUCKSACHE_ID";
+    public static final String ORIGINAL_URL = "ORIGINAL_URL";
+    public static final String DATE = "DATE";
+    public static final String HEADER = "HEADER";
+    
+    public static final String REFS_HEADER = "REFS_HEADER";
+    public static final String REFS_BODY = "REFS_BODY";
     
 }

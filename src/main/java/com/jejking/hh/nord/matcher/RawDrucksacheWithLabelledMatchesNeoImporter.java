@@ -20,13 +20,13 @@
 package com.jejking.hh.nord.matcher;
 
 import static com.jejking.hh.nord.IteratorUtils.toIterable;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DATE;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE_ID;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.HEADER;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.ORIGINAL_URL;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.REFS_BODY;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.REFS_HEADER;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.DATE;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.DRUCKSACHE;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.DRUCKSACHE_ID;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.HEADER;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.ORIGINAL_URL;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.REFS_BODY;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.REFS_HEADER;
 
 import java.util.Map;
 
@@ -47,8 +47,8 @@ import rx.functions.Action1;
 
 import com.google.common.base.Optional;
 import com.jejking.hh.nord.AbstractNeoImporter;
-import com.jejking.hh.nord.drucksachen.DrucksachenPropertyKeys;
-import com.jejking.hh.nord.drucksachen.RawDrucksache;
+import com.jejking.hh.nord.corpus.DrucksachenPropertyKeys;
+import com.jejking.hh.nord.corpus.RawDrucksache;
 import com.jejking.hh.nord.gazetteer.GazetteerPropertyNames;
 import com.jejking.hh.nord.gazetteer.GazetteerRelationshipTypes;
 

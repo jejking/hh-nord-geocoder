@@ -22,7 +22,7 @@ package com.jejking.hh.nord.matcher;
 import static com.google.common.base.Preconditions.checkNotNull;
 
 import com.google.common.collect.ImmutableMap;
-import com.jejking.hh.nord.drucksachen.RawDrucksache;
+import com.jejking.hh.nord.corpus.RawDrucksache;
 
 
 /**

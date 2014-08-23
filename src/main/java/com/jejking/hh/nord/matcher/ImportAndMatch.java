@@ -18,8 +18,8 @@
  */
 package com.jejking.hh.nord.matcher;
 
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE;
-import static com.jejking.hh.nord.drucksachen.DrucksacheNames.DRUCKSACHE_ID;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.DRUCKSACHE;
+import static com.jejking.hh.nord.corpus.DrucksacheNames.DRUCKSACHE_ID;
 
 import java.io.BufferedInputStream;
 import java.io.File;
@@ -35,9 +35,9 @@ import org.neo4j.graphdb.schema.Schema;
 
 import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.AbstractNeoImporter;
-import com.jejking.hh.nord.drucksachen.DrucksacheDateEnhancer;
-import com.jejking.hh.nord.drucksachen.RawDrucksache;
-import com.jejking.hh.nord.drucksachen.RawDrucksachenLabeller;
+import com.jejking.hh.nord.corpus.DrucksacheDateEnhancer;
+import com.jejking.hh.nord.corpus.RawDrucksache;
+import com.jejking.hh.nord.corpus.RawDrucksachenLabeller;
 
 import rx.Observable;
 import rx.functions.Func1;

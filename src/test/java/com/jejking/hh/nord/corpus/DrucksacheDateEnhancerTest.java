@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.drucksachen;
+package com.jejking.hh.nord.corpus;
 
 import static org.junit.Assert.*;
 
@@ -30,8 +30,8 @@ import org.junit.Test;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.jejking.hh.nord.drucksachen.DrucksacheDateEnhancer;
-import com.jejking.hh.nord.drucksachen.RawDrucksache;
+import com.jejking.hh.nord.corpus.DrucksacheDateEnhancer;
+import com.jejking.hh.nord.corpus.RawDrucksache;
 
 /**
  * Test for {@link DrucksacheDateEnhancer}.

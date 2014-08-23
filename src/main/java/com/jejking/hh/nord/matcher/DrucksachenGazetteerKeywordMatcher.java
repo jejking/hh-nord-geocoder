@@ -23,8 +23,8 @@ import rx.functions.Func1;
 
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
-import com.jejking.hh.nord.drucksachen.DrucksachenPropertyKeys;
-import com.jejking.hh.nord.drucksachen.RawDrucksache;
+import com.jejking.hh.nord.corpus.DrucksachenPropertyKeys;
+import com.jejking.hh.nord.corpus.RawDrucksache;
 
 /**
  * Function that matches a {@link RawDrucksache} to a pair containing the input item (for

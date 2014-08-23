@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.drucksachen;
+package com.jejking.hh.nord.corpus;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -30,8 +30,8 @@ import org.junit.Test;
 import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.jejking.hh.nord.drucksachen.RawDrucksache;
-import com.jejking.hh.nord.drucksachen.RawDrucksachenLabeller;
+import com.jejking.hh.nord.corpus.RawDrucksache;
+import com.jejking.hh.nord.corpus.RawDrucksachenLabeller;
 import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcher;
 import com.jejking.hh.nord.matcher.Matches;
 import com.jejking.hh.nord.matcher.RawDrucksacheWithLabelledMatches;

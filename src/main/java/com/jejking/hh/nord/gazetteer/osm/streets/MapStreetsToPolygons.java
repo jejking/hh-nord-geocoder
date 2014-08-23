@@ -19,8 +19,6 @@
 package com.jejking.hh.nord.gazetteer.osm.streets;
 
 import static com.jejking.hh.nord.AbstractNeoImporter.registerShutdownHook;
-import static com.jejking.hh.nord.app.CreateGazetteer.mapStreetsToAdminPolygons;
-
 import java.util.concurrent.TimeUnit;
 
 import org.neo4j.graphdb.GraphDatabaseService;
@@ -46,9 +44,14 @@ public class MapStreetsToPolygons {
         GraphDatabaseService graph = new GraphDatabaseFactory().newEmbeddedDatabase(args[0]);
 		registerShutdownHook(graph);
 		
-		mapStreetsToAdminPolygons(graph);
+		MapStreetsToPolygons.mapStreetsToAdminPolygons(graph);
 		System.out.println("Linked streets to polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
 
 	}
+
+    public static void mapStreetsToAdminPolygons(GraphDatabaseService graph) {
+        StreetToAdminPolygonMapper streetToAdminPolygonMapper = new StreetToAdminPolygonMapper();
+        streetToAdminPolygonMapper.mapStreetsToPolygons(graph);
+    }
 
 }

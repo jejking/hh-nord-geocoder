@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.corpus;
+package com.jejking.hh.nord.matcher;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,10 +31,10 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.corpus.RawDrucksache;
-import com.jejking.hh.nord.corpus.RawDrucksachenLabeller;
 import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcher;
 import com.jejking.hh.nord.matcher.Matches;
 import com.jejking.hh.nord.matcher.RawDrucksacheWithLabelledMatches;
+import com.jejking.hh.nord.matcher.RawDrucksachenLabeller;
 
 import static org.junit.Assert.*;
 

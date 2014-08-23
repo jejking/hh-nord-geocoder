@@ -19,10 +19,12 @@
 package com.jejking.hh.nord.gazetteer.osm.poi;
 
 import static com.jejking.hh.nord.AbstractNeoImporter.registerShutdownHook;
-import static com.jejking.hh.nord.app.CreateGazetteer.writePointsOfInterest;
 
+import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
@@ -49,8 +51,22 @@ public class WritePointsOfInterest {
         GraphDatabaseService graph = new GraphDatabaseFactory().newEmbeddedDatabase(args[0]);
         registerShutdownHook(graph);
         
-        writePointsOfInterest(geometryFactory, graph);
+        WritePointsOfInterest.writePointsOfInterest(geometryFactory, graph);
         System.out.println("Wrote points of interest. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+    }
+
+    public static void writePointsOfInterest(GeometryFactory geometryFactory, GraphDatabaseService graph) {
+        RxPointOfInterestCollectionBuilder builder = new RxPointOfInterestCollectionBuilder(geometryFactory);
+        try {
+            List<PointOfInterest> pois = builder
+                    .pointsOfInterestFromStream(new BZip2CompressorInputStream(
+                            WritePointsOfInterest.class.getResourceAsStream("/hamburg-nord-tm470.osm.bz2")));
+    
+            PointOfInterestToNeoImporter importer = new PointOfInterestToNeoImporter();
+            importer.writeToNeo(pois, graph);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
 }

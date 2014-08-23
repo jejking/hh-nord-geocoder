@@ -16,7 +16,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>
  *
  */
-package com.jejking.hh.nord.corpus;
+package com.jejking.hh.nord.matcher;
 
 import static com.google.common.base.Preconditions.checkNotNull;
 
@@ -25,9 +25,7 @@ import java.util.Map;
 import rx.functions.Func1;
 
 import com.google.common.collect.ImmutableMap;
-import com.jejking.hh.nord.matcher.DrucksachenGazetteerKeywordMatcher;
-import com.jejking.hh.nord.matcher.Matches;
-import com.jejking.hh.nord.matcher.RawDrucksacheWithLabelledMatches;
+import com.jejking.hh.nord.corpus.RawDrucksache;
 
 /**
  * Function to apply a series of {@link DrucksachenGazetteerKeywordMatcher} functions associated

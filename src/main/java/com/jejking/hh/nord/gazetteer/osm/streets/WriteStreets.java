@@ -19,15 +19,18 @@
 package com.jejking.hh.nord.gazetteer.osm.streets;
 
 import static com.jejking.hh.nord.AbstractNeoImporter.registerShutdownHook;
-import static com.jejking.hh.nord.app.CreateGazetteer.writeStreets;
 
+import java.io.IOException;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.compress.compressors.bzip2.BZip2CompressorInputStream;
 import org.geotools.geometry.jts.JTSFactoryFinder;
 import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import com.google.common.base.Stopwatch;
+import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
 
 /**
@@ -49,9 +52,23 @@ public class WriteStreets {
         GraphDatabaseService graph = new GraphDatabaseFactory().newEmbeddedDatabase(args[0]);
 		registerShutdownHook(graph);
 		
-		writeStreets(geometryFactory, graph);
+		WriteStreets.writeStreets(geometryFactory, graph);
 		System.out.println("Wrote streets. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
 
 	}
+
+    public static void writeStreets(GeometryFactory geometryFactory, GraphDatabaseService graph) {
+        RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(geometryFactory);
+        try {
+            Map<String, Geometry> streets = builder
+                                        .streetsFromStream(
+                                                new BZip2CompressorInputStream(
+                                                    WriteStreets.class.getResourceAsStream("/hamburg-nord-tm470.osm.bz2")));
+            OsmStreetCollectionToNeoImporter importer = new OsmStreetCollectionToNeoImporter();
+            importer.writeToNeo(streets, graph);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
 
 }

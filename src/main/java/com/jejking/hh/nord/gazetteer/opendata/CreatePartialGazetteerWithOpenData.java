@@ -20,7 +20,6 @@ package com.jejking.hh.nord.gazetteer.opendata;
 
 import static com.jejking.hh.nord.AbstractNeoImporter.registerShutdownHook;
 import static com.jejking.hh.nord.AbstractNeoImporter.setupSchema;
-import static com.jejking.hh.nord.app.CreateGazetteer.writeHamburgPolygons;
 
 import java.util.concurrent.TimeUnit;
 
@@ -28,6 +27,7 @@ import org.neo4j.graphdb.GraphDatabaseService;
 import org.neo4j.graphdb.factory.GraphDatabaseFactory;
 
 import com.google.common.base.Stopwatch;
+import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Class with main method just to run the importer for the Hamburg City
@@ -54,8 +54,19 @@ public class CreatePartialGazetteerWithOpenData {
 		setupSchema(graph);
 		System.out.println("Setup indexes. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
 
-		writeHamburgPolygons(graph);
-		System.out.println("Wrote hamburg polygons. Elapsed time: " 				+ stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+		CreatePartialGazetteerWithOpenData.writeHamburgPolygons(graph);
+		System.out.println("Wrote hamburg polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
 	}
+
+    public static void writeHamburgPolygons(GraphDatabaseService graph) {
+        HamburgRawTreeBuilder hamburgRawTreeBuilder = new HamburgRawTreeBuilder();
+        AdminAreaTreeNode<String> hamburgNodes = hamburgRawTreeBuilder.buildRawTree();
+    
+        AdminAreaTreeNodeTransformer t = new AdminAreaTreeNodeTransformer();
+        AdminAreaTreeNode<Polygon> hamburgPolygons = t.call(hamburgNodes);
+        
+        HamburgPolygonTreeToNeoImporter hamburgPolygonTreeToNeoImporter = new HamburgPolygonTreeToNeoImporter();
+        hamburgPolygonTreeToNeoImporter.writeToNeo(hamburgPolygons, graph);
+    }
 
 }

@@ -37,7 +37,6 @@ import com.google.common.collect.ImmutableMap;
 import com.jejking.hh.nord.AbstractNeoImporter;
 import com.jejking.hh.nord.corpus.DrucksacheDateEnhancer;
 import com.jejking.hh.nord.corpus.RawDrucksache;
-import com.jejking.hh.nord.corpus.RawDrucksachenLabeller;
 
 import rx.Observable;
 import rx.functions.Func1;

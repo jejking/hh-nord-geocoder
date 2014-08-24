@@ -21,7 +21,12 @@ package com.jejking.hh.nord.gazetteer.opendata;
 import java.util.HashMap;
 import java.util.Map;
 
+import rx.functions.Action1;
 import rx.functions.Func1;
+
+import static com.google.common.base.Preconditions.checkArgument;
+import static com.google.common.base.Preconditions.checkNotNull;
+
 
 /**
  * Trivial class for creating a tree of named key-value pairs.
@@ -36,11 +41,20 @@ public class AdminAreaTreeNode<T> {
     private final HashMap<String, AdminAreaTreeNode<T>> children = new HashMap<String, AdminAreaTreeNode<T>>();
     private final T content;
     
+    /**
+     * Constructor.
+     * @param name name of node, may not be <code>null</code> or empty
+     * @param type indication of type of node, may not be <code>null</code> or empty
+     * @param content the content, may not be <code>null</code>
+     */
     public AdminAreaTreeNode(String name, String type, T content) {
         super();
+        checkArgument(name != null && name.trim().length() > 0, name);
+        checkArgument(name != null && name.trim().length() > 0, type);
+        
         this.name = name;
         this.type = type;
-        this.content = content;
+        this.content = checkNotNull(content);
     }
 
     
@@ -148,8 +162,8 @@ public class AdminAreaTreeNode<T> {
      * Creates function to map over all tree from function to map over content types in tree, essentially making
      * the class a functor.
      *  
-     * @param f
-     * @return
+     * @param f function from T to U
+     * @return function to map across 
      */
 	public <U> Func1<AdminAreaTreeNode<T>, AdminAreaTreeNode<U>> fmap(final Func1<T, U> f) {
 		return new Func1<AdminAreaTreeNode<T>, AdminAreaTreeNode<U>>() {
@@ -158,7 +172,7 @@ public class AdminAreaTreeNode<T> {
 			public AdminAreaTreeNode<U> call(AdminAreaTreeNode<T> from) {
 				AdminAreaTreeNode<U> to = new AdminAreaTreeNode<U>(from.getName(), from.getType(), f.call(from.getContent()));
 		        
-		        // apply same conversion to children, they retain the same name
+		        // apply same conversion recursively to children, they retain the same name and type label
 		        Map<String, AdminAreaTreeNode<U>> toChildren = to.getChildren();
 		        for (String fromChildKey : from.getChildren().keySet()) {
 		            toChildren.put(fromChildKey, this.call(from.getChildren().get(fromChildKey)));
@@ -167,6 +181,18 @@ public class AdminAreaTreeNode<T> {
 			}
 			
 		};
+	}
+	
+	/**
+	 * Descends tree of nodes applying action to node and its children.
+	 * @param action some side-effecting action
+	 */
+	public void forEach(final Action1<AdminAreaTreeNode<T>> action) {
+	    
+	    action.call(this);
+	    for (AdminAreaTreeNode<T> childNode : this.children.values()) {
+	        childNode.forEach(action);
+	    }
 	}
         
     

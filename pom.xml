@@ -37,21 +37,6 @@
 			<artifactId>gt-epsg-hsql</artifactId>
 			<version>9.2</version>
 		</dependency>
-		<dependency>
-			<groupId>joda-time</groupId>
-			<artifactId>joda-time</artifactId>
-			<version>2.3</version>
-		</dependency>
-        <dependency>
-			<groupId>com.google.guava</groupId>
-			<artifactId>guava</artifactId>
-			<version>17.0</version>
-		</dependency>
-        <dependency>
-			<groupId>com.netflix.rxjava</groupId>
-			<artifactId>rxjava-core</artifactId>
-			<version>0.18.3</version>
-		</dependency>
         <dependency>
 			<groupId>org.apache.commons</groupId>
 			<artifactId>commons-compress</artifactId>
@@ -75,7 +60,7 @@
  		<dependency>
 			<groupId>com.jejking</groupId>
 			<artifactId>rxosmparser</artifactId>
-			<version>0.0.2</version>
+			<version>0.0.3</version>
 		</dependency>
 
 		<dependency>
@@ -136,13 +121,6 @@
                 <enabled>true</enabled>
             </snapshots>
         </repository>
-     	<repository>
-	        <id>RxOsmParser-mvn-repo</id>
-	        <url>https://raw.github.com/jejking/RxOsmParser/mvn-repo/</url>
-	        <snapshots>
-	            <enabled>true</enabled>
-	            <updatePolicy>always</updatePolicy>
-	        </snapshots>
-    	</repository>
+     	
 	</repositories>
 </project>

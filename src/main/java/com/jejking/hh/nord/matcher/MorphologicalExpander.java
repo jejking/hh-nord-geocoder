@@ -78,7 +78,7 @@ public final class MorphologicalExpander implements Func1<String, Observable<Str
     @Override
     public Observable<String> call(String nameToExpand) {
         if (!this.label.equals(GazetteerEntryTypes.STREET)) {
-            return Observable.from(nameToExpand);
+            return Observable.just(nameToExpand);
         } else {
             return handleStreetName(nameToExpand);
         }
@@ -94,7 +94,7 @@ public final class MorphologicalExpander implements Func1<String, Observable<Str
             }
         }
         
-        return Observable.from(nameToExpand); // nothing to expand....
+        return Observable.just(nameToExpand); // nothing to expand....
     }
 
 

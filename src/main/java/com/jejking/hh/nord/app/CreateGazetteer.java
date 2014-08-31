@@ -72,8 +72,4 @@ public class CreateGazetteer {
         System.out.println("Done. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
     }
 
-    
-
-   
-
 }

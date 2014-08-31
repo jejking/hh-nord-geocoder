@@ -45,6 +45,11 @@ public class DrucksachenGazetteerKeywordMatcher implements Func1<RawDrucksache, 
     
     private final GazetteerKeywordMatcher gazetteerKeywordMatcher;
     
+    /**
+     * Constructor, essentially assembles a {@link GazetteerKeywordMatcher}.
+     * @param keyWords list of named entities of a given type from the gazetteer
+     * @param entryType label describing type of entities named in the keyword iterable
+     */
     public DrucksachenGazetteerKeywordMatcher(Iterable<String> keyWords, String entryType) {
         this.gazetteerKeywordMatcher = new GazetteerKeywordMatcher(keyWords, entryType);
     }

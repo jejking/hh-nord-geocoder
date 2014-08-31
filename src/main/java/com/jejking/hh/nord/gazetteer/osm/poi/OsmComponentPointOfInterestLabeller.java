@@ -50,7 +50,7 @@ import rx.functions.Func1;
  * @author jejking
  *
  */
-class OsmComponentPointOfInterestLabeller implements Func1<OsmComponent, Optional<String>> {
+final class OsmComponentPointOfInterestLabeller implements Func1<OsmComponent, Optional<String>> {
 
 
     @Override

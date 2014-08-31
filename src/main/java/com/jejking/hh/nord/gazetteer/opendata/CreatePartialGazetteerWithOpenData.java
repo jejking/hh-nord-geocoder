@@ -38,25 +38,24 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class CreatePartialGazetteerWithOpenData {
 
-	/**
-	 * Main method.
-	 * 
-	 * @param args
-	 *            , first arg is path to directory in which to create/open a
-	 *            Neo4j database with the gazetteer.
-	 */
-	public static void main(String[] args) {
-		Stopwatch stopwatch = Stopwatch.createStarted();
-		GraphDatabaseService graph = new GraphDatabaseFactory().newEmbeddedDatabase(args[0]);
-		registerShutdownHook(graph);
+    /**
+     * Main method.
+     * 
+     * @param args
+     *            , first arg is path to directory in which to create/open a Neo4j database with the gazetteer.
+     */
+    public static void main(String[] args) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
+        GraphDatabaseService graph = new GraphDatabaseFactory().newEmbeddedDatabase(args[0]);
+        registerShutdownHook(graph);
 
-		// we want an additional index on adminstrative area - name
-		setupSchema(graph);
-		System.out.println("Setup indexes. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+        // we want an additional index on adminstrative area - name
+        setupSchema(graph);
+        System.out.println("Setup indexes. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
 
-		CreatePartialGazetteerWithOpenData.writeHamburgPolygons(graph);
-		System.out.println("Wrote hamburg polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
-	}
+        CreatePartialGazetteerWithOpenData.writeHamburgPolygons(graph);
+        System.out.println("Wrote hamburg polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+    }
 
     public static void writeHamburgPolygons(GraphDatabaseService graph) {
         HamburgRawTreeBuilder hamburgRawTreeBuilder = new HamburgRawTreeBuilder();

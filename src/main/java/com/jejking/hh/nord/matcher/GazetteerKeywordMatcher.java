@@ -32,7 +32,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.ImmutableSet;
 
 /**
- * Function, that given a set of keywords to look for (in our case a list of street names,
+ * Function that, given a set of keywords to look for (in our case a list of street names,
  * named points of interest or named administrative districts), identifies those which
  * can be found in a text supplied to the function as a parameter.
  * 

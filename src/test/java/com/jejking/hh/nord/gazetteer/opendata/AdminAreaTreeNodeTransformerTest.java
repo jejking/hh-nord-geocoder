@@ -31,54 +31,49 @@ import com.vividsolutions.jts.geom.Polygon;
 
 /**
  * Tests for {@link AdminAreaTreeNodeTransformer}.
- *
+ * 
  * @author jejking
- *
+ * 
  */
 public class AdminAreaTreeNodeTransformerTest {
 
-	@Test
-	public void wktConversionWorks() {
+    @Test
+    public void wktConversionWorks() {
         String in = "0 0 1 1 3 3.5";
-        String expected =  "POLYGON((0 0, 1 1, 3 3.5))";
-        
+        String expected = "POLYGON((0 0, 1 1, 3 3.5))";
+
         CreateWkt f = new AdminAreaTreeNodeTransformer().new CreateWkt();
         assertEquals(expected, f.call(in));
-	}
-	
-	
-	@Test
+    }
+
+    @Test
     public void createPolygonFromWkt() {
         // these results obtained from the helpful website at http://cs2cs.mygeodata.eu/
-        double[][] expected = new double[][] {
-                                                {4.51125611529d, 0.0d},
-                                                {4.51126507418d, 0.000405871916451d},
-                                                {4.5112829855d, 0.00315678165038d},
-                                                {4.51125611529d, 0.0d}
-                                             };
-        
+        double[][] expected = new double[][] { { 4.51125611529d, 0.0d }, { 4.51126507418d, 0.000405871916451d },
+                { 4.5112829855d, 0.00315678165038d }, { 4.51125611529d, 0.0d } };
+
         AdminAreaTreeNodeTransformer transformer = new AdminAreaTreeNodeTransformer();
         CreatePolygon createPolygon = transformer.new CreatePolygon();
         ConvertPolygonToWGS84 convertPolygon = transformer.new ConvertPolygonToWGS84();
-        
+
         Optional<Polygon> output = convertPolygon.call(createPolygon.call("POLYGON((0 0, 1 45, 3 350, 0 0))"));
         Coordinate[] coords = output.get().getCoordinates();
-        
+
         for (int i = 0; i < coords.length; i++) {
             Coordinate coord = coords[i];
             assertEquals(expected[i][0], coord.x, 0.0000000001);
             assertEquals(expected[i][1], coord.y, 0.0000000001);
         }
-        
+
     }
-	
-	@Test
+
+    @Test
     public void fixRootCreatesHamburgPolygon() {
         HamburgRawTreeBuilder builder = new HamburgRawTreeBuilder();
         AdminAreaTreeNode<String> rawHamburg = builder.buildRawTree();
-        
+
         AdminAreaTreeNodeTransformer transformer = new AdminAreaTreeNodeTransformer();
         transformer.call(rawHamburg); // does it work....
     }
-	
+
 }

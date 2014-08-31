@@ -102,8 +102,6 @@ public class ImportAndMatch extends AbstractNeoImporter<Iterable<File>> {
         .map(new DrucksacheDateEnhancer())
         .map(rawDrucksachenLabeller)
         .subscribe(new RawDrucksacheWithLabelledMatchesNeoImporter(graph));
-        
-        
-    }
+     }
 
 }

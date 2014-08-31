@@ -42,20 +42,22 @@ import com.vividsolutions.jts.geom.GeometryFactory;
  */
 public class WriteStreets {
 
-	/**
-	 * Imports an extract from Open Street Map into Neo4j.
-	 * @param args directory in which the Neo4j database exists.
-	 */
-	public static void main(String[] args) {
-		Stopwatch stopwatch = Stopwatch.createStarted();
+    /**
+     * Imports an extract from Open Street Map into Neo4j.
+     * 
+     * @param args
+     *            directory in which the Neo4j database exists.
+     */
+    public static void main(String[] args) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
         GraphDatabaseService graph = new GraphDatabaseFactory().newEmbeddedDatabase(args[0]);
-		registerShutdownHook(graph);
-		
-		WriteStreets.writeStreets(geometryFactory, graph);
-		System.out.println("Wrote streets. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+        registerShutdownHook(graph);
 
-	}
+        WriteStreets.writeStreets(geometryFactory, graph);
+        System.out.println("Wrote streets. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+
+    }
 
     public static void writeStreets(GeometryFactory geometryFactory, GraphDatabaseService graph) {
         RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(geometryFactory);

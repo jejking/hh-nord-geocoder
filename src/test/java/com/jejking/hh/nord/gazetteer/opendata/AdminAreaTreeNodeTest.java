@@ -30,54 +30,54 @@ import rx.functions.Func1;
  * Tests for {@link AdminAreaTreeNode}.
  * 
  * @author jejking
- *
+ * 
  */
 public class AdminAreaTreeNodeTest {
 
-	@Test
-	public void fMapWorksAsExpected() {
-		AdminAreaTreeNode<String> root = givenAnInputTree();
-        
+    @Test
+    public void fMapWorksAsExpected() {
+        AdminAreaTreeNode<String> root = givenAnInputTree();
+
         AdminAreaTreeNode<Integer> rootInt = root.fmap(new Func1<String, Integer>() {
 
-			@Override
-			public Integer call(String t1) {
-				return Integer.valueOf(t1);
-			}
-        	
-        }).call(root);
-        
-        thenTheResultIsAsExpected(rootInt);
-	}
+            @Override
+            public Integer call(String t1) {
+                return Integer.valueOf(t1);
+            }
 
-	private void thenTheResultIsAsExpected(AdminAreaTreeNode<Integer> rootInt) {
-		assertEquals(0, rootInt.getContent().intValue());
+        }).call(root);
+
+        thenTheResultIsAsExpected(rootInt);
+    }
+
+    private void thenTheResultIsAsExpected(AdminAreaTreeNode<Integer> rootInt) {
+        assertEquals(0, rootInt.getContent().intValue());
         assertEquals("root", rootInt.getName());
-        
+
         Map<String, AdminAreaTreeNode<Integer>> rootIntChildren = rootInt.getChildren();
         assertEquals(2, rootIntChildren.size());
-        
+
         AdminAreaTreeNode<Integer> oneInt = rootIntChildren.get("one");
         assertEquals(1, oneInt.getContent().intValue());
-        
+
         AdminAreaTreeNode<Integer> twoInt = rootIntChildren.get("two");
         assertEquals(2, twoInt.getContent().intValue());
-        
+
         AdminAreaTreeNode<Integer> tenInt = oneInt.getChildren().get("ten");
         assertEquals(10, tenInt.getContent().intValue());
-	}
+    }
 
-	private AdminAreaTreeNode<String> givenAnInputTree() {
-		AdminAreaTreeNode<String> root = new AdminAreaTreeNode<String>("root", "foo", "0");
+    private AdminAreaTreeNode<String> givenAnInputTree() {
+        AdminAreaTreeNode<String> root = new AdminAreaTreeNode<String>("root", "foo", "0");
         AdminAreaTreeNode<String> one = new AdminAreaTreeNode<String>("one", "foo", "1");
         AdminAreaTreeNode<String> ten = new AdminAreaTreeNode<String>("ten", "foo", "10");
-        AdminAreaTreeNode<String> two = new AdminAreaTreeNode<String>("two","foo", "2");
-        
+        AdminAreaTreeNode<String> two = new AdminAreaTreeNode<String>("two", "foo", "2");
+
         root.getChildren().put("one", one);
         root.getChildren().put("two", two);
-        
+
         one.getChildren().put("ten", ten);
-		return root;
-	}
-	
+        return root;
+    }
+
 }

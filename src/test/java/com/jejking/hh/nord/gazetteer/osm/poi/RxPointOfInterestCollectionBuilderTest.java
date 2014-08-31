@@ -94,7 +94,7 @@ public class RxPointOfInterestCollectionBuilderTest {
     public void poisBuiltFromNodes() {
         OsmNode retain = buildTestOsmNode(ImmutableMap.of(name, "foo", "amenity", "theatre"));
         OsmNode remove = buildTestOsmNode(ImmutableMap.of("foo", "bar"));
-        Observable<OsmNode> nodeObservable = Observable.from(retain, remove);
+        Observable<OsmNode> nodeObservable = Observable.just(retain, remove);
         
         ImmutableList.Builder<PointOfInterest> poiListBuilder = ImmutableList.builder();
         
@@ -133,7 +133,7 @@ public class RxPointOfInterestCollectionBuilderTest {
                                                      4L, topLeft.getPoint());
         
         ImmutableList.Builder<PointOfInterest> poiListBuilder = ImmutableList.builder();
-        builder.attachWayPointOfInterestBuilderTo(Observable.from(way), osmPoints, poiListBuilder);
+        builder.attachWayPointOfInterestBuilderTo(Observable.just(way), osmPoints, poiListBuilder);
         
         PointOfInterest poi = poiListBuilder.build().get(0);
         assertFalse(poi.getStreet().isPresent());
@@ -143,9 +143,7 @@ public class RxPointOfInterestCollectionBuilderTest {
         // centroid is 1,1 : intersection of diagonals.
         assertEquals(geometryFactory.createPoint(new Coordinate(1, 1)), poi.getPoint());
     }
-    
-    
-    
+
     @Test
     public void poisBuiltFromRelations() {
         
@@ -163,7 +161,7 @@ public class RxPointOfInterestCollectionBuilderTest {
         
         
         ImmutableList.Builder<PointOfInterest> poiListBuilder = ImmutableList.builder();
-        builder.attachRelationPointOfInterestBuilderTo(Observable.from(relation),
+        builder.attachRelationPointOfInterestBuilderTo(Observable.just(relation),
                                                         RelationWaysToPolygonTest.buildOsmLineStrings(),
                                                         poiListBuilder);
         

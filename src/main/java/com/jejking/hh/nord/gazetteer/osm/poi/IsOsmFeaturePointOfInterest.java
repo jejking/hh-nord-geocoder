@@ -60,22 +60,21 @@ final class IsOsmFeaturePointOfInterest implements Func1<OsmComponent, Boolean> 
 
     @Override
     public Boolean call(OsmComponent component) {
-    	ImmutableMap<String, String> props = component.getProperties();
-   	for (String tagInterestingIfNamed : interestingTagsWithNameOnly.keySet()) {
-    		if (props.containsKey(tagInterestingIfNamed)
-    				&& hasInterestingValue(interestingTagsWithNameOnly, props,tagInterestingIfNamed)
-    				&& props.containsKey(name)) {
-    			return Boolean.TRUE;
-    		}
-    	}
-    	
-    	return Boolean.FALSE;
+        ImmutableMap<String, String> props = component.getProperties();
+        for (String tagInterestingIfNamed : interestingTagsWithNameOnly.keySet()) {
+            if (props.containsKey(tagInterestingIfNamed)
+                    && hasInterestingValue(interestingTagsWithNameOnly, props, tagInterestingIfNamed)
+                    && props.containsKey(name)) {
+                return Boolean.TRUE;
+            }
+        }
+
+        return Boolean.FALSE;
     }
 
-    private boolean hasInterestingValue(ImmutableMap<String, ImmutableSet<String>> map,
-    		Map<String, String> props,
-    		String tagInterestingIfNamed) {
-    	return map.get(tagInterestingIfNamed).isEmpty() || 
-    	        map.get(tagInterestingIfNamed).contains(props.get(tagInterestingIfNamed));
+    private boolean hasInterestingValue(ImmutableMap<String, ImmutableSet<String>> map, Map<String, String> props,
+            String tagInterestingIfNamed) {
+        return map.get(tagInterestingIfNamed).isEmpty()
+                || map.get(tagInterestingIfNamed).contains(props.get(tagInterestingIfNamed));
     }
 }

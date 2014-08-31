@@ -51,47 +51,46 @@ import static com.jejking.hh.nord.gazetteer.osm.OsmConstants.type;
  */
 public class RelationWaysToPolygon implements Func1<OsmRelation, Optional<Polygon>> {
 
-	private final GeometryFactory geometryFactory;
+
+    private final GeometryFactory geometryFactory;
     private final Map<Long, LineString> osmLineStrings;
     
     
-	/**
-	 * Constructor.
-	 * 
-	 * @param geometryFactory
-	 * @param knownOsmWays
-	 */
-	public RelationWaysToPolygon(GeometryFactory geometryFactory, Map<Long, LineString> osmLineStrings) {
-		super();
-		this.geometryFactory = geometryFactory;
-		this.osmLineStrings = osmLineStrings;
-	}
+    /**
+     * Constructor.
+     * 
+     * @param geometryFactory
+     * @param knownOsmWays
+     */
+    public RelationWaysToPolygon(GeometryFactory geometryFactory, Map<Long, LineString> osmLineStrings) {
+        super();
+        this.geometryFactory = geometryFactory;
+        this.osmLineStrings = osmLineStrings;
+    }
 
-	@Override
-	public Optional<Polygon> call(OsmRelation osmRelation) {
-		
-		try {
-		    if (osmRelation.getProperties().get(type) != null && 
-		            osmRelation.getProperties().get(type).equals(multipolygon)) {
+    @Override
+    public Optional<Polygon> call(OsmRelation osmRelation) {
 
-		        LinearRing shell = buildShell(osmRelation); 
-		        LinearRing[] holes = buildHoles(osmRelation); 
-		        
-		        Polygon poly = this.geometryFactory.createPolygon(shell, holes);
-		        return Optional.of(poly);
+        try {
+            if (osmRelation.getProperties().get(type) != null
+                    && osmRelation.getProperties().get(type).equals(multipolygon)) {
 
-		    }
-		    
-			// get any inner....
-			return Optional.absent();
-			
-		} catch (Exception e) {
-			return Optional.absent();
-		}
-		
-		
-		
-	}
+                LinearRing shell = buildShell(osmRelation);
+                LinearRing[] holes = buildHoles(osmRelation);
+
+                Polygon poly = this.geometryFactory.createPolygon(shell, holes);
+                return Optional.of(poly);
+
+            }
+
+            // get any inner....
+            return Optional.absent();
+
+        } catch (Exception e) {
+            return Optional.absent();
+        }
+
+    }
 
     private LinearRing[] buildHoles(OsmRelation osmRelation) {
         Iterable<LinearRing> linearRings = Iterables.transform(getInners(osmRelation), new Function<OsmRelation.Member, LinearRing>() {

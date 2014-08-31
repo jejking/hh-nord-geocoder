@@ -28,41 +28,44 @@ import com.google.common.base.Optional;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 
-
 import static com.google.common.base.Preconditions.checkNotNull;
 
 /**
- * Type safe representation of key information to be extracted
- * from the HTML representing a <i>Drucksache</i>. In this sense,
- * represents the results of the first stage of processing the corpus. 
+ * Type safe representation of key information to be extracted from the HTML representing a <i>Drucksache</i>. In this
+ * sense, represents the results of the first stage of processing the corpus.
  * 
  * @author jejking
- *
+ * 
  */
 public final class RawDrucksache implements Serializable {
 
-	/**
+    /**
      * Default.
      */
     private static final long serialVersionUID = 1L;
-    
+
     private final String drucksachenId;
-	private final URL originalUrl;
-	private final Optional<LocalDate> date;
-	private final ImmutableMap<String, String> extractedProperties;
-	private final ImmutableList<String> extractedContent;
+    private final URL originalUrl;
+    private final Optional<LocalDate> date;
+    private final ImmutableMap<String, String> extractedProperties;
+    private final ImmutableList<String> extractedContent;
 
     /**
      * Constructor.
      * 
-     * @param drucksachenId id
-     * @param originalUrl the originating URL
-     * @param date optional date (if available), may not be <code>null</code>
-     * @param extractedProperties properties (e.g. type, status, etc)
-     * @param extractedContent plain text content extracted from the HTML
+     * @param drucksachenId
+     *            id
+     * @param originalUrl
+     *            the originating URL
+     * @param date
+     *            optional date (if available), may not be <code>null</code>
+     * @param extractedProperties
+     *            properties (e.g. type, status, etc)
+     * @param extractedContent
+     *            plain text content extracted from the HTML
      */
-	public RawDrucksache(String drucksachenId, URL originalUrl, Optional<LocalDate> date, ImmutableMap<String, String> extractedProperties,
-            ImmutableList<String> extractedContent) {
+    public RawDrucksache(String drucksachenId, URL originalUrl, Optional<LocalDate> date,
+            ImmutableMap<String, String> extractedProperties, ImmutableList<String> extractedContent) {
         super();
         this.drucksachenId = checkNotNull(drucksachenId);
         this.originalUrl = checkNotNull(originalUrl);
@@ -70,23 +73,20 @@ public final class RawDrucksache implements Serializable {
         this.extractedProperties = checkNotNull(extractedProperties);
         this.extractedContent = checkNotNull(extractedContent);
     }
-	
-	/**
-	 * Returns a new instance which makes a copy of <code>this</code> with the exception of the new date 
-	 * (for example if a date is subsequently discovered).
-	 * 
-	 * @param newOptionalDate new optional date, may not be <code>null</code>. Ideally, should have a value.
-	 * @return new instance with new date set.
-	 */
-	public RawDrucksache withNewOptionalDate(Optional<LocalDate> newOptionalDate) {
-        return new RawDrucksache(this.drucksachenId, 
-                                 this.originalUrl, 
-                                 newOptionalDate, 
-                                 this.extractedProperties, 
-                                 this.extractedContent);
+
+    /**
+     * Returns a new instance which makes a copy of <code>this</code> with the exception of the new date (for example if
+     * a date is subsequently discovered).
+     * 
+     * @param newOptionalDate
+     *            new optional date, may not be <code>null</code>. Ideally, should have a value.
+     * @return new instance with new date set.
+     */
+    public RawDrucksache withNewOptionalDate(Optional<LocalDate> newOptionalDate) {
+        return new RawDrucksache(this.drucksachenId, this.originalUrl, newOptionalDate, this.extractedProperties,
+                this.extractedContent);
     }
-	
-	
+
     /**
      * @return the drucksachenId
      */
@@ -94,7 +94,6 @@ public final class RawDrucksache implements Serializable {
         return drucksachenId;
     }
 
-    
     /**
      * @return the originalUrl
      */
@@ -102,7 +101,6 @@ public final class RawDrucksache implements Serializable {
         return originalUrl;
     }
 
-    
     /**
      * @return the extractedProperties
      */
@@ -110,15 +108,13 @@ public final class RawDrucksache implements Serializable {
         return extractedProperties;
     }
 
-    
     /**
      * @return the extractedContent
      */
     public ImmutableList<String> getExtractedContent() {
         return extractedContent;
     }
-    
-      
+
     /**
      * @return the date
      */
@@ -126,8 +122,9 @@ public final class RawDrucksache implements Serializable {
         return date;
     }
 
-
-    /* (non-Javadoc)
+    /*
+     * (non-Javadoc)
+     * 
      * @see java.lang.Object#toString()
      */
     @Override
@@ -136,13 +133,4 @@ public final class RawDrucksache implements Serializable {
                 + ", extractedProperties=" + extractedProperties + ", extractedContent=" + extractedContent + "]";
     }
 
-
-    
-
-
-    
-
-	
-	
-	
 }

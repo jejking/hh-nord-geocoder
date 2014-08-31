@@ -27,5 +27,5 @@ package com.jejking.hh.nord.gazetteer;
 public interface GazetteerLayerNames {
 
     public static final String GEO = "GEO";
-	
+
 }

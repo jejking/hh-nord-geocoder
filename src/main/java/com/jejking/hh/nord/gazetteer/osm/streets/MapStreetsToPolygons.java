@@ -28,26 +28,28 @@ import com.google.common.base.Stopwatch;
 
 /**
  * Runs just the logic to map streets to polygons.
+ * 
  * @author jejking
- *
+ * 
  */
 public class MapStreetsToPolygons {
 
-	/**
-	 * Maps the extracted streets to the lowest level administrative districts,
-	 * the "Ortsteile", numbered districted.
-	 * 
-	 * @param args directory in which the Neo4j database exists.
-	 */
-	public static void main(String[] args) {
-		Stopwatch stopwatch = Stopwatch.createStarted();
+    /**
+     * Maps the extracted streets to the lowest level administrative districts, the "Ortsteile", numbered districted.
+     * 
+     * @param args
+     *            directory in which the Neo4j database exists.
+     */
+    public static void main(String[] args) {
+        Stopwatch stopwatch = Stopwatch.createStarted();
         GraphDatabaseService graph = new GraphDatabaseFactory().newEmbeddedDatabase(args[0]);
-		registerShutdownHook(graph);
-		
-		MapStreetsToPolygons.mapStreetsToAdminPolygons(graph);
-		System.out.println("Linked streets to polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS) + " seconds");
+        registerShutdownHook(graph);
 
-	}
+        MapStreetsToPolygons.mapStreetsToAdminPolygons(graph);
+        System.out.println("Linked streets to polygons. Elapsed time: " + stopwatch.elapsed(TimeUnit.SECONDS)
+                + " seconds");
+
+    }
 
     public static void mapStreetsToAdminPolygons(GraphDatabaseService graph) {
         StreetToAdminPolygonMapper streetToAdminPolygonMapper = new StreetToAdminPolygonMapper();

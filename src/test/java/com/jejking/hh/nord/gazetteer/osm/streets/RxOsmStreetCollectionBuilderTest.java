@@ -38,19 +38,21 @@ import com.vividsolutions.jts.geom.Geometry;
  */
 public class RxOsmStreetCollectionBuilderTest {
 
-	@Test
-	public void worksAsExpected() {
-		RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(JTSFactoryFinder.getGeometryFactory(null));
-		
-		Map<String, Geometry> osmWays = builder.streetsFromStream(RxOsmStreetCollectionBuilderTest.class.getResourceAsStream("/uhlenhorst-direct-export.osm"));
-		// Mundsburger Damm
-    	Geometry mundsburgerDamm = osmWays.get("Mundsburger Damm");
-    	assertNotNull(mundsburgerDamm);
-    	System.out.println("Mundsburger Damm " + mundsburgerDamm.toText());
-    	
-    	// Foostraße
-    	Geometry fooStrasse = osmWays.get("Foostraße");
-    	assertNull(fooStrasse);
-		
-	}
+    @Test
+    public void worksAsExpected() {
+        RxOsmStreetCollectionBuilder builder = new RxOsmStreetCollectionBuilder(
+                JTSFactoryFinder.getGeometryFactory(null));
+
+        Map<String, Geometry> osmWays = builder.streetsFromStream(RxOsmStreetCollectionBuilderTest.class
+                .getResourceAsStream("/uhlenhorst-direct-export.osm"));
+        // Mundsburger Damm
+        Geometry mundsburgerDamm = osmWays.get("Mundsburger Damm");
+        assertNotNull(mundsburgerDamm);
+        System.out.println("Mundsburger Damm " + mundsburgerDamm.toText());
+
+        // Foostraße
+        Geometry fooStrasse = osmWays.get("Foostraße");
+        assertNull(fooStrasse);
+
+    }
 }

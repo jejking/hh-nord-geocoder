@@ -23,12 +23,11 @@ public class DrucksachenLinkAndDateExtractor implements Callable<ImmutableMap<UR
 
     private final DateTimeFormatter dateFormat = DateTimeFormat.forPattern("dd.MM.yyyy");
     private final InputStream input;
-    
+
     public DrucksachenLinkAndDateExtractor(InputStream input) {
         this.input = checkNotNull(input);
     }
-    
-    
+
     @Override
     public ImmutableMap<URL, Optional<LocalDate>> call() throws Exception {
         
@@ -75,8 +74,6 @@ public class DrucksachenLinkAndDateExtractor implements Callable<ImmutableMap<UR
         }
         
     }
-    
 
-    
 
 }

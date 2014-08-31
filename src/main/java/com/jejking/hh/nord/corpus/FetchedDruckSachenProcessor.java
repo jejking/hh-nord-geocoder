@@ -73,7 +73,7 @@ public class FetchedDruckSachenProcessor {
         proc.preProcessFetchedDocuments(new File(args[1]), new File(args[2]), urlDateMap);
 
     }
-    
+
     public void preProcessFetchedDocuments(final File inputDirectory, final File outputDirectory, ImmutableMap<URL, Optional<LocalDate>> urlDateMap) {
         Observable.from(inputDirectory.list())
         .map(new Func1<String, File>() {

@@ -53,19 +53,19 @@ import com.vividsolutions.jts.io.WKTReader;
 public class AdminAreaTreeNodeTransformer implements Func1<AdminAreaTreeNode<String>, AdminAreaTreeNode<Polygon>> {
 
     
+    GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
 
-	GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
-    
     @Override
     public AdminAreaTreeNode<Polygon> call(AdminAreaTreeNode<String> input) {
-        
-    	AdminAreaTreeNode<String> wktStrings = input.fmap(new CreateWkt()).call(input);
-    	AdminAreaTreeNode<Optional<Polygon>> epsgPolygons = wktStrings.fmap(new CreatePolygon()).call(wktStrings);
-    	AdminAreaTreeNode<Optional<Polygon>> wgs84Polygons = epsgPolygons.fmap(new ConvertPolygonToWGS84()).call(epsgPolygons);
-    	AdminAreaTreeNode<Polygon> fixedRoot = new BuildHamburgRootPolygon().call(wgs84Polygons);
-    	
-    	return fixedRoot;
-        
+
+        AdminAreaTreeNode<String> wktStrings = input.fmap(new CreateWkt()).call(input);
+        AdminAreaTreeNode<Optional<Polygon>> epsgPolygons = wktStrings.fmap(new CreatePolygon()).call(wktStrings);
+        AdminAreaTreeNode<Optional<Polygon>> wgs84Polygons = epsgPolygons.fmap(new ConvertPolygonToWGS84()).call(
+                epsgPolygons);
+        AdminAreaTreeNode<Polygon> fixedRoot = new BuildHamburgRootPolygon().call(wgs84Polygons);
+
+        return fixedRoot;
+
     }
 
     private static MathTransform buildMathTransform() {
@@ -81,7 +81,7 @@ public class AdminAreaTreeNodeTransformer implements Func1<AdminAreaTreeNode<Str
     }
 
     final class CreateWkt implements Func1<String, String> {
-    	
+    
         @Override
         public String call(String in) {
             StringBuilder stringBuilder = new StringBuilder("POLYGON((");
@@ -118,52 +118,56 @@ public class AdminAreaTreeNodeTransformer implements Func1<AdminAreaTreeNode<Str
     
     final class ConvertPolygonToWGS84 implements Func1<Optional<Polygon>, Optional<Polygon>> {
 
-    	 // convert to WGS 84
+        // convert to WGS 84
         private final MathTransform transform = buildMathTransform();
-		@Override
+
+        @Override
         public Optional<Polygon> call(Optional<Polygon> in) {
-			
-			if (in.isPresent()) {
-				try {
-					return  Optional.of( (Polygon) JTS.transform(in.get(), transform));
-				} catch (MismatchedDimensionException | TransformException e) {
-	                throw new RuntimeException(e);
-	            }
-			} else {
-				return Optional.absent();
-			}
+
+            if (in.isPresent()) {
+                try {
+                    return Optional.of((Polygon) JTS.transform(in.get(), transform));
+                } catch (MismatchedDimensionException | TransformException e) {
+                    throw new RuntimeException(e);
+                }
+            } else {
+                return Optional.absent();
+            }
         }
     }
-    
-    final class BuildHamburgRootPolygon implements Func1<AdminAreaTreeNode<Optional<Polygon>>, AdminAreaTreeNode<Polygon>> {
-    	
-        // give the root node ("Hamburg") a polygon of its own 
+
+    final class BuildHamburgRootPolygon implements
+            Func1<AdminAreaTreeNode<Optional<Polygon>>, AdminAreaTreeNode<Polygon>> {
+
+        // give the root node ("Hamburg") a polygon of its own
         @Override
         public AdminAreaTreeNode<Polygon> call(AdminAreaTreeNode<Optional<Polygon>> in) {
             Geometry unionOfBoroughs = computeUnionOfBoroughs(in);
             Polygon boundaryAsPolygon = convertToPolygon(unionOfBoroughs);
-           
-            AdminAreaTreeNode<Polygon> fixedRoot = new AdminAreaTreeNode<Polygon>("Hamburg", GazetteerEntryTypes.CITY, boundaryAsPolygon);
-            
-            Func1<AdminAreaTreeNode<Optional<Polygon>>, AdminAreaTreeNode<Polygon>> f = in.fmap(new Func1<Optional<Polygon>, Polygon>() {
 
-				@Override
-				public Polygon call(Optional<Polygon> t1) {
-					return t1.get();
-				}
-            	
-            });
-            
+            AdminAreaTreeNode<Polygon> fixedRoot = new AdminAreaTreeNode<Polygon>("Hamburg", GazetteerEntryTypes.CITY,
+                    boundaryAsPolygon);
+
+            Func1<AdminAreaTreeNode<Optional<Polygon>>, AdminAreaTreeNode<Polygon>> f = in
+                    .fmap(new Func1<Optional<Polygon>, Polygon>() {
+
+                        @Override
+                        public Polygon call(Optional<Polygon> t1) {
+                            return t1.get();
+                        }
+
+                    });
+
             for (String key : in.getChildren().keySet()) {
-            	fixedRoot.getChildren().put(key, f.call(in.getChildren().get(key)));
+                fixedRoot.getChildren().put(key, f.call(in.getChildren().get(key)));
             }
-            
+
             return fixedRoot;
         }
-        
+
         private Polygon convertToPolygon(Geometry unionOfBoroughs) {
             LinearRing boundaryAsRing = (LinearRing) unionOfBoroughs;
-            
+
             GeometryFactory geometryFactory = JTSFactoryFinder.getGeometryFactory(null);
             Polygon boundaryAsPolygon = geometryFactory.createPolygon(boundaryAsRing);
             return boundaryAsPolygon;
@@ -173,16 +177,15 @@ public class AdminAreaTreeNodeTransformer implements Func1<AdminAreaTreeNode<Str
             Iterator<AdminAreaTreeNode<Optional<Polygon>>> iterator = root.getChildren().values().iterator();
             // we basically start at the first borough and add to that....
             Geometry unionOfBoroughs = iterator.next().getContent().get();
-            
+
             while (iterator.hasNext()) {
                 unionOfBoroughs = unionOfBoroughs.union(iterator.next().getContent().get());
             }
-            
+
             unionOfBoroughs = unionOfBoroughs.getBoundary();
             return unionOfBoroughs;
-        
+
         }
     }
-    
 
 }
